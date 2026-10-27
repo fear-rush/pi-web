@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
-import ts from "typescript";
+import { findHookCallback, parseProgram, toJs } from "../lib/test-source.mjs";
 import { bareMcpOpensSettings } from "../lib/mcp-command.ts";
 
 // A bare /mcp opens Settings › MCP when pi's built-in MCP extension owns it, or
@@ -10,32 +10,12 @@ import { bareMcpOpensSettings } from "../lib/mcp-command.ts";
 
 const read = async (path) => (await readFile(new URL(path, import.meta.url), "utf8")).replace(/\r\n/g, "\n");
 const hookSource = await read("./useAgentSession.ts");
-const hookFile = ts.createSourceFile("useAgentSession.ts", hookSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+const hookProgram = parseProgram("useAgentSession.ts", hookSource);
 
 /** The function a `const <name> = useCallback(fn, deps)` declaration wraps, as JavaScript. */
 function callbackSource(name) {
-  let found;
-  const visit = (node) => {
-    if (found) return;
-    if (
-      ts.isVariableDeclaration(node)
-      && node.name.getText(hookFile) === name
-      && node.initializer
-      && ts.isCallExpression(node.initializer)
-      && node.initializer.expression.getText(hookFile) === "useCallback"
-    ) {
-      found = node.initializer.arguments[0];
-      return;
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(hookFile);
-  assert.ok(found, `useCallback ${name} not found`);
-  return ts.transpileModule(`(${found.getText(hookFile)})`, {
-    // alwaysStrict would prepend a "use strict" prologue, and this output is spliced
-    // into `return ...` below rather than run as a program.
-    compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext, alwaysStrict: false },
-  }).outputText.trim().replace(/;$/, "");
+  // The callbacks are spliced into `return ...` below, so nothing may wrap them.
+  return toJs(`(${findHookCallback(hookSource, hookProgram, name)})`).trim().replace(/;$/, "");
 }
 
 const CALLBACKS = ["replaceSlashCommands", "clearSlashCommands", "requestSlashCommands", "slashCommandsForMcp", "handleBuiltinSlashCommand"];

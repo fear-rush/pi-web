@@ -6,7 +6,7 @@ import test from "node:test";
 import { NextRequest } from "next/server.js";
 import { createJiti } from "jiti";
 import { refractor } from "refractor/all";
-import ts from "typescript";
+import { findVariable, parseProgram } from "../../../lib/test-source.mjs";
 
 const root = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), "pi-web-files-language-")));
 process.env.PI_CODING_AGENT_DIR = path.join(root, "agent");
@@ -23,16 +23,12 @@ allowFileRoot(root);
 
 // A route exports only its handlers, so the extensions it maps come from its source.
 const source = fs.readFileSync(new URL("./[...path]/route.ts", import.meta.url), "utf8");
-const sourceFile = ts.createSourceFile("route.ts", source, ts.ScriptTarget.Latest, true);
-let extensionMap;
-sourceFile.forEachChild(function visit(node) {
-  if (ts.isVariableDeclaration(node) && node.name.getText(sourceFile) === "EXT_TO_LANGUAGE") extensionMap = node.initializer;
-  else node.forEachChild(visit);
-});
-assert.ok(extensionMap && ts.isObjectLiteralExpression(extensionMap), "EXT_TO_LANGUAGE not found");
+const program = parseProgram("route.ts", source);
+const extensionMap = findVariable(program, "EXT_TO_LANGUAGE")?.init;
+assert.ok(extensionMap?.type === "ObjectExpression", "EXT_TO_LANGUAGE not found");
 // PDF and Word files are streamed by ?type=read, never shown as source.
 const textExtensions = extensionMap.properties
-  .map((property) => property.name.text)
+  .map((property) => property.key.value ?? property.key.name)
   .filter((ext) => ext !== "pdf" && ext !== "docx");
 assert.ok(textExtensions.includes("ts") && textExtensions.every(Boolean), "EXT_TO_LANGUAGE keys not read");
 

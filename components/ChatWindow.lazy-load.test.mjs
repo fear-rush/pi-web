@@ -2,24 +2,19 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { Script, createContext } from "node:vm";
-import ts from "typescript";
+import { findCallback, nodeSource, parseProgram, toJs } from "../lib/test-source.mjs";
 
 const { captureScrollDistance, getNextVisibleCount } = await import("../lib/chat-lazy-load.ts");
 
-const source = ts.createSourceFile("ChatWindow.tsx", await readFile(new URL("./ChatWindow.tsx", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-const nodes = [];
-function visit(node) { nodes.push(node); ts.forEachChild(node, visit); }
-visit(source);
-const hook = (name, includes) => nodes.find((node) => ts.isCallExpression(node)
-  && node.expression.getText(source) === name
-  && node.arguments[0].getText(source).includes(includes));
-const compile = (node) => new Script(ts.transpileModule(`(${node.getText(source)})`, { compilerOptions: { target: ts.ScriptTarget.ESNext } }).outputText);
-const effect = hook("useEffect", "new IntersectionObserver");
-assert.ok(effect, "missing the sentinel observer effect");
-const [body] = effect.arguments;
+const code = await readFile(new URL("./ChatWindow.tsx", import.meta.url), "utf8");
+const program = parseProgram("ChatWindow.tsx", code);
+/** The callback of the single `name(...)` hook call whose body mentions `includes`. */
+const hookArgument = (name, includes) => findCallback(code, program, name, includes).node;
+const compile = (node) => new Script(toJs(`(${nodeSource(code, node)})`));
+const body = findCallback(code, program, "useEffect", "new IntersectionObserver").node;
 const script = compile(body);
-const loadOlderPage = compile(hook("useCallback", "requestedCursorRef.current = before").arguments[0]);
-const forgetCursor = compile(hook("useEffect", "requestedCursorRef.current = null").arguments[0]);
+const loadOlderPage = compile(hookArgument("useCallback", "requestedCursorRef.current = before"));
+const forgetCursor = compile(hookArgument("useEffect", "requestedCursorRef.current = null"));
 
 // Mounts the observer effect with the given history state; `reachTop()` is the
 // sentinel coming into view, `render(cursor)` the next cursor rendering.

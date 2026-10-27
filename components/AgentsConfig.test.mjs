@@ -2,14 +2,14 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import ts from "typescript";
 import vm from "node:vm";
+import { toJs } from "../lib/test-source.mjs";
 
 const source = await readFile(new URL("./AgentsConfig.tsx", import.meta.url), "utf8");
 
 test("editor draft preserves named and empty selections independently of activation", () => {
   const declaration = source.slice(source.indexOf("function editableProfile("), source.indexOf("function profileKey("));
-  const code = ts.transpileModule(declaration, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText;
+  const code = toJs(declaration);
   const editable = vm.runInNewContext(`${code}; editableProfile`);
   for (const skills of [["review", "audit"], []]) {
     const draft = editable({ name: "reviewer", tools: [], loadSkills: false, skills });
@@ -26,7 +26,7 @@ test("editor draft preserves named and empty selections independently of activat
 
 test("draft backfills MCP as off and keeps an explicit choice", () => {
   const declaration = source.slice(source.indexOf("function editableProfile("), source.indexOf("function profileKey("));
-  const code = ts.transpileModule(declaration, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText;
+  const code = toJs(declaration);
   const editable = vm.runInNewContext(`${code}; editableProfile`);
   assert.equal(editable({ name: "legacy", tools: [], loadSkills: false, loadExtensions: false }).mcp, "off");
   for (const mcp of ["on", "off"]) {
@@ -36,7 +36,7 @@ test("draft backfills MCP as off and keeps an explicit choice", () => {
 
 test("draft backfills code mode for legacy profiles and keeps an explicit choice", () => {
   const declaration = source.slice(source.indexOf("function editableProfile("), source.indexOf("function profileKey("));
-  const code = ts.transpileModule(declaration, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText;
+  const code = toJs(declaration);
   const editable = vm.runInNewContext(`${code}; editableProfile`);
   // Profiles written before the setting existed have no value: code mode stays disabled.
   assert.equal(editable({ name: "legacy", tools: [], loadSkills: false, loadExtensions: false }).codemode, "off");
@@ -50,7 +50,7 @@ test("draft backfills code mode for legacy profiles and keeps an explicit choice
 test("a profile model's pi :level suffix names its base model; a listed colon id matches whole", () => {
   const constant = source.slice(source.indexOf("const THINKING_OPTIONS"), source.indexOf("\n", source.indexOf("const THINKING_OPTIONS")));
   const declaration = source.slice(source.indexOf("function profileModelBase("), source.indexOf("function profileKey("));
-  const code = ts.transpileModule(`${constant}\n${declaration}`, { compilerOptions: { target: ts.ScriptTarget.ES2020 } }).outputText;
+  const code = toJs(`${constant}\n${declaration}`);
   const base = vm.runInNewContext(`${code}; profileModelBase`);
   const listed = new Set(["openai/gpt-5", "ollama/qwen3:8b", "local/tuned:high"]);
   const isListed = (reference) => listed.has(reference);

@@ -10,7 +10,7 @@ Typecheck: `node_modules/.bin/tsc --noEmit` · Lint: `npm run lint` (Oxlint, `.o
 
 Lint is Oxlint, not ESLint: 76 of the 82 rules `eslint-config-next` enabled are ported by name, and the six that are not have no Oxlint equivalent (`react-hooks/config`, `react-hooks/gating`, `react/jsx-uses-react`, `react/jsx-uses-vars`, `react/no-deprecated`, `@next/next/no-location-assign-relative-destination`). `react/react-in-jsx-scope` is dropped: Oxlint cannot see the automatic JSX runtime, so it would fire on every file. Oxlint also lints the `.mjs` tests, which ESLint's config applied `prefer-const` to nowhere, so test files turn that rule off through `overrides`.
 
-TypeScript stays on 6.x although 7.0 typechecks the tree: 17 test files read source fragments through the TypeScript compiler API (`ts.createSourceFile`, `ts.transpileModule`), which the native 7.0 package does not expose.
+TypeScript is 7.x (the native compiler, `tsgo`), which ships no compiler API. The tests that read a function out of a component's source use `lib/test-source.mjs` instead: `oxc-parser` for the AST and `esbuild` for emitting JavaScript (including the CommonJS a few fixtures need to stub `require`).
 
 **Never run `next build` during dev**: it pollutes `.next/` and breaks `npm run dev`.
 

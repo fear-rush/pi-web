@@ -2,20 +2,18 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { Script, createContext } from "node:vm";
-import ts from "typescript";
+import { findNodes, nodeSource, parseProgram, toJs } from "../lib/test-source.mjs";
 
-const source = ts.createSourceFile("useAgentSession.ts", await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true);
-const nodes = [];
-function visit(node) { nodes.push(node); ts.forEachChild(node, visit); }
-visit(source);
+const code = await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8");
+const program = parseProgram("useAgentSession.ts", code);
 
 // The event handler's cases for one run that fails, waits and retries.
 const cases = ["agent_end", "auto_retry_start", "agent_start", "auto_retry_end"].map((type) => {
-  const clause = nodes.find((node) => ts.isCaseClause(node) && node.expression.getText(source) === `"${type}"`);
+  const clause = findNodes(program, (node) => node.type === "SwitchCase" && node.test?.value === type)[0];
   assert.ok(clause, `missing case ${type}`);
-  return clause.getText(source);
+  return nodeSource(code, clause);
 });
-const handler = new Script(ts.transpileModule(`((event) => { switch (event.type) { ${cases.join("\n")} } })`, { compilerOptions: { target: ts.ScriptTarget.ESNext } }).outputText);
+const handler = new Script(toJs(`((event) => { switch (event.type) { ${cases.join("\n")} } })`));
 
 function setup() {
   const banner = { current: null };

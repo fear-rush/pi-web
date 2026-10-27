@@ -2,31 +2,19 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { Script } from "node:vm";
-import ts from "typescript";
+import { findNodes, findVariable, nodeSource, parseProgram, toJs } from "../lib/test-source.mjs";
 
-const source = ts.createSourceFile(
-  "useAgentSession.ts",
-  await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8"),
-  ts.ScriptTarget.Latest,
-  true,
-);
-const nodes = [];
-function visit(node) {
-  nodes.push(node);
-  ts.forEachChild(node, visit);
-}
-visit(source);
-const loader = nodes.find((node) => ts.isVariableDeclaration(node) && node.name.getText(source) === "loadModels");
-const schedule = nodes.find((node) => ts.isVariableDeclaration(node) && node.name.getText(source) === "MODELS_RETRY_DELAYS_MS");
-const effect = nodes.find((node) => ts.isCallExpression(node)
-  && node.expression.getText(source) === "useEffect"
-  && node.arguments[1]?.getText(source) === "[loadModels, modelsRefreshKey]");
-const retry = effect.arguments[0].body.statements.find(ts.isExpressionStatement).expression;
-function script(text) {
-  return new Script(ts.transpileModule(text, { compilerOptions: { target: ts.ScriptTarget.ESNext } }).outputText);
-}
-const loadScript = script(`(${loader.initializer.arguments[0].getText(source)})`);
-const retryScript = script(retry.getText(source));
+const code = await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8");
+const program = parseProgram("useAgentSession.ts", code);
+const loader = findVariable(program, "loadModels");
+const schedule = findVariable(program, "MODELS_RETRY_DELAYS_MS");
+const effect = findNodes(program, (node) => node.type === "CallExpression"
+  && node.callee?.name === "useEffect"
+  && nodeSource(code, node.arguments[1]) === "[loadModels, modelsRefreshKey]")[0];
+assert.ok(loader && schedule && effect, "missing the model loader, its retry delays or the effect that uses them");
+const retry = effect.arguments[0].body.body.find((statement) => statement.type === "ExpressionStatement").expression;
+const loadScript = new Script(toJs(`(${nodeSource(code, loader.init.arguments[0])})`));
+const retryScript = new Script(toJs(nodeSource(code, retry)));
 
 function setup(fetchImpl) {
   const writes = [];
@@ -39,7 +27,7 @@ function setup(fetchImpl) {
     thinkingLevelPinsRef: { current: {} }, defaultThinkingLevelRef: { current: null },
     asConcreteThinkingLevel: (value) => (!value || value === "auto" ? null : value),
     fetch: fetchImpl,
-    MODELS_RETRY_DELAYS_MS: script(schedule.initializer.getText(source)).runInNewContext(),
+    MODELS_RETRY_DELAYS_MS: new Script(toJs(nodeSource(code, schedule.init))).runInNewContext(),
     delay: async (ms) => { delays.push(ms); },
   };
   for (const name of ["ModelError", "ModelNames", "ModelScopeWarnings", "ModelThinkingLevels", "ModelThinkingLevelMaps", "ModelList", "NewSessionDefaultModel", "NewSessionDefaultThinkingLevel", "SavedDefaultThinkingLevel", "NewSessionModel"]) {

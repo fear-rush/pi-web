@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createJiti } from "jiti";
-import ts from "typescript";
+import { toJs } from "../lib/test-source.mjs";
 import vm from "node:vm";
 
 const jiti = createJiti(import.meta.url, { jsx: { runtime: "automatic" }, tsconfigPaths: true });
@@ -437,9 +437,7 @@ test("the running poll keeps the same Set while the running ids stay the same", 
 test("a read or a mark in another tab reaches this one: the storage handler adopts that tab's write", () => {
   const parse = between("function parseUnreadSessionIds(", "\nfunction loadUnreadSessionIds");
   const handler = between("const onStorage = (event: StorageEvent) => {", '\n    window.addEventListener("storage", onStorage);');
-  const code = ts.transpileModule(`${parse}\n${handler}`, {
-    compilerOptions: { target: ts.ScriptTarget.ES2020 },
-  }).outputText;
+  const code = toJs(`${parse}\n${handler}`);
   const updaters = [];
   const onStorage = vm.runInNewContext(`${code}\nonStorage`, {
     UNREAD_SESSIONS_STORAGE_KEY: "pi-web:unread-session-ids",

@@ -3,7 +3,17 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { Script } from "node:vm";
 import { createJiti } from "jiti";
-import ts from "typescript";
+import { findHookCallback, findVariable, nodeSource, parseProgram, toJs } from "../lib/test-source.mjs";
+
+const chatInputCode = readFileSync(new URL("./ChatInput.tsx", import.meta.url), "utf8");
+const chatInputProgram = parseProgram("ChatInput.tsx", chatInputCode);
+const modelSelectorCode = readFileSync(new URL("./ModelSelector.tsx", import.meta.url), "utf8");
+const modelSelectorProgram = parseProgram("ModelSelector.tsx", modelSelectorCode);
+
+/** One of ChatInput's useCallback bodies, as a script to run with a stubbed scope. */
+function chatInputCallbackScript(name) {
+  return new Script(toJs(`(${findHookCallback(chatInputCode, chatInputProgram, name)})`));
+}
 
 const jiti = createJiti(import.meta.url, {
   jsx: { runtime: "automatic" },
@@ -54,17 +64,8 @@ test("a phone stacks the streaming buttons under the draft instead of beside it"
 });
 
 test("follow-up shortcuts preserve newline, IME, mobile and completion behavior", () => {
-  const source = ts.createSourceFile("ChatInput.tsx", readFileSync(new URL("./ChatInput.tsx", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  function findHandler(node) {
-    if (ts.isVariableDeclaration(node) && node.name.getText(source) === "handleKeyDown") {
-      return node.initializer.arguments[0];
-    }
-    return ts.forEachChild(node, findHandler);
-  }
   // Execute the component's actual callback without mounting the rest of the UI.
-  const script = new Script(ts.transpileModule(findHandler(source).getText(source), {
-    compilerOptions: { target: ts.ScriptTarget.ES2020 },
-  }).outputText);
+  const script = chatInputCallbackScript("handleKeyDown");
   const cases = [
     ["Enter steers", {}, {}, "steer"],
     ["Alt+Enter follows up", { altKey: true }, {}, "followup"],
@@ -219,16 +220,7 @@ test("file mention insertion falls back to a plain edit when execCommand refuses
 });
 
 test("file mention arrows wrap around the match list", () => {
-  const source = ts.createSourceFile("ChatInput.tsx", readFileSync(new URL("./ChatInput.tsx", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  function findHandler(node) {
-    if (ts.isVariableDeclaration(node) && node.name.getText(source) === "handleKeyDown") {
-      return node.initializer.arguments[0];
-    }
-    return ts.forEachChild(node, findHandler);
-  }
-  const script = new Script(ts.transpileModule(findHandler(source).getText(source), {
-    compilerOptions: { target: ts.ScriptTarget.ES2020 },
-  }).outputText);
+  const script = chatInputCallbackScript("handleKeyDown");
 
   function move(key, atActiveIndex, length) {
     let next = null;
@@ -485,14 +477,7 @@ test("shows and locks the optimistic model while a switch is pending", () => {
 });
 
 test("the live model selector can reapply its current model without changing draft-field selection behavior", () => {
-  const source = ts.createSourceFile("ModelSelector.tsx", readFileSync(new URL("./ModelSelector.tsx", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  function findChoose(node) {
-    if (ts.isVariableDeclaration(node) && node.name.getText(source) === "choose") return node.initializer;
-    return ts.forEachChild(node, findChoose);
-  }
-  const script = new Script(ts.transpileModule(findChoose(source).getText(source), {
-    compilerOptions: { target: ts.ScriptTarget.ES2020 },
-  }).outputText);
+  const script = new Script(toJs(`(${nodeSource(modelSelectorCode, findVariable(modelSelectorProgram, "choose").init)})`));
   const option = { provider: "fixture", modelId: "same-id", name: "Fixture" };
   for (const [active, automatic, live, expected] of [
     [true, false, true, "reselect"],
@@ -632,17 +617,7 @@ test("clears a completed built-in only while its submitted input is unchanged", 
 });
 
 test("locks built-in command submission until it settles", async () => {
-  const sourceText = readFileSync(new URL("./ChatInput.tsx", import.meta.url), "utf8");
-  const source = ts.createSourceFile("ChatInput.tsx", sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  function findCallback(node) {
-    if (ts.isVariableDeclaration(node) && node.name.getText(source) === "runBuiltinCommand") {
-      return node.initializer.arguments[0];
-    }
-    return ts.forEachChild(node, findCallback);
-  }
-  const callback = new Script(ts.transpileModule(findCallback(source).getText(source), {
-    compilerOptions: { target: ts.ScriptTarget.ES2020 },
-  }).outputText).runInNewContext({
+  const callback = chatInputCallbackScript("runBuiltinCommand").runInNewContext({
     attachedImages: [],
     attachedImagesRef: { current: [] },
     builtinCommandPendingRef: { current: false },
@@ -701,17 +676,7 @@ test("Enter on pi's built-in /mcp submits it at once; other extension commands s
 });
 
 function chatInputCallback(name, context) {
-  const sourceText = readFileSync(new URL("./ChatInput.tsx", import.meta.url), "utf8");
-  const source = ts.createSourceFile("ChatInput.tsx", sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  function findCallback(node) {
-    if (ts.isVariableDeclaration(node) && node.name.getText(source) === name) {
-      return node.initializer.arguments[0];
-    }
-    return ts.forEachChild(node, findCallback);
-  }
-  return new Script(ts.transpileModule(findCallback(source).getText(source), {
-    compilerOptions: { target: ts.ScriptTarget.ES2020 },
-  }).outputText).runInNewContext(context);
+  return chatInputCallbackScript(name).runInNewContext(context);
 }
 
 test("while a run streams, a bare /mcp opens Settings or is queued as before", async () => {

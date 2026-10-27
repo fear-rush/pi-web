@@ -2,13 +2,11 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { Script } from "node:vm";
-import ts from "typescript";
+import { toCommonJs } from "../lib/test-source.mjs";
 import * as fonts from "../lib/font-preferences.ts";
 
 const source = readFileSync(new URL("./useFontPreferences.ts", import.meta.url), "utf8");
-const script = new Script(ts.transpileModule(source, {
-  compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.CommonJS },
-}).outputText);
+const script = new Script(toCommonJs(source, { fileName: "useFontPreferences.ts" }));
 
 function fixture({ initial = {}, blocked = false, server = false } = {}) {
   const stored = new Map(Object.entries(initial));

@@ -2,28 +2,30 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { Script, createContext } from "node:vm";
-import ts from "typescript";
+import { findNodes, findVariable, nodeSource, parseProgram, toJs } from "../lib/test-source.mjs";
 
-const source = ts.createSourceFile("AppShell.tsx", await readFile(new URL("./AppShell.tsx", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-const nodes = [];
-function visit(node) { nodes.push(node); ts.forEachChild(node, visit); }
-visit(source);
+const code = await readFile(new URL("./AppShell.tsx", import.meta.url), "utf8");
+const program = parseProgram("AppShell.tsx", code);
 function script(text) {
-  return new Script(ts.transpileModule(text, { compilerOptions: { target: ts.ScriptTarget.ESNext } }).outputText);
+  return new Script(toJs(text));
 }
 function setup(collapsed = false) {
-  const preference = nodes.find((node) => ts.isVariableDeclaration(node) && node.name.getText(source) === "desktopSidebarOpenRef");
+  const preference = findVariable(program, "desktopSidebarOpenRef");
   assert.ok(preference, "desktop preference must be independent of drawer state");
-  const effect = nodes.find((node) => ts.isCallExpression(node) && node.expression.getText(source) === "useEffect" && node.arguments[1]?.getText(source) === "[isMobile]" && node.arguments[0].getText(source).includes("setSidebarOpen"));
-  const toggle = nodes.find((node) => ts.isVariableDeclaration(node) && node.name.getText(source) === "handleSidebarToggle");
+  const effect = findNodes(program, (node) => node.type === "CallExpression"
+    && node.callee?.name === "useEffect"
+    && nodeSource(code, node.arguments[1]) === "[isMobile]"
+    && nodeSource(code, node.arguments[0]).includes("setSidebarOpen"))[0];
+  assert.ok(effect, "missing the isMobile effect");
+  const toggle = findVariable(program, "handleSidebarToggle");
   const context = createContext({
     initialNavigation: { sidebarCollapsed: collapsed }, isMobile: false, sidebarOpen: !collapsed,
     useRef: (current) => ({ current }), setActiveTopPanel() {}, setMobileToolbarMoreOpen() {},
   });
-  context.desktopSidebarOpenRef = script(preference.initializer.getText(source)).runInContext(context);
+  context.desktopSidebarOpenRef = script(nodeSource(code, preference.init)).runInContext(context);
   context.setSidebarOpen = (value) => { context.sidebarOpen = typeof value === "function" ? value(context.sidebarOpen) : value; };
-  const runEffect = () => script(`(${effect.arguments[0].getText(source)})()`).runInContext(context);
-  const runToggle = () => script(`(${toggle.initializer.arguments[0].getText(source)})()`).runInContext(context);
+  const runEffect = () => script(`(${nodeSource(code, effect.arguments[0])})()`).runInContext(context);
+  const runToggle = () => script(`(${nodeSource(code, toggle.init.arguments[0])})()`).runInContext(context);
   return { context, runToggle, resize: (mobile) => { context.isMobile = mobile; runEffect(); } };
 }
 

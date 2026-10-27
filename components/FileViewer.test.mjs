@@ -2,30 +2,30 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import React from "react";
-import ts from "typescript";
+import { findNode, nodeSource, parseProgram, toJsExpression } from "../lib/test-source.mjs";
 
 const source = await readFile(new URL("./FileViewer.tsx", import.meta.url), "utf8");
 
 test("lightweight source rows are skipped for highlighted, diff, and preview views", () => {
   // Execute the source-view calculations without mounting the file-fetching component.
-  const file = ts.createSourceFile("FileViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
-  const viewer = file.statements.find((node) => ts.isFunctionDeclaration(node) && node.name?.text === "TextFileViewer");
-  const calculations = viewer.body.statements.filter((node) =>
-    ts.isVariableStatement(node) && node.declarationList.declarations.some((declaration) =>
-      ["isDelimitedTable", "viewerContent", "sourceLines", "language", "isHtml", "isMarkdown", "hasPreview", "effectiveDisplayMode", "useLightweightSource", "lightweightSourceLines"].includes(declaration.name.getText(file)),
+  const file = parseProgram("FileViewer.tsx", source);
+  const viewer = findNode(file, (node) => node.type === "FunctionDeclaration" && node.id?.name === "TextFileViewer");
+  const calculations = viewer.body.body.filter((node) =>
+    node.type === "VariableDeclaration" && node.declarations.some((declaration) =>
+      ["isDelimitedTable", "viewerContent", "sourceLines", "language", "isHtml", "isMarkdown", "hasPreview", "effectiveDisplayMode", "useLightweightSource", "lightweightSourceLines"].includes(declaration.id.name),
     ),
-  ).map((node) => node.getText(file)).join("\n");
-  const { outputText } = ts.transpileModule(`
-    return (data, displayMode, hasGitDiff = false, isDeletedDiff = false, wrapLines = false, filePath = "/tmp/file.txt") => {
+  ).map((node) => nodeSource(source, node)).join("\n");
+  const renderSource = toJsExpression(`
+    (data, displayMode, hasGitDiff = false, isDeletedDiff = false, wrapLines = false, filePath = "/tmp/file.txt") => {
       const isDelimitedTablePath = (path) => /\\.(csv|tsv)$/i.test(path);
       const SOURCE_HIGHLIGHT_MAX_LINES = 1_000;
       const HTML_PREVIEW_MAX_BYTES = 10 * 1024 * 1024;
       const FILE_LINE_NUMBER_STYLE = {};
       ${calculations}
       return lightweightSourceLines;
-    };
-  `, { compilerOptions: { jsx: ts.JsxEmit.React } });
-  const render = new Function("React", "useMemo", outputText)(React, (calculate) => calculate());
+    }
+  `, { jsx: "transform" });
+  const render = new Function("React", "useMemo", `return ${renderSource};`)(React, (calculate) => calculate());
   const large = { content: "line\n".repeat(1_000), language: "text" };
 
   assert.equal(render({ ...large, content: "line\n".repeat(999) }, "source"), null);
@@ -67,31 +67,29 @@ test("the line-number gutter is pinned only in views of at most SOURCE_HIGHLIGHT
   // plain and diff views all come from these), the highlighted and lightweight
   // source elements and the Diff view's rows, instead of matching the
   // component's text.
-  const file = ts.createSourceFile("FileViewer.tsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  const file = parseProgram("FileViewer.tsx", source);
   const constants = (...names) => {
     const statements = names.map((name) => {
-      const statement = file.statements.find((node) =>
-        ts.isVariableStatement(node) && node.declarationList.declarations.some((declaration) =>
-          ts.isIdentifier(declaration.name) && declaration.name.text === name,
-        ),
+      const statement = findNode(file, (node) =>
+        node.type === "VariableDeclaration" && node.declarations.some((declaration) => declaration.id?.name === name),
       );
       assert.ok(statement, `${name} is declared in the module`);
-      return statement.getText(file);
+      return nodeSource(source, statement);
     });
-    const { outputText } = ts.transpileModule(`${statements.join("\n")}\nreturn [${names.join(", ")}];`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } });
-    return new Function(outputText)();
+    return new Function(`return ${toJsExpression(`(() => { ${statements.join("\n")}\nreturn [${names.join(", ")}]; })()`)};`)();
   };
   const [codeStyle, gutterStyle, pinnedStyle, maxRows] = constants("FILE_CODE_STYLE", "FILE_LINE_NUMBER_STYLE", "FILE_PINNED_LINE_NUMBER_STYLE", "SOURCE_HIGHLIGHT_MAX_LINES");
 
   // Build the source views without mounting the file-fetching component, with
   // the real gutter styles in place.
-  const calculations = file.statements.find((node) => ts.isFunctionDeclaration(node) && node.name?.text === "TextFileViewer").body.statements.filter((node) =>
-    ts.isVariableStatement(node) && node.declarationList.declarations.some((declaration) =>
-      ["isDelimitedTable", "viewerContent", "sourceLines", "language", "isHtml", "isMarkdown", "hasPreview", "effectiveDisplayMode", "useLightweightSource", "lightweightSourceLines", "prismReady", "highlightedSource"].includes(declaration.name.getText(file)),
-    ),
-  ).map((node) => node.getText(file)).join("\n");
-  const { outputText } = ts.transpileModule(`
-    return (data, displayMode, hasGitDiff = false, isDeletedDiff = false, wrapLines = false, filePath = "/tmp/file.txt") => {
+  const calculations = findNode(file, (node) => node.type === "FunctionDeclaration" && node.id?.name === "TextFileViewer")
+    .body.body.filter((node) =>
+      node.type === "VariableDeclaration" && node.declarations.some((declaration) =>
+        ["isDelimitedTable", "viewerContent", "sourceLines", "language", "isHtml", "isMarkdown", "hasPreview", "effectiveDisplayMode", "useLightweightSource", "lightweightSourceLines", "prismReady", "highlightedSource"].includes(declaration.id.name),
+      ),
+    ).map((node) => nodeSource(source, node)).join("\n");
+  const renderSource = toJsExpression(`
+    (data, displayMode, hasGitDiff = false, isDeletedDiff = false, wrapLines = false, filePath = "/tmp/file.txt") => {
       const isDelimitedTablePath = (path) => /\.(csv|tsv)$/i.test(path);
       const SOURCE_HIGHLIGHT_MAX_LINES = 1_000;
       const HTML_PREVIEW_MAX_BYTES = 10 * 1024 * 1024;
@@ -101,14 +99,14 @@ test("the line-number gutter is pinned only in views of at most SOURCE_HIGHLIGHT
       const [usePrismLanguages, SyntaxHighlighter, SourceCodeRenderer, isDark, vs, fileViewerDarkTheme, FILE_CODE_STYLE] = [() => true, "pre", "span", false, {}, {}, {}];
       ${calculations}
       return { lightweightSourceLines, highlightedSource };
-    };
-  `, { compilerOptions: { jsx: ts.JsxEmit.React } });
-  const render = new Function("React", "useMemo", "gutterStyle", "pinnedStyle", outputText)(React, (calculate) => calculate(), gutterStyle, pinnedStyle);
+    }
+  `, { jsx: "transform" });
+  const render = new Function("React", "useMemo", "gutterStyle", "pinnedStyle", `return ${renderSource};`)(React, (calculate) => calculate(), gutterStyle, pinnedStyle);
   const { lightweightSourceLines: rows, highlightedSource } = render({ content: "line\n".repeat(1_000), language: "text" }, "source");
   const numberStyle = rows[0].props.children[0].props.style;
   // The Diff view's first row number, with every row an added line.
-  const diffView = file.statements.find((node) => ts.isFunctionDeclaration(node) && node.name?.text === "DiffView");
-  const { outputText: diffOutput } = ts.transpileModule(`return ${diffView.getText(file)}`, { compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ES2022 } });
+  const diffView = findNode(file, (node) => node.type === "FunctionDeclaration" && node.id?.name === "DiffView");
+  const diffOutput = `return ${toJsExpression(nodeSource(source, diffView), { jsx: "transform" })};`;
   const diffNumberStyle = (rowCount) => {
     const added = Array.from({ length: rowCount }, (_, index) => ({ type: "added", text: "line", oldLineNo: null, newLineNo: index + 1 }));
     const DiffView = new Function("React", "useI18n", "diffLines", "SOURCE_HIGHLIGHT_MAX_LINES", "FILE_CODE_STYLE", "FILE_LINE_NUMBER_STYLE", "FILE_PINNED_LINE_NUMBER_STYLE", diffOutput)(

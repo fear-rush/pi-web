@@ -2,17 +2,13 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { Script, createContext } from "node:vm";
-import ts from "typescript";
+import { findHookCallback, parseProgram, toJs } from "../lib/test-source.mjs";
 
-const source = ts.createSourceFile("useAgentSession.ts", await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8"), ts.ScriptTarget.Latest, true);
-const nodes = [];
-function visit(node) { nodes.push(node); ts.forEachChild(node, visit); }
-visit(source);
+const code = await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8");
+const program = parseProgram("useAgentSession.ts", code);
 
 function callback(name) {
-  const node = nodes.find((node) => ts.isVariableDeclaration(node) && node.name.getText(source) === name);
-  assert.ok(node, `missing ${name}`);
-  return new Script(ts.transpileModule(`(${node.initializer.arguments[0].getText(source)})`, { compilerOptions: { target: ts.ScriptTarget.ESNext } }).outputText);
+  return new Script(toJs(`(${findHookCallback(code, program, name)})`));
 }
 
 function setup({ snapshotActiveMs, liveActiveMs, liveSessionId = "a", sessionId = "a" } = {}) {
