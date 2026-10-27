@@ -1,0 +1,42 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "app/**/{page,layout,not-found}.tsx",
+    "app/**/route.ts",
+    "instrumentation.ts",
+    "instrumentation-node.ts",
+    "proxy.ts",
+    "bin/pi-web.js",
+    "e2e/run.mjs",
+    "e2e/terminal.mjs",
+    "e2e/*.mjs",
+    "**/*.test.mjs",
+    "lib/session-list-scanner.bench.mjs",
+    "*.config.{ts,mjs}",
+    "postcss.config.mjs",
+    "tailwind.config.ts"
+  ],
+  "project": [
+    "app/**/*.{ts,tsx}",
+    "components/**/*.{ts,tsx}",
+    "hooks/**/*.ts",
+    "lib/**/*.{ts,mjs}",
+    "bin/*.js",
+    "public/*.js",
+    "*.ts"
+  ],
+  "ignore": [
+    "lib/test-source.mjs"
+  ],
+  "ignoreBinaries": [
+    "mkfifo"
+  ],
+  "ignoreDependencies": [
+    "@earendil-works/pi-codemode",
+    "@earendil-works/pi-mcp",
+    "@earendil-works/pi-telemetry",
+    "postcss",
+    "tailwindcss",
+    "@tailwindcss/postcss"
+  ]
+}
