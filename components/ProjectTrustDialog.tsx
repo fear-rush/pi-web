@@ -22,8 +22,8 @@ import {
   mcpVariableChips,
   mcpVariableReferencesKey,
   revealHiddenCharacters,
-} from "@/lib/mcp-server-display";
-import { openStackedDialog } from "@/lib/stacked-dialog";
+} from "@/lib/mcp/mcp-server-display";
+import { openStackedDialog } from "@/lib/settings/stacked-dialog";
 
 /** How long the dialog waits for the listing before it stops holding Trust back. */
 export const MCP_LISTING_TIMEOUT_MS = 10_000;

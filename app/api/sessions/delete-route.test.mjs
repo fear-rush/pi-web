@@ -12,14 +12,14 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
 });
 const { POST: deleteSessionsRoute } = await jiti.import("./delete/route.ts");
-const { MAX_SESSION_DELETE_IDS } = await jiti.import("../../../lib/session-delete.ts");
-const { PROJECT_DELETE_IDS_PER_REQUEST } = await jiti.import("../../../lib/sidebar-actions.ts");
-const { invalidateSessionListCache, invalidateSessionPathCache } = await jiti.import("../../../lib/session-reader.ts");
+const { MAX_SESSION_DELETE_IDS } = await jiti.import("../../../lib/session/session-delete.ts");
+const { PROJECT_DELETE_IDS_PER_REQUEST } = await jiti.import("../../../lib/session/sidebar-actions.ts");
+const { invalidateSessionListCache, invalidateSessionPathCache } = await jiti.import("../../../lib/session/session-reader.ts");
 const {
   readSessionUiState,
   resetSessionUiStateCacheForTests,
   updateSessionUiState,
-} = await jiti.import("../../../lib/session-ui-state.ts");
+} = await jiti.import("../../../lib/session/session-ui-state.ts");
 
 const JSON_HEADERS = { host: "localhost", "Content-Type": "application/json" };
 const TIME = "2026-10-01T00:00:00.000Z";

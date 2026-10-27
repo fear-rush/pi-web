@@ -26,7 +26,7 @@ const jiti = createJiti(import.meta.url, {
   alias: { "@": process.cwd() }, interopDefault: true, moduleCache: false,
 });
 const { GET } = await jiti.import("./route.ts");
-const { allowFileRoot } = await jiti.import("../../../../lib/file-access.ts");
+const { allowFileRoot } = await jiti.import("../../../../lib/files/file-access.ts");
 const { NextRequest } = await jiti.import("next/server");
 
 function git(cwd, ...args) {

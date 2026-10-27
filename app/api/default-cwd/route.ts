@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { mkdirSync } from "fs";
-import { defaultCwdPath } from "@/lib/default-cwd";
+import { defaultCwdPath } from "@/lib/project/default-cwd";
 
 // POST /api/default-cwd
 // Creates ~/pi-cwd/<YYYYMMDD> (local date) if it doesn't exist and returns the path.

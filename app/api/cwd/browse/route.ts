@@ -9,7 +9,7 @@ import {
   listWindowsDrives,
   resolveDirectory,
   shouldShowWindowsDrivePicker,
-} from "@/lib/directory-browser";
+} from "@/lib/files/directory-browser";
 
 // GET /api/cwd/browse?path=...：列出文件系统中的可读子目录。
 export async function GET(request: NextRequest) {

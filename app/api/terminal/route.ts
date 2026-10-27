@@ -1,8 +1,8 @@
 import { stat } from "fs/promises";
 import { resolve } from "path";
 import { NextResponse } from "next/server";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
-import { createTerminal } from "@/lib/terminal-manager";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
+import { createTerminal } from "@/lib/terminal/terminal-manager";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

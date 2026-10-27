@@ -8,7 +8,7 @@ Bumping Next means re-checking all of it. `lib/next-config.test.mjs` guards the 
 config or in a source file; the rest are behavioural and listed in the checklist at the end.
 
 Files: `next.config.ts`, `instrumentation.ts`, `instrumentation-node.ts`, `proxy.ts`,
-`lib/gfm-autolink-email-loader.cjs`, `lib/next-config.test.mjs`, `bin/pi-web.js`,
+`lib/rendering/gfm-autolink-email-loader.cjs`, `lib/next-config.test.mjs`, `bin/pi-web.js`,
 `bin/rotate-preview-secrets.js`.
 
 ## The workarounds
@@ -32,7 +32,7 @@ Two Next behaviours that look like bugs but are not, and need no workaround:
 - **`next dev` rewrites `AGENTS.md`.** It appends a `BEGIN:nextjs-agent-rules` block; commit it with
   unrelated work or leave it, but do not treat it as a local edit.
 - **Turbopack warns "dynamic filesystem access causes tracing of the whole project"** (14 times, from
-  `lib/worktree.ts` and `app/api/file-index/route.ts`). The paths come from a runtime cwd, so they
+  `lib/files/worktree.ts` and `app/api/file-index/route.ts`). The paths come from a runtime cwd, so they
   cannot be static, and the webpack build traced the same files silently. Advisory only.
 
 The 47 routes with `export const dynamic = "force-dynamic"` are belt and braces: Next's route handlers

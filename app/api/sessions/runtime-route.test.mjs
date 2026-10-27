@@ -19,13 +19,13 @@ const {
   cacheSessionPath,
   invalidateSessionPathCache,
   invalidateSessionListCache,
-} = await jiti.import("../../../lib/session-reader.ts");
+} = await jiti.import("../../../lib/session/session-reader.ts");
 const { SessionManager } = await jiti.import("@earendil-works/pi-coding-agent");
 const {
   readSessionUiState,
   resetSessionUiStateCacheForTests,
   updateSessionUiState,
-} = await jiti.import("../../../lib/session-ui-state.ts");
+} = await jiti.import("../../../lib/session/session-ui-state.ts");
 
 test("list versions expose idle session creation, rename and deletion to other windows", async (t) => {
   const dir = await mkdtemp(join(tmpdir(), "pi-web-list-sync-"));

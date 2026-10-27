@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
-import { runNpx } from "@/lib/npx";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
+import { runNpx } from "@/lib/terminal/npx";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
-import { getProjectTrustStatus } from "@/lib/project-trust";
+import { getProjectTrustStatus } from "@/lib/project/project-trust";
 
 export const dynamic = "force-dynamic";
 

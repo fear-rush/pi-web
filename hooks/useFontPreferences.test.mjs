@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import { Script } from "node:vm";
 import { toCommonJs } from "../lib/test-source.mjs";
-import * as fonts from "../lib/font-preferences.ts";
+import * as fonts from "../lib/settings/font-preferences.ts";
 
 const source = readFileSync(new URL("./useFontPreferences.ts", import.meta.url), "utf8");
 const script = new Script(toCommonJs(source, { fileName: "useFontPreferences.ts" }));
@@ -21,7 +21,7 @@ function fixture({ initial = {}, blocked = false, server = false } = {}) {
   script.runInNewContext({
     exports,
     require(id) {
-      if (id === "@/lib/font-preferences") return fonts;
+      if (id === "@/lib/settings/font-preferences") return fonts;
       if (id === "react") return { useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot() };
       throw new Error(`Unexpected import ${id}`);
     },

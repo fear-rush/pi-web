@@ -4,9 +4,9 @@ import { homedir } from "os";
 import path from "path";
 import { getAgentDir } from "@earendil-works/pi-coding-agent";
 import type { SkillToggleResult } from "@/lib/api-types";
-import { loadSkillsWithInstallInfo } from "@/lib/skills-service";
-import { setDisableModelInvocation } from "@/lib/skill-frontmatter";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
+import { loadSkillsWithInstallInfo } from "@/lib/skills/skills-service";
+import { setDisableModelInvocation } from "@/lib/skills/skill-frontmatter";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
 
 export const dynamic = "force-dynamic";
 

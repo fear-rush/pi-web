@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties, type RefObject } from "react";
-import { measureColumnWidths, parseDelimitedTable, visibleRowRange } from "@/lib/delimited-table";
+import { measureColumnWidths, parseDelimitedTable, visibleRowRange } from "@/lib/files/delimited-table";
 
 const ROW_HEIGHT = 26;
 const GUTTER_WIDTH = 56;

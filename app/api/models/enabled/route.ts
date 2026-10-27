@@ -11,7 +11,7 @@ import {
   setModelsEnabled,
   type EnabledModelsEdit,
   type ProviderRename,
-} from "@/lib/enabled-models";
+} from "@/lib/models/enabled-models";
 import {
   buildEnabledModelsInput,
   buildEnabledModelsView,
@@ -20,12 +20,12 @@ import {
   readEnabledModelsSettings,
   writeEnabledModels,
   type EnabledModelsView,
-} from "@/lib/enabled-models-runtime";
-import type { EnabledModelsInput } from "@/lib/enabled-models";
-import { getModelRuntimeWithExtensions } from "@/lib/model-runtime";
-import { withDeferredProviderModels } from "@/lib/deferred-provider-models";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
-import { invalidateModelsCache } from "@/lib/models-cache";
+} from "@/lib/models/enabled-models-runtime";
+import type { EnabledModelsInput } from "@/lib/models/enabled-models";
+import { getModelRuntimeWithExtensions } from "@/lib/models/model-runtime";
+import { withDeferredProviderModels } from "@/lib/models/deferred-provider-models";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
+import { invalidateModelsCache } from "@/lib/models/models-cache";
 
 export const dynamic = "force-dynamic";
 

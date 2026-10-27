@@ -15,7 +15,7 @@ const { ConfigSidebarGroupSwitch } = await jiti.import("./SettingsUi.tsx");
 const { enLocale } = await jiti.import("@/lib/i18n/messages/en.ts");
 const source = await readFile(new URL("./McpConfig.tsx", import.meta.url), "utf8");
 const helperSource = await readFile(new URL("./mcp-config-helpers.ts", import.meta.url), "utf8");
-const displaySource = await readFile(new URL("../lib/mcp-server-display.ts", import.meta.url), "utf8");
+const displaySource = await readFile(new URL("../lib/mcp/mcp-server-display.ts", import.meta.url), "utf8");
 const apiTypesSource = await readFile(new URL("../lib/api-types.ts", import.meta.url), "utf8");
 
 const h = React.createElement;

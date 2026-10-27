@@ -173,7 +173,7 @@ pane with Sign in, Test, Remove, a switch, and the server's exposure, and an
   server's memory per entry and per entry content (an HMAC of its JSON, never
   the JSON, which may hold literal secrets), so an edited entry reads as
   untested and a restart forgets every status.
-- **Adding is one paste box.** `lib/mcp-import.ts` recognises a URL, a command
+- **Adding is one paste box.** `lib/mcp/mcp-import.ts` recognises a URL, a command
   line, `pi|claude|codex|gemini mcp add …`, Claude / Cursor / VS Code / Zed /
   opencode JSON, and Cursor and VS Code install links, and maps them to pi's
   schema. The browser sends the pasted text, never a config: the server parses
@@ -186,7 +186,7 @@ pane with Sign in, Test, Remove, a switch, and the server's exposure, and an
   user typed into a password field.
 - **Test connection and OAuth sign-in run server-side**, through SDK modules
   the package does not export (`McpServerConnection`, `signInMcpServer`),
-  loaded by file URL in `lib/pi-sdk-internals.ts`. A test is bounded (15 s per
+  loaded by file URL in `lib/agent/pi-sdk-internals.ts`. A test is bounded (15 s per
   request, a 20 s deadline, a close awaited for at most 2 s), and tests of
   entries that run a `!command` wait for each other.
 - **A sign-in flow lives in the server process, not in a request.** The panel
@@ -209,7 +209,7 @@ pane with Sign in, Test, Remove, a switch, and the server's exposure, and an
   Sign out removes the server's tokens and client registration (or the record
   older versions kept by URL alone), as `pi mcp logout` does, and stops a code
   exchange already on its way from writing them back.
-- **Writes** go through Pi Web's own writer (`lib/mcp-config-file.ts`), not the
+- **Writes** go through Pi Web's own writer (`lib/mcp/mcp-config-file.ts`), not the
   SDK's config editor, which writes in place with no lock, no atomic replace,
   and no file mode, and throws untyped errors. For every edit that changes
   the file, the writer produces the editor's bytes exactly (a contract test

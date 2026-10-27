@@ -13,11 +13,11 @@ import type {
   ProjectTrustStatus,
 } from "@/lib/api-types";
 import { displayPathWithin, shortenPath } from "@/lib/display-path";
-import { parseFrontmatter } from "@/lib/frontmatter";
+import { parseFrontmatter } from "@/lib/files/frontmatter";
 import {
   getLastSettingsSelection,
   setLastSettingsSelection,
-} from "@/lib/settings-navigation";
+} from "@/lib/settings/settings-navigation";
 import {
   ConfigAddSourceHeading,
   ConfigButton,

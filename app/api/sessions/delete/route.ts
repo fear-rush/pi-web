@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
-import { deleteSessions, MAX_SESSION_DELETE_IDS, type SessionDeleteResult } from "@/lib/session-delete";
-import { SESSION_ID_PATTERN } from "@/lib/session-ui-state-shared";
+import { deleteSessions, MAX_SESSION_DELETE_IDS, type SessionDeleteResult } from "@/lib/session/session-delete";
+import { SESSION_ID_PATTERN } from "@/lib/session/session-ui-state-shared";
 
 export const dynamic = "force-dynamic";
 

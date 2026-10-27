@@ -16,8 +16,8 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
 });
 const { GET, PUT, PATCH, DELETE } = await jiti.import("./route.ts");
-const { allowFileRoot } = await jiti.import("../../../../lib/file-access.ts");
-const { parseFrontmatter } = await jiti.import("../../../../lib/frontmatter.ts");
+const { allowFileRoot } = await jiti.import("../../../../lib/files/file-access.ts");
+const { parseFrontmatter } = await jiti.import("../../../../lib/files/frontmatter.ts");
 
 after(async () => {
   if (originalAgentDir === undefined) delete process.env.PI_CODING_AGENT_DIR;

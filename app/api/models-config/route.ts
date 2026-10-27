@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { ModelsConfigReadError, readModelsConfig, writeModelsConfig } from "@/lib/models-config-store";
-import { ContextWindowError, normalizeContextWindowOverrides } from "@/lib/model-context";
+import { ModelsConfigReadError, readModelsConfig, writeModelsConfig } from "@/lib/models/models-config-store";
+import { ContextWindowError, normalizeContextWindowOverrides } from "@/lib/models/model-context";
 
 export const dynamic = "force-dynamic";
 

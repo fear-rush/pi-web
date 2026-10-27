@@ -7,7 +7,7 @@ import { createJiti } from "jiti";
 
 const source = await readFile(new URL("./AppShell.tsx", import.meta.url), "utf8");
 const jiti = createJiti(import.meta.url, { tsconfigPaths: true });
-const draftStore = await jiti.import("@/lib/draft-store");
+const draftStore = await jiti.import("@/lib/session/draft-store");
 
 function callbackBody(name, nextName) {
   const start = source.indexOf(`const ${name} = useCallback`);
@@ -401,7 +401,7 @@ test("the composer's bar moves the fresh composer's draft and model picks instea
 });
 
 test("the bar of the new composer shows the bar's own move until the sidebar reports it", async () => {
-  const { contextForCwd } = await jiti.import("../lib/new-session-context.ts");
+  const { contextForCwd } = await jiti.import("../lib/session/new-session-context.ts");
   const callbacks = [
     callbackBody("handleSidebarNewSessionContext", "newSessionBarFocusRef"),
     callbackBody("handlePickNewSessionContext", "pickNewSessionContextRef"),

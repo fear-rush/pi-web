@@ -20,8 +20,8 @@ import {
   type GroupDrop,
   type SidebarLayout,
   type SidebarRow,
-} from "@/lib/session-tree";
-import type { ProjectMovePosition } from "@/lib/session-ui-state-shared";
+} from "@/lib/session/session-tree";
+import type { ProjectMovePosition } from "@/lib/session/session-ui-state-shared";
 
 /**
  * Dragging a project group's header to reorder the session tree's groups

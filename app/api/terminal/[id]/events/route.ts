@@ -1,4 +1,4 @@
-import { hasTerminal, subscribeTerminal, type TerminalEvent } from "@/lib/terminal-manager";
+import { hasTerminal, subscribeTerminal, type TerminalEvent } from "@/lib/terminal/terminal-manager";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

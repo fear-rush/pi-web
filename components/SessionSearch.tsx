@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { formatRelativeTime } from "@/lib/i18n/format";
 import type { SessionInfo } from "@/lib/types";
-import type { SessionSearchResponse } from "@/lib/session-search";
+import type { SessionSearchResponse } from "@/lib/session/session-search";
 
 export function SessionSearch({ open, query, children, selectedSessionId, onSelectSession, archivedSessionIds }: {
   open: boolean;

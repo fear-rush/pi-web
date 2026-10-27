@@ -1,4 +1,4 @@
-import type { EnabledModelsModelView, EnabledModelsProviderView, EnabledModelsView } from "@/lib/enabled-models";
+import type { EnabledModelsModelView, EnabledModelsProviderView, EnabledModelsView } from "@/lib/models/enabled-models";
 
 /** Rows shown for the current filter, matched on model name and id. */
 export function filterEnabledModels(

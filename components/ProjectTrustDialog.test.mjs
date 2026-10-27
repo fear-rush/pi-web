@@ -318,7 +318,7 @@ test("every string the dialog shows is translated", async () => {
   const literalKeys = [...source.matchAll(/\bt\("([^"]+)"/g)].map((match) => match[1]);
   const ternaryKeys = [...source.matchAll(/\? "([a-z]+\.[\w.-]+)" : "([a-z]+\.[\w.-]+)"/g)].flatMap((match) => [match[1], match[2]]);
   const returnedKeys = [...source.matchAll(/return "([a-z]+\.[\w.-]+)";/g)].map((match) => match[1]);
-  const helperSource = await readFile(new URL("../lib/mcp-server-display.ts", import.meta.url), "utf8");
+  const helperSource = await readFile(new URL("../lib/mcp/mcp-server-display.ts", import.meta.url), "utf8");
   const helperKeys = [...helperSource.matchAll(/"(mcp\.[\w.-]+)"/g)].map((match) => match[1]);
   const reasonCodes = [...apiTypesSource.slice(
     apiTypesSource.indexOf("export type McpRefusalReason"),

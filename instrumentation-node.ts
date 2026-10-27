@@ -1,5 +1,5 @@
 import { configureHttpDispatcher, readHttpIdleTimeoutMs } from "@/lib/http-dispatcher";
-import { closeAllAgentEventStreams } from "@/lib/agent-event-stream";
+import { closeAllAgentEventStreams } from "@/lib/agent/agent-event-stream";
 
 export function registerNodeInstrumentation(): void {
   // The pi CLI applies settings' `httpIdleTimeoutMs` to the same undici

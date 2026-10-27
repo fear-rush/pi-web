@@ -7,12 +7,12 @@
 - `.chat-input-controls` stays while its model picker is open (`:not(:has(...))`, a rule of its own): the picker's panel lives in that row and its filter is the field the keyboard opened for, so hiding the row hid the picker and blurred the filter (#1271). See [models.md](models.md#model-selector-and-the-mobile-keyboard).
 - Anything fixed to the bottom of a phone screen sits inside `--app-viewport-height`, never at `bottom: 0`: iOS keeps the layout viewport, and with it `bottom: 0`, under the keyboard. The drawer and the right panel use `top: 0` with that height; the sidebar's bottom sheet (`.sidebar-sheet-layer` in `app/sidebar-menu.css`) is a layer of that height with the sheet at its bottom, and drops its safe-area padding under `html[data-keyboard-open]`.
 
-## Terminal extra keys (`components/TerminalExtraKeys.tsx`, `lib/terminal-extra-keys.ts`)
+## Terminal extra keys (`components/TerminalExtraKeys.tsx`, `lib/terminal/terminal-extra-keys.ts`)
 - A touch device held in portrait gets Termux's two key rows under the terminal (`ESC / - HOME ↑ END PGUP`, `TAB CTRL ALT ← ↓ → PGDN`). Portrait comes from `screen.orientation` (then `window.orientation`), never from the viewport: the soft keyboard makes the viewport wider than tall, and the keys must stay while it is open. Left and right are Noto Sans Mono's `↓` and `↑` rotated 90deg: its latin subset has `↑`/`↓` but no `←`/`→`, which would fall back to a heavier system font.
 - The keys are the panel's last grid row, so xterm's `ResizeObserver` refits above them instead of being covered. Buttons call `preventDefault()` on pointer and mouse down so the hidden xterm textarea keeps focus and the keyboard stays up.
 - Keys go through `terminal.input(sequence, true)`, the same `onData` path (and the same connected / disableStdin checks) as typing. Arrows and Home/End follow xterm's application cursor mode; CTRL and ALT are one-shot and also modify the next character typed on the soft keyboard (`applyTerminalModifiers` in `onData`).
 
-## Terminal theme (`lib/terminal-theme.ts`, `hooks/useTerminalTheme.ts`)
+## Terminal theme (`lib/terminal/terminal-theme.ts`, `hooks/useTerminalTheme.ts`)
 - The terminal header's sun/moon button switches the terminal alone between dark (the default) and light, apart from the app theme. The choice is per browser in `localStorage` (`pi-web:terminal-theme`), shared by every open terminal and synced across tabs by the `storage` event.
 - A switch sets `terminal.options.theme` on the live xterm, never recreating it, so the shell and its SSE stream stay. The panel's chrome reads `--terminal-*` variables that `.terminal-panel[data-terminal-theme="light"]` overrides; `--terminal-bg` must match each xterm palette's `background`.
 

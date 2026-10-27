@@ -57,7 +57,7 @@ SDK rebuilds its base prompt immediately before the model call.
 >   wrapper.
 > - Since pi 0.86 (the upgrade to 0.87, #931) the prompt lives in the
 >   transcript and can no longer be reapplied after `before_agent_start`.
->   `lib/exact-system-prompt.ts` registers a `before_agent_start` handler that
+>   `lib/agent/exact-system-prompt.ts` registers a `before_agent_start` handler that
 >   returns `{ systemPrompt }`, which the SDK sends as the provider's leading
 >   system prompt for the run.
 >

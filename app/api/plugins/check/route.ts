@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { PluginScope } from "@/lib/api-types";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
 import { checkPluginUpdates } from "@/lib/plugin-updates";
 
 export const dynamic = "force-dynamic";

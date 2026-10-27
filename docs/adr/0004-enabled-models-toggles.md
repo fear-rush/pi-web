@@ -10,7 +10,7 @@ tooltip (see "Chrome is a tooltip").
 pi narrows the model selector with the global `enabledModels` setting, a
 whitelist of `--models` patterns: minimatch globs against `provider/modelId`,
 fuzzy matching for non-glob patterns, and an optional `:thinkingLevel` suffix.
-pi-web already *read* it (`lib/model-scope.ts`) but offered no way to change it,
+pi-web already *read* it (`lib/models/model-scope.ts`) but offered no way to change it,
 so a user had to drop to the TUI's `/scoped-models` or hand-edit
 `~/.pi/agent/settings.json`.
 
@@ -33,7 +33,7 @@ when the patterns resolve to nothing, so "disable everything" silently means
 ## Decision
 
 **Every toggle is a minimal edit of the existing pattern list**
-(`lib/enabled-models.ts`, pure; `lib/enabled-models-runtime.ts`, SDK adapter):
+(`lib/models/enabled-models.ts`, pure; `lib/models/enabled-models-runtime.ts`, SDK adapter):
 
 - A pattern matching no available model is never touched. "Available" means the
   model's provider passed `checkAuth()` — a credential in `auth.json`, a
@@ -102,7 +102,7 @@ would read as no scope at all.
 **The browser never composes patterns.** `/api/models/enabled` takes intents
 (`{op:"models"|"provider"|"clear"}`) and returns the resolved view. Pattern
 semantics exist only in the SDK resolver; duplicating them in client code is the
-bug `lib/model-scope.ts` already warns about (#307).
+bug `lib/models/model-scope.ts` already warns about (#307).
 
 **Built-in providers get per-model switches, custom providers a single
 switch.** "Built-in" means pi's own providers plus anything an extension

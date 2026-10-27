@@ -3,8 +3,8 @@
 import { useEffect, useId, useRef, useState } from "react";
 import type { McpServerInfo, McpSignInFlowInfo } from "@/lib/api-types";
 import { useI18n } from "@/hooks/useI18n";
-import { revealHiddenCharacters } from "@/lib/mcp-server-display";
-import { focusIfLost } from "@/lib/stacked-dialog";
+import { revealHiddenCharacters } from "@/lib/mcp/mcp-server-display";
+import { focusIfLost } from "@/lib/settings/stacked-dialog";
 import { OAuthPastePanel } from "./OAuthPastePanel";
 import { ConfigButton, ConfigDetailGridRow } from "./SettingsUi";
 import type { McpActionFailure, McpTestBlock } from "./mcp-config-helpers";

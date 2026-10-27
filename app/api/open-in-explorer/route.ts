@@ -1,8 +1,8 @@
 import { stat } from "fs/promises";
 import { resolve } from "path";
 import { NextResponse } from "next/server";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
-import { isFileManagerSupported, isLoopbackHost, launchFileManager } from "@/lib/open-in-file-manager";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
+import { isFileManagerSupported, isLoopbackHost, launchFileManager } from "@/lib/project/open-in-file-manager";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

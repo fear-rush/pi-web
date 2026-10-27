@@ -24,7 +24,7 @@ delete process.env.PI_WEB_DISABLE_MCP;
 await mkdir(agentDir, { recursive: true });
 
 const jiti = createJiti(import.meta.url, { alias: { "@": process.cwd() } });
-const { allowFileRoot } = await jiti.import("../../../lib/file-access.ts");
+const { allowFileRoot } = await jiti.import("../../../lib/files/file-access.ts");
 const { GET, POST } = await jiti.import("./route.ts");
 for (const folder of [trusted, untrusted, fresh, outer, inner, root]) allowFileRoot(folder);
 

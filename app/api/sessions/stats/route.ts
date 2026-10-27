@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
-import { getRpcSession } from "@/lib/rpc-manager";
-import { openSessionManager, resolveSessionPath } from "@/lib/session-reader";
-import { computeSessionStats, type SessionUsageSummary } from "@/lib/session-stats";
-import { computeSessionTotalActiveMs } from "@/lib/session-timing";
-import { SESSION_ID_PATTERN } from "@/lib/session-ui-state-shared";
+import { getRpcSession } from "@/lib/agent/rpc-manager";
+import { openSessionManager, resolveSessionPath } from "@/lib/session/session-reader";
+import { computeSessionStats, type SessionUsageSummary } from "@/lib/session/session-stats";
+import { computeSessionTotalActiveMs } from "@/lib/session/session-timing";
+import { SESSION_ID_PATTERN } from "@/lib/session/session-ui-state-shared";
 import type { SessionEntry } from "@/lib/types";
 
 export const dynamic = "force-dynamic";

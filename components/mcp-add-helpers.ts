@@ -27,10 +27,10 @@ import {
   type McpImportNoteSeverity,
   type McpImportResult,
   type McpImportServer,
-} from "@/lib/mcp-import";
-import { findWebPasswordField, resolvedConfigValues, WEB_PASSWORD_VARIABLE, type McpResolvedConfigValue } from "@/lib/mcp-config-values";
-import { SECRET_MASK } from "@/lib/mcp-secrets";
-import { formatMcpCommandLine, revealHiddenCharacters } from "@/lib/mcp-server-display";
+} from "@/lib/mcp/mcp-import";
+import { findWebPasswordField, resolvedConfigValues, WEB_PASSWORD_VARIABLE, type McpResolvedConfigValue } from "@/lib/mcp/mcp-config-values";
+import { SECRET_MASK } from "@/lib/mcp/mcp-secrets";
+import { formatMcpCommandLine, revealHiddenCharacters } from "@/lib/mcp/mcp-server-display";
 import { isBlockingFileProblem, mcpProjectTrustable, mcpWritesOff } from "./mcp-config-helpers";
 
 // The add pane of Settings › MCP (`components/McpAddServer.tsx`): what a paste

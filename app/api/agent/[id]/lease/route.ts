@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getRpcSession } from "@/lib/rpc-manager";
-import { holdSessionLivenessLease } from "@/lib/session-liveness";
-import { hasUnsettledSubagentRun } from "@/lib/subagent-runtime";
+import { getRpcSession } from "@/lib/agent/rpc-manager";
+import { holdSessionLivenessLease } from "@/lib/session/session-liveness";
+import { hasUnsettledSubagentRun } from "@/lib/subagents/subagent-runtime";
 
 const HOLDER_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 

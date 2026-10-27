@@ -11,7 +11,7 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
 });
 const { GET } = await jiti.import("./[id]/entries/[entryId]/tool-result-image/route.ts");
-const { cacheSessionPath, invalidateSessionPathCache } = await jiti.import("../../../lib/session-reader.ts");
+const { cacheSessionPath, invalidateSessionPathCache } = await jiti.import("../../../lib/session/session-reader.ts");
 
 // A 1x1 PNG.
 const PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==";

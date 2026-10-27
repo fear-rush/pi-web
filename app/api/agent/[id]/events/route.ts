@@ -1,6 +1,6 @@
-import { createAgentEventStream } from "@/lib/agent-event-stream";
-import { resolveSessionPath } from "@/lib/session-reader";
-import { getRpcSession, startRpcSession } from "@/lib/rpc-manager";
+import { createAgentEventStream } from "@/lib/agent/agent-event-stream";
+import { resolveSessionPath } from "@/lib/session/session-reader";
+import { getRpcSession, startRpcSession } from "@/lib/agent/rpc-manager";
 
 export const dynamic = "force-dynamic";
 

@@ -4,16 +4,16 @@ import Image from "next/image";
 import { Fragment, memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import type { AgentMessage, AssistantContentBlock, AssistantMessage, BashExecutionMessage, BlockingExtensionUiRequest, ExtensionUiRequest, SessionInfo, SessionTreeNode, ToolResultMessage } from "@/lib/types";
-import { normalizeCustomPanelLines } from "@/lib/ansi";
-import { splitNoticeText } from "@/lib/notice-text";
-import { EXTENSION_DIALOG_BASE_WIDTH, fitExtensionDialogWidth } from "@/lib/extension-dialog-fit";
-import { asBracketedPaste, toTerminalKeyData } from "@/lib/terminal-input";
-import { collapsesProcessDetails, countToolCallBlocks, getDisplayableAssistantBlocks, hasAssistantAnswer, isHiddenCustomMessage, isMessageGroupAnchor, splitFinalAssistantBlocks } from "@/lib/message-display";
-import { extractTurnWrittenFiles, type WrittenFile } from "@/lib/turn-written-files";
-import { getFinalAnswerViews, keepWrittenFiles, type FinalAnswerViews } from "@/lib/turn-views";
-import { formatTurnDuration, getTurnDurationMs } from "@/lib/turn-duration";
-import { buildQuotedSelection } from "@/lib/quoted-selection";
-import { dropMentionText, splitDroppedItems, uploadFiles, type DroppedItem } from "@/lib/file-upload-client";
+import { normalizeCustomPanelLines } from "@/lib/rendering/ansi";
+import { splitNoticeText } from "@/lib/session/notice-text";
+import { EXTENSION_DIALOG_BASE_WIDTH, fitExtensionDialogWidth } from "@/lib/agent/extension-dialog-fit";
+import { asBracketedPaste, toTerminalKeyData } from "@/lib/terminal/terminal-input";
+import { collapsesProcessDetails, countToolCallBlocks, getDisplayableAssistantBlocks, hasAssistantAnswer, isHiddenCustomMessage, isMessageGroupAnchor, splitFinalAssistantBlocks } from "@/lib/session/message-display";
+import { extractTurnWrittenFiles, type WrittenFile } from "@/lib/session/turn-written-files";
+import { getFinalAnswerViews, keepWrittenFiles, type FinalAnswerViews } from "@/lib/session/turn-views";
+import { formatTurnDuration, getTurnDurationMs } from "@/lib/session/turn-duration";
+import { buildQuotedSelection } from "@/lib/session/quoted-selection";
+import { dropMentionText, splitDroppedItems, uploadFiles, type DroppedItem } from "@/lib/files/file-upload-client";
 import { MessageView } from "./MessageView";
 import { MarkdownBody } from "./MarkdownBody";
 import { ChatInput, type ChatInputHandle } from "./ChatInput";
@@ -21,20 +21,20 @@ import { ChatMinimap, useMessageRefs } from "./ChatMinimap";
 import { ExtensionStatusBar } from "./ExtensionStatusBar";
 import { AnsiText } from "./AnsiText";
 import { useI18n } from "@/hooks/useI18n";
-import { phaseLabel } from "@/lib/chat-phase-label";
+import { phaseLabel } from "@/lib/session/chat-phase-label";
 import { useAgentSession, type AgentEndInfo, type NewSessionChoices, type NoticeItem } from "@/hooks/useAgentSession";
 import { selectHasStreamingContent, selectIsStreaming, selectStreamingMessage, useStreamingSelector } from "@/hooks/useStreamingSelector";
-import type { StreamingStore } from "@/lib/streaming-message";
+import type { StreamingStore } from "@/lib/session/streaming-message";
 import { useDragDrop } from "@/hooks/useDragDrop";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import { useScrollbarVisibility } from "@/hooks/useScrollbarVisibility";
-import type { SessionStatsInfo } from "@/lib/pi-types";
+import type { SessionStatsInfo } from "@/lib/agent/pi-types";
 import type { AppUpdateResponse } from "@/lib/api-types";
-import type { ToolEntry } from "@/lib/tool-presets";
-import type { SettingsSection } from "@/lib/settings-navigation";
-import { getTranscriptNotices, summarizeCacheMisses, type CacheMissSummary } from "@/lib/transcript-notices";
+import type { ToolEntry } from "@/lib/tools/tool-presets";
+import type { SettingsSection } from "@/lib/settings/settings-navigation";
+import { getTranscriptNotices, summarizeCacheMisses, type CacheMissSummary } from "@/lib/session/transcript-notices";
 import { cacheMissSummaryText, TRANSCRIPT_NOTICE_WARNING_COLOR, TranscriptNoticeLines } from "@/components/TranscriptNotices";
-import { findChatScrollAnchor, type ChatScrollPosition } from "@/lib/chat-scroll-position";
+import { findChatScrollAnchor, type ChatScrollPosition } from "@/lib/session/chat-scroll-position";
 import {
   captureScrollDistance,
   getNextVisibleCount,
@@ -43,7 +43,7 @@ import {
   isScrollAtTail,
   restoreScrollTop,
   VISIBLE_PAGE_SIZE,
-} from "@/lib/chat-lazy-load";
+} from "@/lib/session/chat-lazy-load";
 
 interface Props {
   session: SessionInfo | null;

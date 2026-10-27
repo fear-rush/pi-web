@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { resolveModelDiscoveryAuth } from "@/lib/model-discovery-auth";
-import { buildModelsListUrl, parseDiscoveredModels } from "@/lib/model-discovery";
+import { resolveModelDiscoveryAuth } from "@/lib/models/model-discovery-auth";
+import { buildModelsListUrl, parseDiscoveredModels } from "@/lib/models/model-discovery";
 
 export const dynamic = "force-dynamic";
 

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { runNpx } from "@/lib/npx";
+import { runNpx } from "@/lib/terminal/npx";
 import type { SkillSearchResult } from "@/lib/api-types";
 
 export const dynamic = "force-dynamic";

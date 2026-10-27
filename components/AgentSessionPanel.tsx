@@ -2,9 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
-import { countRunningSubagents } from "@/lib/session-family";
-import type { SessionUsageSummary } from "@/lib/session-stats";
-import { formatActiveDuration, formatCompactCount, formatCostShort } from "@/lib/session-stats-format";
+import { countRunningSubagents } from "@/lib/session/session-family";
+import type { SessionUsageSummary } from "@/lib/session/session-stats";
+import { formatActiveDuration, formatCompactCount, formatCostShort } from "@/lib/session/session-stats-format";
 import type { SessionInfo, SubagentSessionStatus } from "@/lib/types";
 
 interface Props {

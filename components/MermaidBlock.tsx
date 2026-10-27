@@ -8,8 +8,8 @@ import { useTheme } from "@/hooks/useTheme";
 import { useI18n } from "@/hooks/useI18n";
 import { usePrismLanguages } from "@/hooks/usePrismLanguages";
 import { copyText } from "@/lib/clipboard";
-import { takeHighlightBudget, waitForHighlight } from "@/lib/highlight-queue";
-import { prismLanguagesLoaded } from "@/lib/prism-languages";
+import { takeHighlightBudget, waitForHighlight } from "@/lib/rendering/highlight-queue";
+import { prismLanguagesLoaded } from "@/lib/rendering/prism-languages";
 
 interface MermaidBlockProps {
   code: string;

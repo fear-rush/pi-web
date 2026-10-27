@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { abortSubagent, getSubagentRun, steerSubagent } from "@/lib/rpc-manager";
+import { abortSubagent, getSubagentRun, steerSubagent } from "@/lib/agent/rpc-manager";
 
 export const dynamic = "force-dynamic";
 

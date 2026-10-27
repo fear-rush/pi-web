@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSessionEntries, resolveSessionPath } from "@/lib/session-reader";
+import { getSessionEntries, resolveSessionPath } from "@/lib/session/session-reader";
 
 export async function GET(
   req: Request,

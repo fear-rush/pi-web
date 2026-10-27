@@ -12,18 +12,18 @@ import {
   rekeyDraft as rekeyStoredDraft,
   setDraft,
   type ChatDraftImage,
-} from "@/lib/draft-store";
+} from "@/lib/session/draft-store";
 import {
   MAX_ATTACHED_IMAGE_BYTES,
   MAX_ATTACHED_IMAGES,
   isBase64ImageWithinLimits,
-} from "@/lib/image-attachments";
+} from "@/lib/files/image-attachments";
 import {
   buildEntriesFromFiles, buildAtInsertText, extractAtQuery, filterFileEntries,
   type AtQueryMatch, type FileIndexEntry,
-} from "@/lib/file-fuzzy";
-import { getMarkdownListContinuation } from "@/lib/markdown-list-continuation";
-import { isBareMcpCommand, isBuiltinMcpCommand } from "@/lib/mcp-command";
+} from "@/lib/files/file-fuzzy";
+import { getMarkdownListContinuation } from "@/lib/rendering/markdown-list-continuation";
+import { isBareMcpCommand, isBuiltinMcpCommand } from "@/lib/mcp/mcp-command";
 import { FolderIcon, getFileIcon } from "./FileIcons";
 import { ImagePreview } from "./ImagePreview";
 import { DismissButton } from "./DismissButton";
@@ -32,7 +32,7 @@ import { useEnterSendMode } from "@/hooks/useEnterSendMode";
 import { useI18n } from "@/hooks/useI18n";
 import { useChatAppearance } from "@/hooks/useChatAppearance";
 import { useFontPreferences } from "@/hooks/useFontPreferences";
-import type { ToolPreset } from "@/lib/tool-presets";
+import type { ToolPreset } from "@/lib/tools/tool-presets";
 import { SelectorRow } from "./SelectorRow";
 import { ModelSelector, type ModelSelectorOption } from "./ModelSelector";
 

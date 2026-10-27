@@ -6,8 +6,8 @@ import {
   getAllowedFileRoots,
   isExistingFilePathAllowed,
   isFilePathAllowed,
-} from "@/lib/file-access";
-import { checkLinkedDirectoryApproval, withOutsideLinkTargets } from "@/lib/linked-directory";
+} from "@/lib/files/file-access";
+import { checkLinkedDirectoryApproval, withOutsideLinkTargets } from "@/lib/files/linked-directory";
 import {
   DOCX_PREVIEW_MAX_BYTES,
   IMAGE_PREVIEW_MAX_BYTES,
@@ -17,21 +17,21 @@ import {
   getFileExt,
   getImageMime,
   getVideoMime,
-} from "@/lib/file-types";
-import { resolveDirentIsDirectory } from "@/lib/file-dirent";
-import { getFileTreeHiddenReasons } from "@/lib/file-tree-visibility";
-import { isFilePathReferencedBySession } from "@/lib/session-file-references";
+} from "@/lib/files/file-types";
+import { resolveDirentIsDirectory } from "@/lib/files/file-dirent";
+import { getFileTreeHiddenReasons } from "@/lib/files/file-tree-visibility";
+import { isFilePathReferencedBySession } from "@/lib/session/session-file-references";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
 import {
   inspectUploadTargets,
   parseUploadConflictStrategy,
   replaceUploadFile,
   validateUploadFileNames,
-} from "@/lib/file-upload";
+} from "@/lib/files/file-upload";
 import { parseFormDataWithinLimit, RequestBodyTooLargeError } from "@/lib/bounded-form-data";
-import { filePathFromApiSegments, samePath } from "@/lib/paths";
-import { hasParentDirectorySegment } from "@/lib/path-security";
-import { readTextPreviewChunk } from "@/lib/text-preview";
+import { filePathFromApiSegments, samePath } from "@/lib/files/paths";
+import { hasParentDirectorySegment } from "@/lib/files/path-security";
+import { readTextPreviewChunk } from "@/lib/files/text-preview";
 
 const FILE_REQUEST_TYPES = ["list", "read", "download", "meta", "preview", "watch"] as const;
 type FileRequestType = typeof FILE_REQUEST_TYPES[number];

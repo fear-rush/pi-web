@@ -6,7 +6,7 @@ import { useGlobalKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { SessionSidebar, type SelectSessionOptions, type SessionSidebarControl } from "./SessionSidebar";
 import { ChatWindow } from "./ChatWindow";
 import { NewSessionContextBar, type NewSessionContextControl } from "./NewSessionContextBar";
-import type { ChatScrollPosition } from "@/lib/chat-scroll-position";
+import type { ChatScrollPosition } from "@/lib/session/chat-scroll-position";
 import { FileViewer } from "./FileViewer";
 import { TabBar, type Tab } from "./TabBar";
 import { openFileTab, saveFileViewerState, saveParkedFileViewerState, switchFileWorkspace, type ParkedFileWorkspace } from "./file-tab-state";
@@ -27,19 +27,19 @@ import { useViewportHeight } from "@/hooks/useViewportHeight";
 import { useResizablePanel } from "@/hooks/useResizablePanel";
 import { useAudio } from "@/hooks/useAudio";
 import { copyText } from "@/lib/clipboard";
-import { sendAgentCommand } from "@/lib/agent-client";
-import { getFileName } from "@/lib/file-paths";
-import { buildAtMentionText, buildFileAtMentionsText, buildFileLineMentionText } from "@/lib/file-fuzzy";
+import { sendAgentCommand } from "@/lib/agent/agent-client";
+import { getFileName } from "@/lib/files/file-paths";
+import { buildAtMentionText, buildFileAtMentionsText, buildFileLineMentionText } from "@/lib/files/file-fuzzy";
 import {
   claimExtensionAttentionNotification,
   shouldShowBrowserNotification,
   showBrowserNotification,
-} from "@/lib/browser-notifications";
-import { setupPushSubscription } from "@/lib/push-client";
-import { getInitialNavigation, linkedSessionId, withTabOpen } from "@/lib/initial-navigation";
-import { clearTabOpenSession, getTabOpen, setTabOpenNewSession, setTabOpenSession } from "@/lib/tab-session";
+} from "@/lib/push/browser-notifications";
+import { setupPushSubscription } from "@/lib/push/push-client";
+import { getInitialNavigation, linkedSessionId, withTabOpen } from "@/lib/session/initial-navigation";
+import { clearTabOpenSession, getTabOpen, setTabOpenNewSession, setTabOpenSession } from "@/lib/session/tab-session";
 import { mergeCatalogRow } from "./session-catalog-helpers";
-import { getDraft, rekeyDraft } from "@/lib/draft-store";
+import { getDraft, rekeyDraft } from "@/lib/session/draft-store";
 import {
   contextForCwd,
   type NewSessionContext,
@@ -47,13 +47,13 @@ import {
   type NewSessionOptions,
   type NewSessionTarget,
   type ProjectChoice,
-} from "@/lib/new-session-context";
+} from "@/lib/session/new-session-context";
 import {
   clearLastOpen,
   getLastOpenSession,
   setLastOpenSession,
   workspaceKeyOf,
-} from "@/lib/workspace-memory";
+} from "@/lib/project/workspace-memory";
 import {
   getDefaultRightPanelWidth,
   getRightPanelMaxWidth,
@@ -64,17 +64,17 @@ import {
   SIDEBAR_DEFAULT_WIDTH,
   SIDEBAR_MAX_WIDTH,
   SIDEBAR_MIN_WIDTH,
-} from "@/lib/panel-layout";
+} from "@/lib/settings/panel-layout";
 import type { BlockingExtensionUiRequest, SessionInfo, SessionTreeNode } from "@/lib/types";
 import type { McpErrorResponse, ProjectTrustStatus } from "@/lib/api-types";
 import type { ChatInputHandle } from "./ChatInput";
 import type { AgentEndInfo, NewSessionChoices } from "@/hooks/useAgentSession";
-import type { SessionStatsInfo } from "@/lib/pi-types";
-import { formatActiveDuration, formatCompactCount, formatCostShort } from "@/lib/session-stats-format";
-import type { FileViewerState } from "@/lib/file-viewer-state";
-import { PRESET_READ_ONLY, type ToolEntry } from "@/lib/tool-presets";
-import { getAgentsBadge, getSessionFamily } from "@/lib/session-family";
-import { getLastSettingsSection, settingsSectionRequiresProject, type SettingsSection } from "@/lib/settings-navigation";
+import type { SessionStatsInfo } from "@/lib/agent/pi-types";
+import { formatActiveDuration, formatCompactCount, formatCostShort } from "@/lib/session/session-stats-format";
+import type { FileViewerState } from "@/lib/files/file-viewer-state";
+import { PRESET_READ_ONLY, type ToolEntry } from "@/lib/tools/tool-presets";
+import { getAgentsBadge, getSessionFamily } from "@/lib/session/session-family";
+import { getLastSettingsSection, settingsSectionRequiresProject, type SettingsSection } from "@/lib/settings/settings-navigation";
 
 type SessionCopyField = "file" | "id" | "projectDir" | "gitBranch" | "gitWorktree";
 type AutoNameStatus =

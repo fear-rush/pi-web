@@ -19,7 +19,7 @@ const {
   LONG_PRESS_SLOP_PX,
   useGroupDrag,
 } = await jiti.import("./useGroupDrag.ts");
-const { buildSessionTree, getRowOffsets } = await jiti.import("@/lib/session-tree.ts");
+const { buildSessionTree, getRowOffsets } = await jiti.import("@/lib/session/session-tree.ts");
 const source = await readFile(new URL("./useGroupDrag.ts", import.meta.url), "utf8");
 
 function emitter(extra = {}) {

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getRpcSession } from "@/lib/rpc-manager";
+import { getRpcSession } from "@/lib/agent/rpc-manager";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
-import { forkSessionBranch, readForkSourceTitle, SessionForkError } from "@/lib/session-fork";
+import { forkSessionBranch, readForkSourceTitle, SessionForkError } from "@/lib/session/session-fork";
 import {
   cacheSessionPath,
   invalidateSessionListCache,
@@ -9,7 +9,7 @@ import {
   readLatestSessionEntryId,
   readSessionInfo,
   resolveSessionPath,
-} from "@/lib/session-reader";
+} from "@/lib/session/session-reader";
 import type { SessionInfo } from "@/lib/types";
 
 export const dynamic = "force-dynamic";

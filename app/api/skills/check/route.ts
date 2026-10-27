@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { SkillInstallScope } from "@/lib/api-types";
-import { checkSkillUpdates } from "@/lib/skill-updates";
-import { loadSkillsWithInstallInfo } from "@/lib/skills-service";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
+import { checkSkillUpdates } from "@/lib/skills/skill-updates";
+import { loadSkillsWithInstallInfo } from "@/lib/skills/skills-service";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
 
 export const dynamic = "force-dynamic";
 

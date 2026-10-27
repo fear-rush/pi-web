@@ -20,7 +20,7 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
 });
 const { GET, POST, dynamic } = await jiti.import("./route.ts");
-const { resetSessionUiStateCacheForTests } = await jiti.import("../../../../lib/session-ui-state.ts");
+const { resetSessionUiStateCacheForTests } = await jiti.import("../../../../lib/session/session-ui-state.ts");
 
 const statePath = path.join(agentDir, "pi-web-session-state.json");
 const JSON_HEADERS = { host: "localhost", "Content-Type": "application/json" };

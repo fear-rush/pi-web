@@ -1,4 +1,4 @@
-import { addSubscription, type PushSubscriptionRecord } from "@/lib/web-push";
+import { addSubscription, type PushSubscriptionRecord } from "@/lib/push/web-push";
 
 export const dynamic = "force-dynamic";
 

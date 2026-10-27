@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { resolveSessionPath } from "@/lib/session-reader";
-import { startRpcSession, getRpcSession, setRpcSessionTools } from "@/lib/rpc-manager";
+import { resolveSessionPath } from "@/lib/session/session-reader";
+import { startRpcSession, getRpcSession, setRpcSessionTools } from "@/lib/agent/rpc-manager";
 
 // POST /api/agent/[id] - Send a command to an existing session
 export async function POST(

@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useI18n } from "@/hooks/useI18n";
 import { useTheme } from "@/hooks/useTheme";
-import { THEME_OPTIONS } from "@/lib/theme";
+import { THEME_OPTIONS } from "@/lib/settings/theme";
 import {
   CHAT_CONTENT_WIDTH_DEFAULT,
   CHAT_CONTENT_WIDTH_MAX,
@@ -15,20 +15,20 @@ import {
 } from "@/hooks/useChatAppearance";
 import { useEnterSendMode, setEnterSendMode } from "@/hooks/useEnterSendMode";
 import { useFilesPlacement, setFilesPlacement } from "@/hooks/useFilesPlacement";
-import { sendAgentCommand } from "@/lib/agent-client";
+import { sendAgentCommand } from "@/lib/agent/agent-client";
 import type { ProjectTrustStatus, ToolSettingsResponse } from "@/lib/api-types";
 import {
   setLastSettingsSection,
   settingsSectionRequiresProject,
   type SettingsSection,
-} from "@/lib/settings-navigation";
-import { focusModalPanel, listenForPanelEscape } from "@/lib/stacked-dialog";
+} from "@/lib/settings/settings-navigation";
+import { focusModalPanel, listenForPanelEscape } from "@/lib/settings/stacked-dialog";
 import {
   isThinkingExpandedByDefault,
   setThinkingExpandedByDefault,
-} from "@/lib/thinking-expansion-preference";
+} from "@/lib/session/thinking-expansion-preference";
 import { ModelsConfig } from "./ModelsConfig";
-import { setupPushSubscription } from "@/lib/push-client";
+import { setupPushSubscription } from "@/lib/push/push-client";
 import { SkillsConfig } from "./SkillsConfig";
 import { AgentsConfig } from "./AgentsConfig";
 import { PluginsConfig } from "./PluginsConfig";

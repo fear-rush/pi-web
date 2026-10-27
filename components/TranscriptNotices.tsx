@@ -8,7 +8,7 @@ import {
   formatNoticeTokens,
   type CacheMissSummary,
   type TranscriptNotice,
-} from "@/lib/transcript-notices";
+} from "@/lib/session/transcript-notices";
 
 // pi's TUI draws these lines in its warning color, cache warming dim (#1265).
 export const TRANSCRIPT_NOTICE_WARNING_COLOR = "#d97706";

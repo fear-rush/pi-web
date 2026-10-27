@@ -27,8 +27,8 @@ test("status reads of a session's state leave out its system prompt (#1302)", as
   await writeFile(join(cwd, "AGENTS.md"), `# Notes\n\n${"- a project rule the agent must follow\n".repeat(8_000)}`);
   await writeFile(join(dir, "settings.json"), "{}");
 
-  const { agentStatusUrl } = await jiti.import("../../../lib/agent-client.ts");
-  const { startRpcSession } = await jiti.import("../../../lib/rpc-manager.ts");
+  const { agentStatusUrl } = await jiti.import("../../../lib/agent/agent-client.ts");
+  const { startRpcSession } = await jiti.import("../../../lib/agent/rpc-manager.ts");
   const { GET } = await jiti.import("./[id]/route.ts");
   const started = await startRpcSession("__new__agent-state", "", cwd, {});
   session = started.session;

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getTerminalCwd, killTerminal, resizeTerminal, writeTerminal } from "@/lib/terminal-manager";
+import { getTerminalCwd, killTerminal, resizeTerminal, writeTerminal } from "@/lib/terminal/terminal-manager";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";

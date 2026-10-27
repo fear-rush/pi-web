@@ -1,8 +1,8 @@
 "use client";
 
 import { useI18n } from "@/hooks/useI18n";
-import { getFileName } from "@/lib/file-paths";
-import type { WrittenFile } from "@/lib/turn-written-files";
+import { getFileName } from "@/lib/files/file-paths";
+import type { WrittenFile } from "@/lib/session/turn-written-files";
 import { getFileIcon } from "./FileIcons";
 
 /**

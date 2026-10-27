@@ -22,9 +22,9 @@ const {
   replaceUserMessageText,
 } = await jiti.import("./MessageView.tsx");
 const { I18nProvider } = await jiti.import("@/hooks/useI18n");
-const { splitFinalAssistantBlocks } = await jiti.import("@/lib/message-display");
-const { clearExpandedToolCalls, setToolCallExpanded } = await jiti.import("@/lib/tool-call-expansion");
-const { parseUnifiedPatch } = await jiti.import("@/lib/patch");
+const { splitFinalAssistantBlocks } = await jiti.import("@/lib/session/message-display");
+const { clearExpandedToolCalls, setToolCallExpanded } = await jiti.import("@/lib/tools/tool-call-expansion");
+const { parseUnifiedPatch } = await jiti.import("@/lib/session/patch");
 
 function renderMessage(message, props = {}) {
   return renderToStaticMarkup(

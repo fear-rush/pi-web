@@ -21,7 +21,7 @@ const {
   canReleaseHiddenEventStream,
   SESSION_LEASE_TIMEOUT_MS,
   sessionLeaseShowsActivity,
-} = await jiti.import("../lib/agent-event-connection.ts");
+} = await jiti.import("../lib/agent/agent-event-connection.ts");
 
 const page = Object.assign(new EventTarget(), { visibilityState: "visible" });
 globalThis.document = page;

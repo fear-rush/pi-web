@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { listAllSessions } from "@/lib/session-reader";
-import { searchSessionContents } from "@/lib/session-search";
+import { listAllSessions } from "@/lib/session/session-reader";
+import { searchSessionContents } from "@/lib/session/session-search";
 
 export const dynamic = "force-dynamic";
 

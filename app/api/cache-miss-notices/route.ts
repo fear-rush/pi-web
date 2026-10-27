@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { NextResponse } from "next/server";
-import { getGlobalSettingsPath, readGlobalSettings, updateGlobalSettings } from "@/lib/global-settings-file";
+import { getGlobalSettingsPath, readGlobalSettings, updateGlobalSettings } from "@/lib/settings/global-settings-file";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";

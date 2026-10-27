@@ -9,9 +9,9 @@ import {
 } from "@earendil-works/pi-coding-agent";
 import { gt, maxSatisfying, rcompare, valid, validRange } from "semver";
 import type { PluginScope, PluginUpdateResult } from "@/lib/api-types";
-import { nodeCliInvocation } from "./node-cli";
-import { parseNpmSource } from "./npm-source";
-import { getProjectTrustStatus } from "./project-trust";
+import { nodeCliInvocation } from "./terminal/node-cli";
+import { parseNpmSource } from "./terminal/npm-source";
+import { getProjectTrustStatus } from "./project/project-trust";
 
 const execFileAsync = promisify(execFile);
 

@@ -2,14 +2,14 @@
 
 import { useState, useEffect, useCallback, useId, useRef } from "react";
 import { useI18n } from "@/hooks/useI18n";
-import type { ModelCatalogPreset, ModelCatalogRecommendation } from "@/lib/model-catalog";
-import type { DiscoveredModel } from "@/lib/model-discovery";
-import { ContextWindowError, normalizeContextWindowOverrides, withContextWindowOverride } from "@/lib/model-context";
+import type { ModelCatalogPreset, ModelCatalogRecommendation } from "@/lib/models/model-catalog";
+import type { DiscoveredModel } from "@/lib/models/model-discovery";
+import { ContextWindowError, normalizeContextWindowOverrides, withContextWindowOverride } from "@/lib/models/model-context";
 import type { ModelContextSettings } from "./ModelContextWindow";
 import {
   getLastSettingsSelection,
   setLastSettingsSelection,
-} from "@/lib/settings-navigation";
+} from "@/lib/settings/settings-navigation";
 import {
   hasModelCostDraftValue,
   modelCostToDraft,

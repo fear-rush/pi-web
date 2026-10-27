@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
 import { existsSync } from "fs";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
 import {
   deleteSubagentProfile,
   listSubagentProfileSources,
   saveSubagentProfile,
   type SubagentProfile,
   type SubagentWritableScope,
-} from "@/lib/subagents";
-import { writeDisabledBuiltInSubagent } from "@/lib/subagent-settings";
+} from "@/lib/subagents/subagents";
+import { writeDisabledBuiltInSubagent } from "@/lib/subagents/subagent-settings";
 
 export const dynamic = "force-dynamic";
 

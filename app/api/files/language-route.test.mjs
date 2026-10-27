@@ -18,7 +18,7 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
 });
 const { GET } = await jiti.import("./[...path]/route.ts");
-const { allowFileRoot } = await jiti.import("../../../lib/allowed-roots.ts");
+const { allowFileRoot } = await jiti.import("../../../lib/files/allowed-roots.ts");
 allowFileRoot(root);
 
 // A route exports only its handlers, so the extensions it maps come from its source.

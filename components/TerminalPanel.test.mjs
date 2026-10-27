@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { setImmediate } from "node:timers/promises";
-import { createTerminalWriter, terminalRequest } from "../lib/terminal-client.ts";
+import { createTerminalWriter, terminalRequest } from "../lib/terminal/terminal-client.ts";
 
 test("terminal errors preserve server diagnostics and explain non-JSON responses", async (t) => {
   const fetch = t.mock.method(globalThis, "fetch");

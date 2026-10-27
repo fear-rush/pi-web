@@ -8,9 +8,9 @@ import {
   isExistingFilePathAllowed,
   isFilePathAllowed,
   isWindowsAbsolutePath,
-} from "@/lib/file-access";
-import { buildEntriesFromFiles, filterFileEntries, type FileIndexEntry } from "@/lib/file-fuzzy";
-import { isHiddenOutsideGit } from "@/lib/file-tree-visibility";
+} from "@/lib/files/file-access";
+import { buildEntriesFromFiles, filterFileEntries, type FileIndexEntry } from "@/lib/files/file-fuzzy";
+import { isHiddenOutsideGit } from "@/lib/files/file-tree-visibility";
 
 const execFileAsync = promisify(execFile);
 

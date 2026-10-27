@@ -6,9 +6,9 @@ import rehypeKatex from "rehype-katex";
 import {
   markdownPreviewRemarkPlugins,
   normalizeDisplayMath,
-} from "@/lib/markdown";
-import { isMessageGroupAnchor, splitFinalAssistantBlocks } from "@/lib/message-display";
-import { loadMinimapPreviewLocked, saveMinimapPreviewLocked } from "@/lib/minimap-preview-lock";
+} from "@/lib/rendering/markdown";
+import { isMessageGroupAnchor, splitFinalAssistantBlocks } from "@/lib/session/message-display";
+import { loadMinimapPreviewLocked, saveMinimapPreviewLocked } from "@/lib/session/minimap-preview-lock";
 import type { AgentMessage, AssistantMessage, CustomMessage, TextContent, UserMessage } from "@/lib/types";
 import { useI18n } from "@/hooks/useI18n";
 import styles from "./ChatMinimap.module.css";

@@ -2,11 +2,11 @@
 
 import { useEffect, useImperativeHandle, useLayoutEffect, useState, useCallback, useMemo, useRef, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type MouseEvent as ReactMouseEvent, type ReactNode, type Ref, type RefObject, type UIEvent as ReactUIEvent } from "react";
 import type { SessionInfo } from "@/lib/types";
-import { listSessionFamilies, type SessionFamily } from "@/lib/session-family";
-import { dispatchSessionRowContextMenu } from "@/lib/session-row-context-menu";
-import { newSessionDeepLink, sessionDeepLink } from "@/lib/session-links";
-import { getProjectActivity, getRecentProjects } from "@/lib/project-groups";
-import { workspaceKeyOf } from "@/lib/workspace-memory";
+import { listSessionFamilies, type SessionFamily } from "@/lib/session/session-family";
+import { dispatchSessionRowContextMenu } from "@/lib/session/session-row-context-menu";
+import { newSessionDeepLink, sessionDeepLink } from "@/lib/session/session-links";
+import { getProjectActivity, getRecentProjects } from "@/lib/project/project-groups";
+import { workspaceKeyOf } from "@/lib/project/workspace-memory";
 import {
   adjacentProjectMove,
   archivedFamilyIds,
@@ -27,7 +27,7 @@ import {
   showMoreFamilies,
   type SidebarProject,
   type SidebarRow,
-} from "@/lib/session-tree";
+} from "@/lib/session/session-tree";
 import {
   forgetRetiredSidebarKeys,
   loadArchiveCollapsed,
@@ -45,7 +45,7 @@ import {
   saveShowIgnoredFiles,
   saveSidebarTab,
   type SidebarTab,
-} from "@/lib/sidebar-prefs";
+} from "@/lib/session/sidebar-prefs";
 import {
   deleteProjectSessions,
   forkFailureMessage,
@@ -53,8 +53,8 @@ import {
   projectRenameRequest,
   sessionMenuEntries,
   type SessionMenuActionId,
-} from "@/lib/sidebar-actions";
-import { splitBeforeForkSuffix } from "@/lib/session-fork-name";
+} from "@/lib/session/sidebar-actions";
+import { splitBeforeForkSuffix } from "@/lib/session/session-fork-name";
 import {
   mergeProjectChoices,
   newSessionContextKey,
@@ -66,15 +66,15 @@ import {
   type NewSessionTarget,
   type ProjectChoice,
   type WorktreeChoice,
-} from "@/lib/new-session-context";
+} from "@/lib/session/new-session-context";
 import {
   chunkForSessionUiRequests,
   MAX_PROJECT_ORDER_KEYS,
   MAX_SESSION_UI_IDS_PER_REQUEST,
   type ProjectMovePosition,
   type SessionUiStateRequest,
-} from "@/lib/session-ui-state-shared";
-import { focusIfLost, type FocusDocument } from "@/lib/stacked-dialog";
+} from "@/lib/session/session-ui-state-shared";
+import { focusIfLost, type FocusDocument } from "@/lib/settings/stacked-dialog";
 import { useFilesPlacement } from "@/hooks/useFilesPlacement";
 import { useI18n } from "@/hooks/useI18n";
 import { useIsMobile } from "@/hooks/useIsMobile";

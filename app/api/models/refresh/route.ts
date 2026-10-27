@@ -1,4 +1,4 @@
-import { shareModelCatalogRefresh } from "@/lib/model-catalog-refresh";
+import { shareModelCatalogRefresh } from "@/lib/models/model-catalog-refresh";
 
 export const dynamic = "force-dynamic";
 

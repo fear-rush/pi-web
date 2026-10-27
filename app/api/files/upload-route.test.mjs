@@ -18,7 +18,7 @@ test.after(() => {
 
 const jiti = createJiti(import.meta.url, { alias: { "@": process.cwd() }, interopDefault: true });
 const { POST } = await jiti.import("./[...path]/route.ts");
-const { encodeFilePathForApi } = await jiti.import("../../../lib/file-paths.ts");
+const { encodeFilePathForApi } = await jiti.import("../../../lib/files/file-paths.ts");
 const { NextRequest } = await jiti.import("next/server");
 
 function fixture() {

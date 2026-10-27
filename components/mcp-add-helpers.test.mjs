@@ -25,7 +25,7 @@ const {
   mcpImportProblemKey,
   mcpSuggestedVariableName,
 } = await jiti.import("./mcp-add-helpers.ts");
-const { MCP_IMPORT_NOTE_CODES, parseMcpImport, fillMcpImportFields } = await jiti.import("@/lib/mcp-import.ts");
+const { MCP_IMPORT_NOTE_CODES, parseMcpImport, fillMcpImportFields } = await jiti.import("@/lib/mcp/mcp-import.ts");
 const { translateMessage } = await jiti.import("@/lib/i18n/format.ts");
 const { getLocalePlugin, getSupportedLocales } = await jiti.import("@/lib/i18n/registry.ts");
 const helperSource = await readFile(new URL("./mcp-add-helpers.ts", import.meta.url), "utf8");
@@ -154,7 +154,7 @@ test("every importer note has words in every locale, each variant included, with
 });
 
 test("every invalid-config problem the importer's validator names has its words", async () => {
-  const core = await readFile(new URL("../lib/mcp-import-core.ts", import.meta.url), "utf8");
+  const core = await readFile(new URL("../lib/mcp/mcp-import-core.ts", import.meta.url), "utf8");
   const validator = core.slice(core.indexOf("export function validationProblem"));
   const problems = new Set([...validator.matchAll(/problem: "([a-z-]+)"/g)].map((match) => match[1]));
   for (const problem of problems) assert.ok(MCP_IMPORT_PROBLEM_KEYS.includes(`mcp.importProblem.${problem}`), problem);

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { existsSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
-import { isExistingPathWithinRoots } from "@/lib/path-security";
-import { readRegularFileText } from "@/lib/regular-file";
-import { loadSkillsWithInstallInfo } from "@/lib/skills-service";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
+import { isExistingPathWithinRoots } from "@/lib/files/path-security";
+import { readRegularFileText } from "@/lib/files/regular-file";
+import { loadSkillsWithInstallInfo } from "@/lib/skills/skills-service";
 
 export const dynamic = "force-dynamic";
 

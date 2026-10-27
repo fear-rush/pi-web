@@ -7,7 +7,7 @@ Accepted.
 ## Context
 
 Pi Web ships three built-in profiles (`general-purpose`, `explore`, `plan`) as
-constants in `lib/subagents.ts`. Everything else about a profile lives in a
+constants in `lib/subagents/subagents.ts`. Everything else about a profile lives in a
 markdown file — `~/.pi/agent/agents/*.md`, `.agents/agents/*.md`, or
 `.pi/agents/*.md` — whose `enabled: false` frontmatter key switches it off.
 
@@ -34,7 +34,7 @@ the user asked for:
 { "version": 1, "builtInEnabled": true, "disabledBuiltIns": ["explore"] }
 ```
 
-- `builtInProfiles()` in `lib/subagents.ts` stamps `enabled` onto the constants
+- `builtInProfiles()` in `lib/subagents/subagents.ts` stamps `enabled` onto the constants
   from that list; both `listSubagentProfiles` and `listSubagentProfileSources`
   go through it, so the panel, the `Agent` tool description, and the spawn guard
   in `resolveSubagentProfile` all agree without a second code path.

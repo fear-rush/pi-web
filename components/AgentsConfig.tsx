@@ -4,15 +4,15 @@ import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "r
 import { useI18n } from "@/hooks/useI18n";
 import { useIsMobile } from "@/hooks/useIsMobile";
 import type { ProjectTrustStatus, SubagentProfilesResponse, SubagentSettingsResponse } from "@/lib/api-types";
-import { sendAgentCommand } from "@/lib/agent-client";
+import { sendAgentCommand } from "@/lib/agent/agent-client";
 import { displayPathWithin, shortenPath } from "@/lib/display-path";
-import type { ModelsData } from "@/lib/models-cache";
-import { isSubagentProfileOverridden } from "@/lib/subagent-profile-precedence";
-import type { SubagentProfile, SubagentScope, SubagentWritableScope } from "@/lib/subagents";
+import type { ModelsData } from "@/lib/models/models-cache";
+import { isSubagentProfileOverridden } from "@/lib/subagents/subagent-profile-precedence";
+import type { SubagentProfile, SubagentScope, SubagentWritableScope } from "@/lib/subagents/subagents";
 import {
   getLastSettingsSelection,
   setLastSettingsSelection,
-} from "@/lib/settings-navigation";
+} from "@/lib/settings/settings-navigation";
 import {
   ConfigButton,
   ConfigDetail,

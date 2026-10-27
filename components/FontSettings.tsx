@@ -2,7 +2,7 @@
 
 import { useI18n } from "@/hooks/useI18n";
 import { useFontPreferences } from "@/hooks/useFontPreferences";
-import { FONT_FAMILY_MAX_LENGTH, FONT_WEIGHT_DEFAULT, FONT_WEIGHT_OPTIONS } from "@/lib/font-preferences";
+import { FONT_FAMILY_MAX_LENGTH, FONT_WEIGHT_DEFAULT, FONT_WEIGHT_OPTIONS } from "@/lib/settings/font-preferences";
 import { ConfigButton } from "./SettingsUi";
 
 const FONT_FIELDS = [

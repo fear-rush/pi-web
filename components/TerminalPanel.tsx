@@ -7,8 +7,8 @@ import { terminalFontSize, useChatAppearance } from "@/hooks/useChatAppearance";
 import { useI18n } from "@/hooks/useI18n";
 import { setTerminalTheme, useTerminalTheme } from "@/hooks/useTerminalTheme";
 import { subscribeFontPreferences } from "@/hooks/useFontPreferences";
-import { readFontWeight } from "@/lib/font-preferences";
-import { createTerminalWriter, terminalRequest } from "@/lib/terminal-client";
+import { readFontWeight } from "@/lib/settings/font-preferences";
+import { createTerminalWriter, terminalRequest } from "@/lib/terminal/terminal-client";
 import {
   applyTerminalModifiers,
   NO_TERMINAL_MODIFIERS,
@@ -16,9 +16,9 @@ import {
   type TerminalExtraKey,
   type TerminalModifier,
   type TerminalModifiers,
-} from "@/lib/terminal-extra-keys";
-import type { TerminalEvent } from "@/lib/terminal-manager";
-import { TERMINAL_XTERM_THEMES } from "@/lib/terminal-theme";
+} from "@/lib/terminal/terminal-extra-keys";
+import type { TerminalEvent } from "@/lib/terminal/terminal-manager";
+import { TERMINAL_XTERM_THEMES } from "@/lib/terminal/terminal-theme";
 import { TerminalExtraKeys, useTerminalExtraKeysVisible } from "./TerminalExtraKeys";
 import type { TerminalTab } from "./terminal-tab-state";
 

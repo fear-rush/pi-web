@@ -10,7 +10,7 @@ const { I18nProvider } = await jiti.import("@/hooks/useI18n");
 const { NewSessionContextBar } = await jiti.import("./NewSessionContextBar.tsx");
 const source = await readFile(new URL("./NewSessionContextBar.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
-const contextSource = await readFile(new URL("../lib/new-session-context.ts", import.meta.url), "utf8");
+const contextSource = await readFile(new URL("../lib/session/new-session-context.ts", import.meta.url), "utf8");
 
 const h = React.createElement;
 const noop = () => {};

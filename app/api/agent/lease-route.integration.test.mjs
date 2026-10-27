@@ -28,8 +28,8 @@ test("a lease keeps the session alive and reports what is under way, without sta
   await mkdir(cwd);
   await writeFile(join(dir, "settings.json"), "{}");
 
-  const { getRpcSession, startRpcSession } = await jiti.import("../../../lib/rpc-manager.ts");
-  const { hasActiveSessionLivenessProvider } = await jiti.import("../../../lib/session-liveness.ts");
+  const { getRpcSession, startRpcSession } = await jiti.import("../../../lib/agent/rpc-manager.ts");
+  const { hasActiveSessionLivenessProvider } = await jiti.import("../../../lib/session/session-liveness.ts");
   const { POST } = await jiti.import("./[id]/lease/route.ts");
   const started = await startRpcSession("__new__agent-lease", "", cwd, {});
   session = started.session;

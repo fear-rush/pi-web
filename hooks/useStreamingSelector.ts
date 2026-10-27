@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useState } from "react";
-import type { StreamingState, StreamingStore } from "@/lib/streaming-message";
+import type { StreamingState, StreamingStore } from "@/lib/session/streaming-message";
 
 /**
  * One value of the streaming store; the component re-renders only when that

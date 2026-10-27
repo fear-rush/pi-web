@@ -3,7 +3,7 @@ import {
   getAuthRetryAfterMs,
   recordAuthFailure,
   retryAfterSeconds,
-} from "@/lib/auth-throttle";
+} from "@/lib/auth/auth-throttle";
 import {
   isApiRequestAllowed,
   isApiRequestHostAllowed,
@@ -13,7 +13,7 @@ import {
   isValidBasicAuthorization,
   isWebPasswordEnabled,
   PI_WEB_SESSION_COOKIE,
-} from "@/lib/web-auth";
+} from "@/lib/auth/web-auth";
 
 function tooManyAttempts(retryAfterMs: number): NextResponse {
   return new NextResponse("Too many failed attempts", {

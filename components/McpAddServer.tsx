@@ -5,9 +5,9 @@ import type { McpServerConfig } from "@earendil-works/pi-coding-agent";
 import type { McpResponse, McpScope } from "@/lib/api-types";
 import { useI18n } from "@/hooks/useI18n";
 import { shortenPath } from "@/lib/display-path";
-import type { McpImportField, McpImportNote } from "@/lib/mcp-import";
-import { isReferenceOnly } from "@/lib/mcp-secrets";
-import { mcpFieldLabel, mcpVariableChips, revealHiddenCharacters } from "@/lib/mcp-server-display";
+import type { McpImportField, McpImportNote } from "@/lib/mcp/mcp-import";
+import { isReferenceOnly } from "@/lib/mcp/mcp-secrets";
+import { mcpFieldLabel, mcpVariableChips, revealHiddenCharacters } from "@/lib/mcp/mcp-server-display";
 import {
   ConfigAddSourcePanel,
   ConfigButton,

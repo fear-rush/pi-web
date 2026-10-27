@@ -10,13 +10,13 @@ import {
   getRelativeFilePath,
   joinFilePath,
   normalizeFilePathSlashes,
-} from "@/lib/file-paths";
-import type { GitFileStatus, GitFileStatusKind, GitStatusResponse } from "@/lib/git-types";
-import type { FileIndexEntry } from "@/lib/file-fuzzy";
-import { uploadFiles, type DroppedItem, type UploadConflictStrategy, type UploadError, type UploadResponse } from "@/lib/file-upload-client";
-import { buildSearchTree, type SearchTreeNode } from "@/lib/search-tree";
-import type { FileTreeHiddenReason } from "@/lib/file-tree-visibility";
-import { createExpandedPathsMemory } from "@/lib/file-tree-expansion";
+} from "@/lib/files/file-paths";
+import type { GitFileStatus, GitFileStatusKind, GitStatusResponse } from "@/lib/files/git-types";
+import type { FileIndexEntry } from "@/lib/files/file-fuzzy";
+import { uploadFiles, type DroppedItem, type UploadConflictStrategy, type UploadError, type UploadResponse } from "@/lib/files/file-upload-client";
+import { buildSearchTree, type SearchTreeNode } from "@/lib/session/search-tree";
+import type { FileTreeHiddenReason } from "@/lib/files/file-tree-visibility";
+import { createExpandedPathsMemory } from "@/lib/files/file-tree-expansion";
 import { droppedItems } from "@/hooks/useDragDrop";
 import { useI18n } from "@/hooks/useI18n";
 type Translate = ReturnType<typeof useI18n>["t"];

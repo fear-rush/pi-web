@@ -10,12 +10,12 @@ import {
   writeCodemodeInlineBudget,
   writeCodemodeMode,
   writeCodemodePreference,
-} from "@/lib/codemode-settings";
+} from "@/lib/settings/codemode-settings";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
 import {
   readPowerShellToolEnabled,
   writePowerShellToolEnabled,
-} from "@/lib/powershell-settings";
+} from "@/lib/settings/powershell-settings";
 
 export const dynamic = "force-dynamic";
 

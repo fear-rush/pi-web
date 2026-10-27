@@ -5,7 +5,7 @@ import { Script, createContext } from "node:vm";
 import { findHookCallback, findNodes, nodeSource, parseProgram, toJs } from "../lib/test-source.mjs";
 import { createJiti } from "jiti";
 
-const { agentStatusUrl } = await createJiti(import.meta.url, { interopDefault: true }).import("../lib/agent-client.ts");
+const { agentStatusUrl } = await createJiti(import.meta.url, { interopDefault: true }).import("../lib/agent/agent-client.ts");
 
 const code = await readFile(new URL("./useAgentSession.ts", import.meta.url), "utf8");
 const program = parseProgram("useAgentSession.ts", code);

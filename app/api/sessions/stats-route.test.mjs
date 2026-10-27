@@ -11,7 +11,7 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
 });
 const { POST: sessionStatsRoute } = await jiti.import("./stats/route.ts");
-const { invalidateSessionListCache, invalidateSessionPathCache } = await jiti.import("../../../lib/session-reader.ts");
+const { invalidateSessionListCache, invalidateSessionPathCache } = await jiti.import("../../../lib/session/session-reader.ts");
 
 const JSON_HEADERS = { host: "localhost", "Content-Type": "application/json" };
 const START = Date.parse("2026-10-01T00:00:00.000Z");

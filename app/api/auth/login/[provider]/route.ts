@@ -1,7 +1,7 @@
 import type { AuthEvent, AuthPrompt } from "@earendil-works/pi-ai";
 import { randomUUID } from "node:crypto";
-import { invalidateModelsCache } from "@/lib/models-cache";
-import { createModelRuntimeWithExtensions } from "@/lib/model-runtime";
+import { invalidateModelsCache } from "@/lib/models/models-cache";
+import { createModelRuntimeWithExtensions } from "@/lib/models/model-runtime";
 
 export const dynamic = "force-dynamic";
 

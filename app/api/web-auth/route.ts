@@ -4,7 +4,7 @@ import {
   recordAuthFailure,
   recordAuthSuccess,
   retryAfterSeconds,
-} from "@/lib/auth-throttle";
+} from "@/lib/auth/auth-throttle";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
 import {
   createWebSessionToken,
@@ -14,7 +14,7 @@ import {
   isWebPasswordEnabled,
   PI_WEB_SESSION_COOKIE,
   PI_WEB_SESSION_MAX_AGE,
-} from "@/lib/web-auth";
+} from "@/lib/auth/web-auth";
 
 export const dynamic = "force-dynamic";
 

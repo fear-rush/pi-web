@@ -8,19 +8,19 @@ import {
   invalidateSessionListCache,
   invalidateSessionManagerCache,
   buildSessionContext,
-} from "@/lib/session-reader";
-import { getRpcSession } from "@/lib/rpc-manager";
-import { projectTreeForResponse, toSummaryTree } from "@/lib/project-tree";
-import { computeSessionTotalActiveMs } from "@/lib/session-timing";
-import { computeSessionStats } from "@/lib/session-stats";
+} from "@/lib/session/session-reader";
+import { getRpcSession } from "@/lib/agent/rpc-manager";
+import { projectTreeForResponse, toSummaryTree } from "@/lib/project/project-tree";
+import { computeSessionTotalActiveMs } from "@/lib/session/session-timing";
+import { computeSessionStats } from "@/lib/session/session-stats";
 import { startServerPerf } from "@/lib/perf";
-import { computeSessionRevision } from "@/lib/session-revision";
+import { computeSessionRevision } from "@/lib/session/session-revision";
 import type { SessionEntry } from "@/lib/types";
-import { readSubagentRun, readSubagentSessionResources } from "@/lib/subagents";
-import { readSessionToolSelection } from "@/lib/session-tool-selection";
+import { readSubagentRun, readSubagentSessionResources } from "@/lib/subagents/subagents";
+import { readSessionToolSelection } from "@/lib/session/session-tool-selection";
 import { jsonResponse } from "@/lib/json-response";
-import { deleteSessions } from "@/lib/session-delete";
-import { attachTranscriptNotices, readSessionTranscriptNotices } from "@/lib/transcript-notices-server";
+import { deleteSessions } from "@/lib/session/session-delete";
+import { attachTranscriptNotices, readSessionTranscriptNotices } from "@/lib/session/transcript-notices-server";
 
 export async function GET(
   req: Request,

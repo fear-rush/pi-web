@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getRpcSession } from "@/lib/rpc-manager";
-import { resolveSessionPath } from "@/lib/session-reader";
+import { getRpcSession } from "@/lib/agent/rpc-manager";
+import { resolveSessionPath } from "@/lib/session/session-reader";
 
 export async function GET(
   _req: Request,

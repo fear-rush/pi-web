@@ -12,53 +12,53 @@ import type {
   ToolResultMessage,
   UserMessage,
 } from "@/lib/types";
-import { isBlockingExtensionUiRequest } from "@/lib/browser-notifications";
+import { isBlockingExtensionUiRequest } from "@/lib/push/browser-notifications";
 import { normalizeToolCalls } from "@/lib/normalize";
-import { agentStatusUrl, isPromptRejectedError, sendAgentCommand } from "@/lib/agent-client";
+import { agentStatusUrl, isPromptRejectedError, sendAgentCommand } from "@/lib/agent/agent-client";
 import {
   deleteSessionViewSnapshot,
   getSessionViewSnapshot,
   setSessionViewSnapshot,
   snapshotCoversLoadedEntries,
-} from "@/lib/session-view-cache";
-import { clearDraft, getDraft, rekeyDraft, restoreDraftSubmission } from "@/lib/draft-store";
-import { getPreferredToolPreset, setPreferredToolPreset } from "@/lib/tool-preset-preference";
-import { CONFIGURED_TOOL_PRESET, getPresetFromToolNames, getToolNamesForPreset, type ToolEntry, type ToolPreset } from "@/lib/tool-presets";
-import type { SessionStatsInfo } from "@/lib/pi-types";
-import { mergeSessionStats, type SessionFileStats } from "@/lib/session-stats";
-import { userMessageKey } from "@/lib/prompt-recovery";
-import { carryMessageKeys, messageRenderKeys } from "@/lib/message-keys";
+} from "@/lib/session/session-view-cache";
+import { clearDraft, getDraft, rekeyDraft, restoreDraftSubmission } from "@/lib/session/draft-store";
+import { getPreferredToolPreset, setPreferredToolPreset } from "@/lib/tools/tool-preset-preference";
+import { CONFIGURED_TOOL_PRESET, getPresetFromToolNames, getToolNamesForPreset, type ToolEntry, type ToolPreset } from "@/lib/tools/tool-presets";
+import type { SessionStatsInfo } from "@/lib/agent/pi-types";
+import { mergeSessionStats, type SessionFileStats } from "@/lib/session/session-stats";
+import { userMessageKey } from "@/lib/agent/prompt-recovery";
+import { carryMessageKeys, messageRenderKeys } from "@/lib/session/message-keys";
 import {
   AgentEventConnection,
   canReleaseHiddenEventStream,
   SESSION_LEASE_TIMEOUT_MS,
   sessionLeaseShowsActivity,
   type SessionLeaseReply,
-} from "@/lib/agent-event-connection";
+} from "@/lib/agent/agent-event-connection";
 import { HIDDEN_PAGE_GRACE_MS } from "@/hooks/usePageHidden";
-import { AGENT_EVENT_HEARTBEAT_MS, isNestedToolExecutionEvent, isSystemMessageEvent } from "@/lib/agent-event-wire";
-import { getToolExecutionProgress } from "@/lib/tool-execution-progress";
+import { AGENT_EVENT_HEARTBEAT_MS, isNestedToolExecutionEvent, isSystemMessageEvent } from "@/lib/agent/agent-event-wire";
+import { getToolExecutionProgress } from "@/lib/tools/tool-execution-progress";
 import { CODEMODE_TOOL_NAME, getCodemodeProgress } from "@/lib/codemode-view";
-import { updateExtensionWidgets } from "@/lib/extension-widgets";
-import { bareMcpOpensSettings } from "@/lib/mcp-command";
-import type { SettingsSection } from "@/lib/settings-navigation";
-import { withTranscriptNotices, type TranscriptNotice } from "@/lib/transcript-notices";
+import { updateExtensionWidgets } from "@/lib/agent/extension-widgets";
+import { bareMcpOpensSettings } from "@/lib/mcp/mcp-command";
+import type { SettingsSection } from "@/lib/settings/settings-navigation";
+import { withTranscriptNotices, type TranscriptNotice } from "@/lib/session/transcript-notices";
 import {
   enqueueExtensionUiRequest,
   removeExtensionUiRequest,
   retainExtensionUiRequests,
   upsertExtensionUiRequest,
-} from "@/lib/extension-ui-queue";
+} from "@/lib/agent/extension-ui-queue";
 import {
   CHAT_SCROLL_REATTACH_TOLERANCE,
   CHAT_SCROLL_TAIL_TOLERANCE,
   getLiveFollowAttached,
   shouldShowScrollToLatest,
-} from "@/lib/chat-lazy-load";
+} from "@/lib/session/chat-lazy-load";
 import {
   createStreamingStore,
   type ClientAssistantMessageEvent,
-} from "@/lib/streaming-message";
+} from "@/lib/session/streaming-message";
 
 export interface SessionData {
   sessionId: string;
@@ -890,7 +890,7 @@ export function useAgentSession(opts: UseAgentSessionOptions) {
     try {
       const tools = await sendAgentCommand<ToolEntry[]>(sid, { type: "get_tools" });
       if (!tools || !sessionHookMountedRef.current || sessionIdRef.current !== sid) return null;
-      const { getPresetFromTools } = await import("@/lib/tool-presets");
+      const { getPresetFromTools } = await import("@/lib/tools/tool-presets");
       setToolPresetState(sessionToolsPinnedRef.current ? getPresetFromTools(tools) : CONFIGURED_TOOL_PRESET);
       onSystemToolsChange?.(tools);
       return tools;

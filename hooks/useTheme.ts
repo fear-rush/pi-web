@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
-import { isDarkTheme, isThemePreference, type ThemePreference, type ResolvedTheme } from "@/lib/theme";
+import { isDarkTheme, isThemePreference, type ThemePreference, type ResolvedTheme } from "@/lib/settings/theme";
 
-export type { ThemePreference, ResolvedTheme } from "@/lib/theme";
+export type { ThemePreference, ResolvedTheme } from "@/lib/settings/theme";
 
 type ThemeState = {
   preference: ThemePreference;

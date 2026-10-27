@@ -9,7 +9,7 @@ import {
   type SessionUiFlagsSnapshot,
   type SessionUiState,
   type SessionUiStateRequest,
-} from "@/lib/session-ui-state-shared";
+} from "@/lib/session/session-ui-state-shared";
 
 const SESSION_UI_STATE_URL = "/api/sessions/ui-state";
 

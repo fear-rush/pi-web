@@ -23,8 +23,8 @@ await mkdir(join(cwd, ".pi"), { recursive: true });
 await mkdir(outside, { recursive: true });
 
 const jiti = createJiti(import.meta.url, { alias: { "@": process.cwd() } });
-const { allowFileRoot } = await jiti.import("../../../../lib/file-access.ts");
-const { clearMcpStatuses } = await jiti.import("../../../../lib/mcp-status.ts");
+const { allowFileRoot } = await jiti.import("../../../../lib/files/file-access.ts");
+const { clearMcpStatuses } = await jiti.import("../../../../lib/mcp/mcp-status.ts");
 const { POST } = await jiti.import("./route.ts");
 const { GET } = await jiti.import("../route.ts");
 allowFileRoot(cwd);

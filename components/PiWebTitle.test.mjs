@@ -16,7 +16,7 @@ const {
   scrambleFrame,
   scrambleFrameCount,
 } = await jiti.import("./PiWebTitle.tsx");
-const { SIDEBAR_MIN_WIDTH } = await jiti.import("@/lib/panel-layout.ts");
+const { SIDEBAR_MIN_WIDTH } = await jiti.import("@/lib/settings/panel-layout.ts");
 const { getLocalePlugin } = await jiti.import("@/lib/i18n/registry.ts");
 
 const css = await readFile(new URL("../app/sidebar.css", import.meta.url), "utf8");

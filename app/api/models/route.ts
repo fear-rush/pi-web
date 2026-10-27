@@ -8,12 +8,12 @@ import {
   withModelRuntimeError,
   withSafeModelLoadFailure,
   type ModelsData,
-} from "@/lib/models-cache";
-import { orderSelectorModels, resolveVisibleModels, selectInitialModelScope } from "@/lib/model-scope";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
-import { projectTrustReloadOptions } from "@/lib/project-trust";
-import { rememberProviderModels, withDeferredProviderModels } from "@/lib/deferred-provider-models";
-import { inferRemovedWorktree } from "@/lib/worktree";
+} from "@/lib/models/models-cache";
+import { orderSelectorModels, resolveVisibleModels, selectInitialModelScope } from "@/lib/models/model-scope";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
+import { projectTrustReloadOptions } from "@/lib/project/project-trust";
+import { rememberProviderModels, withDeferredProviderModels } from "@/lib/models/deferred-provider-models";
+import { inferRemovedWorktree } from "@/lib/files/worktree";
 
 export const dynamic = "force-dynamic";
 

@@ -6,7 +6,7 @@ import { createJiti } from "jiti";
 import { findHookCallback, parseProgram, toJs } from "../lib/test-source.mjs";
 
 const jiti = createJiti(import.meta.url);
-const { dropMentionText, splitDroppedItems } = await jiti.import("../lib/file-upload-client.ts");
+const { dropMentionText, splitDroppedItems } = await jiti.import("../lib/files/file-upload-client.ts");
 
 const sourceText = readFileSync(new URL("./ChatWindow.tsx", import.meta.url), "utf8");
 const source = parseProgram("ChatWindow.tsx", sourceText);

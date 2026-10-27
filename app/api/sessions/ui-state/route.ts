@@ -4,7 +4,7 @@ import {
   readSessionUiState,
   SessionUiStateLockedError,
   updateSessionUiState,
-} from "@/lib/session-ui-state";
+} from "@/lib/session/session-ui-state";
 import {
   MAX_PROJECT_NAMES,
   PROJECT_NAMES_MAX_BYTES,
@@ -13,7 +13,7 @@ import {
   type SessionUiStateErrorResponse,
   type SessionUiStateRefusalReason,
   type SessionUiStateResponse,
-} from "@/lib/session-ui-state-shared";
+} from "@/lib/session/session-ui-state-shared";
 
 export const dynamic = "force-dynamic";
 

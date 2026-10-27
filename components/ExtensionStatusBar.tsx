@@ -1,6 +1,6 @@
 "use client";
 
-import { stripAnsi } from "@/lib/ansi";
+import { stripAnsi } from "@/lib/rendering/ansi";
 import type { ExtensionStatusItem, ExtensionWidgetItem } from "@/lib/types";
 import { AnsiText } from "./AnsiText";
 import { ExtensionWidgets } from "./ExtensionWidgets";

@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { lstatSync } from "fs";
 import path from "path";
-import { getAllowedFileRoots, isExistingFilePathAllowed, isFilePathAllowed, isWindowsAbsolutePath } from "@/lib/file-access";
-import { getGitFileDiff } from "@/lib/git-changes";
-import { hasParentDirectorySegment } from "@/lib/path-security";
+import { getAllowedFileRoots, isExistingFilePathAllowed, isFilePathAllowed, isWindowsAbsolutePath } from "@/lib/files/file-access";
+import { getGitFileDiff } from "@/lib/files/git-changes";
+import { hasParentDirectorySegment } from "@/lib/files/path-security";
 
 function isDiffPathAllowed(filePath: string, allowedRoots: Set<string>): boolean {
   if (hasParentDirectorySegment(filePath)) return false;

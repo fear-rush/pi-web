@@ -10,7 +10,7 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
 });
 const { GET, POST, DELETE } = await jiti.import("./route.ts");
-const { recordAuthSuccess } = await import("../../../lib/auth-throttle.ts");
+const { recordAuthSuccess } = await import("../../../lib/auth/auth-throttle.ts");
 
 before(() => { process.env.PI_WEB_PASSWORD = "correct horse battery staple"; });
 beforeEach(() => { recordAuthSuccess(); });

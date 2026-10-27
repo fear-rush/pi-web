@@ -9,11 +9,11 @@ import {
   type ResolvedPaths,
   type ResolvedResource,
 } from "@earendil-works/pi-coding-agent";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
-import { getProjectTrustStatus } from "@/lib/project-trust";
+import { getProjectTrustStatus } from "@/lib/project/project-trust";
 import { isPluginSourceCheckable } from "@/lib/plugin-updates";
-import { invalidateModelRuntimeWithExtensions } from "@/lib/model-runtime";
+import { invalidateModelRuntimeWithExtensions } from "@/lib/models/model-runtime";
 import type {
   PluginDiagnostic,
   PluginPackageInfo,

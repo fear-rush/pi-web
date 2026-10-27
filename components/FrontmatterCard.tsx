@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { formatFrontmatterValue, getFrontmatterTitle } from "@/lib/frontmatter";
+import { formatFrontmatterValue, getFrontmatterTitle } from "@/lib/files/frontmatter";
 
 interface FrontmatterCardProps {
   data: Record<string, unknown> | null;

@@ -4,7 +4,7 @@ import test from "node:test";
 import { Script, createContext } from "node:vm";
 import { findCallback, nodeSource, parseProgram, toJs } from "../lib/test-source.mjs";
 
-const { captureScrollDistance, getNextVisibleCount } = await import("../lib/chat-lazy-load.ts");
+const { captureScrollDistance, getNextVisibleCount } = await import("../lib/session/chat-lazy-load.ts");
 
 const code = await readFile(new URL("./ChatWindow.tsx", import.meta.url), "utf8");
 const program = parseProgram("ChatWindow.tsx", code);

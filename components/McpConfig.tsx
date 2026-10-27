@@ -28,12 +28,12 @@ import {
   mcpVariableChips,
   mcpVariableReferencesKey,
   revealHiddenCharacters,
-} from "@/lib/mcp-server-display";
+} from "@/lib/mcp/mcp-server-display";
 import {
   getLastSettingsSelection,
   setLastSettingsSelection,
-} from "@/lib/settings-navigation";
-import { focusAfterChange, focusIfLost } from "@/lib/stacked-dialog";
+} from "@/lib/settings/settings-navigation";
+import { focusAfterChange, focusIfLost } from "@/lib/settings/stacked-dialog";
 import {
   ConfigButton,
   ConfigDetail,

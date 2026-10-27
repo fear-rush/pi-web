@@ -1,4 +1,4 @@
-import { getVapidPublicKey } from "@/lib/web-push";
+import { getVapidPublicKey } from "@/lib/push/web-push";
 import type { PushConfigResponse } from "@/lib/api-types";
 
 export const dynamic = "force-dynamic";

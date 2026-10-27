@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { resolveSessionPath, openSessionManager, buildSessionContext } from "@/lib/session-reader";
-import { getRpcSession } from "@/lib/rpc-manager";
-import { attachTranscriptNotices, readSessionTranscriptNotices } from "@/lib/transcript-notices-server";
+import { resolveSessionPath, openSessionManager, buildSessionContext } from "@/lib/session/session-reader";
+import { getRpcSession } from "@/lib/agent/rpc-manager";
+import { attachTranscriptNotices, readSessionTranscriptNotices } from "@/lib/session/transcript-notices-server";
 import type { SessionEntry } from "@/lib/types";
 
 export async function GET(

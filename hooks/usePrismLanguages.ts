@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { loadPrismLanguages, prismLanguagesLoaded } from "@/lib/prism-languages";
+import { loadPrismLanguages, prismLanguagesLoaded } from "@/lib/rendering/prism-languages";
 
 /**
  * True once every Prism language is registered (lib/prism-languages.ts). While

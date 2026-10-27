@@ -5,7 +5,7 @@ import {
   MAX_SUBAGENT_MAX_CONCURRENT,
   writeBuiltInSubagentsEnabled,
   writeSubagentMaxConcurrent,
-} from "@/lib/subagent-settings";
+} from "@/lib/subagents/subagent-settings";
 
 export const dynamic = "force-dynamic";
 

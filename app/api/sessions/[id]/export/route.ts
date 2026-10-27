@@ -6,7 +6,7 @@ import { basename, dirname, join } from "path";
 import { promisify } from "util";
 import { fileURLToPath, pathToFileURL } from "url";
 import { NextResponse } from "next/server";
-import { resolveSessionPath } from "@/lib/session-reader";
+import { resolveSessionPath } from "@/lib/session/session-reader";
 
 const execFileAsync = promisify(execFile);
 

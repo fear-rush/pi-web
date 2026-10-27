@@ -2,11 +2,11 @@
 
 import { createContext, memo, useContext, useMemo, type ComponentProps, type MouseEvent } from "react";
 import ReactMarkdown, { type Components, type ExtraProps } from "react-markdown";
-import { parsePdfPageFragment, resolveLocalFileHref, shouldOpenLocalFileInApp } from "@/lib/file-links";
-import { encodeFilePathForApi } from "@/lib/file-paths";
-import { isAudioPath, isVideoPath } from "@/lib/file-types";
-import { isExternalMarkdownHref, jumpToMarkdownFragment, markdownAppUrlTransform, markdownDocumentRehypePlugins, markdownRehypePlugins, markdownRemarkPlugins, markdownUrlTransform, markdownUserRemarkPlugins, normalizeDisplayMath } from "@/lib/markdown";
-import { splitMarkdownBlocks } from "@/lib/markdown-blocks";
+import { parsePdfPageFragment, resolveLocalFileHref, shouldOpenLocalFileInApp } from "@/lib/files/file-links";
+import { encodeFilePathForApi } from "@/lib/files/file-paths";
+import { isAudioPath, isVideoPath } from "@/lib/files/file-types";
+import { isExternalMarkdownHref, jumpToMarkdownFragment, markdownAppUrlTransform, markdownDocumentRehypePlugins, markdownRehypePlugins, markdownRemarkPlugins, markdownUrlTransform, markdownUserRemarkPlugins, normalizeDisplayMath } from "@/lib/rendering/markdown";
+import { splitMarkdownBlocks } from "@/lib/rendering/markdown-blocks";
 import { ImagePreview } from "./ImagePreview";
 import { MermaidBlock, CodeBlock } from "./MermaidBlock";
 

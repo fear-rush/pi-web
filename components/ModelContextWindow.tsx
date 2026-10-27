@@ -1,7 +1,7 @@
 "use client";
 
 import { useI18n } from "@/hooks/useI18n";
-import { parseContextWindow } from "@/lib/model-context";
+import { parseContextWindow } from "@/lib/models/model-context";
 
 export interface ModelContextSettings {
   overrides?: Record<string, unknown>;

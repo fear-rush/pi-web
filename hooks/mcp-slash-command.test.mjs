@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { findHookCallback, parseProgram, toJs } from "../lib/test-source.mjs";
-import { bareMcpOpensSettings } from "../lib/mcp-command.ts";
+import { bareMcpOpensSettings } from "../lib/mcp/mcp-command.ts";
 
 // A bare /mcp opens Settings › MCP when pi's built-in MCP extension owns it, or
 // when the session has no /mcp at all (ADR 0006, lib/mcp-command.ts). These tests

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
-import { isProviderUsageId, queryProviderUsage } from "@/lib/provider-usage";
+import { isProviderUsageId, queryProviderUsage } from "@/lib/models/provider-usage";
 
 export const dynamic = "force-dynamic";
 

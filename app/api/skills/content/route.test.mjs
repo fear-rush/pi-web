@@ -63,7 +63,7 @@ await symlink(join(outsideDir, "secret.md"), join(linkedDir, "escape.md"));
 await symlink(linkedDir, join(skillsDir, "linked"));
 
 const jiti = createJiti(import.meta.url, { alias: { "@": process.cwd() } });
-const { allowFileRoot, getAllowedFileRoots, isExistingFilePathAllowed } = await jiti.import("../../../../lib/file-access.ts");
+const { allowFileRoot, getAllowedFileRoots, isExistingFilePathAllowed } = await jiti.import("../../../../lib/files/file-access.ts");
 allowFileRoot(process.cwd());
 const { GET } = await jiti.import("./route.ts");
 

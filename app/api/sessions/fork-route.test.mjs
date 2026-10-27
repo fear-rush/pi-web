@@ -19,8 +19,8 @@ const {
   invalidateSessionListCache,
   invalidateSessionPathCache,
   listAllSessions,
-} = await jiti.import("../../../lib/session-reader.ts");
-const { buildSessionTree } = await jiti.import("../../../lib/session-tree.ts");
+} = await jiti.import("../../../lib/session/session-reader.ts");
+const { buildSessionTree } = await jiti.import("../../../lib/session/session-tree.ts");
 const { SessionManager } = await jiti.import("@earendil-works/pi-coding-agent");
 
 /** A scratch agent dir with one branched session: u1 → a1, then u1 → a2 (the file's leaf). */

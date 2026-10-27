@@ -10,7 +10,7 @@ import {
   readFontWeight,
   type FontKind,
   type FontPreferences,
-} from "@/lib/font-preferences";
+} from "@/lib/settings/font-preferences";
 
 const FONT_KINDS: FontKind[] = ["ui", "mono"];
 const PREFERENCE_KEYS = Object.keys(FONT_STORAGE_KEYS) as (keyof FontPreferences)[];

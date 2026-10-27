@@ -1,7 +1,7 @@
 import fs from "fs";
 import { NextRequest, NextResponse } from "next/server";
-import { getAllowedFileRoots, isExistingFilePathAllowed, isFilePathAllowed, isWindowsAbsolutePath } from "@/lib/file-access";
-import { getGitStatus } from "@/lib/git-changes";
+import { getAllowedFileRoots, isExistingFilePathAllowed, isFilePathAllowed, isWindowsAbsolutePath } from "@/lib/files/file-access";
+import { getGitStatus } from "@/lib/files/git-changes";
 
 export async function GET(request: NextRequest) {
   try {

@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getSessionListVersion } from "@/lib/session-reader";
+import { getSessionListVersion } from "@/lib/session/session-reader";
 import {
   getAwaitingInputRpcSessionIds,
   getCompletionNotificationSuppressedRpcSessionIds,
   getRunningRpcSessionIds,
-} from "@/lib/rpc-manager";
-import { getSessionUiStateRevision } from "@/lib/session-ui-state";
+} from "@/lib/agent/rpc-manager";
+import { getSessionUiStateRevision } from "@/lib/session/session-ui-state";
 
 export const dynamic = "force-dynamic";
 

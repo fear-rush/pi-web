@@ -10,8 +10,8 @@ import {
   type ProjectChoice,
   type ProjectWorktreeContext,
   type WorktreeChoice,
-} from "@/lib/new-session-context";
-import { projectNameOf } from "@/lib/session-tree";
+} from "@/lib/session/new-session-context";
+import { projectNameOf } from "@/lib/session/session-tree";
 import { ActivitySummary } from "./SessionTree";
 import { SidebarMenu, type SidebarMenuAnchor, type SidebarMenuItem } from "./SidebarMenu";
 import { BranchIcon, ChevronIcon, FolderIcon, FolderPlusIcon, PlusIcon, TrashIcon } from "./SidebarIcons";

@@ -4,7 +4,7 @@ import {
   TERMINAL_THEME_DEFAULT,
   TERMINAL_THEME_STORAGE_KEY,
   type TerminalTheme,
-} from "@/lib/terminal-theme";
+} from "@/lib/terminal/terminal-theme";
 
 function readStoredTheme(): TerminalTheme {
   try {

@@ -6,13 +6,13 @@ import {
   listAllSessions,
   listSessionSummaries,
   mergeSessionLists,
-} from "@/lib/session-reader";
+} from "@/lib/session/session-reader";
 import {
   getAwaitingInputRpcSessionIds,
   getCompletionNotificationSuppressedRpcSessionIds,
   getRpcSessionInfos,
   getRunningRpcSessionIds,
-} from "@/lib/rpc-manager";
+} from "@/lib/agent/rpc-manager";
 import { startServerPerf } from "@/lib/perf";
 
 export const dynamic = "force-dynamic";

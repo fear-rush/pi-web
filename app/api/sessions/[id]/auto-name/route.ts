@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { AgentSession } from "@earendil-works/pi-coding-agent";
-import { generateSessionTitle } from "@/lib/session-title";
-import { getRpcSession, startRpcSession } from "@/lib/rpc-manager";
-import { invalidateSessionListCache, resolveSessionPath } from "@/lib/session-reader";
+import { generateSessionTitle } from "@/lib/session/session-title";
+import { getRpcSession, startRpcSession } from "@/lib/agent/rpc-manager";
+import { invalidateSessionListCache, resolveSessionPath } from "@/lib/session/session-reader";
 
 export async function POST(
   _req: Request,

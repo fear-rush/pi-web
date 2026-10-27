@@ -4,7 +4,7 @@ import {
   recommendModelCatalogPreset,
   searchModelCatalog,
   type ModelCatalogEntry,
-} from "@/lib/model-catalog";
+} from "@/lib/models/model-catalog";
 
 export const dynamic = "force-dynamic";
 

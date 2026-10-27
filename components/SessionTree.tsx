@@ -14,9 +14,9 @@ import {
   type ReactNode,
   type RefObject,
 } from "react";
-import type { SessionFamily } from "@/lib/session-family";
-import { splitForkSuffix } from "@/lib/session-fork-name";
-import { MAX_PROJECT_NAME_LENGTH, type ProjectMovePosition } from "@/lib/session-ui-state-shared";
+import type { SessionFamily } from "@/lib/session/session-family";
+import { splitForkSuffix } from "@/lib/session/session-fork-name";
+import { MAX_PROJECT_NAME_LENGTH, type ProjectMovePosition } from "@/lib/session/session-ui-state-shared";
 import {
   PINNED_MORE_KEY,
   getRowOffsets,
@@ -27,11 +27,11 @@ import {
   type SidebarLayout,
   type SidebarProject,
   type SidebarRow,
-} from "@/lib/session-tree";
+} from "@/lib/session/session-tree";
 import type { SessionInfo } from "@/lib/types";
-import { isPlainActivation, sessionDeepLink } from "@/lib/session-links";
+import { isPlainActivation, sessionDeepLink } from "@/lib/session/session-links";
 import { formatRelativeTime, formatShortRelativeTime } from "@/lib/i18n/format";
-import { skillExpansionToCommand } from "@/lib/slash-display";
+import { skillExpansionToCommand } from "@/lib/agent/slash-display";
 import { useGroupDrag, type GroupDragHandlers } from "@/hooks/useGroupDrag";
 import { useI18n } from "@/hooks/useI18n";
 import { useScrollbarVisibility } from "@/hooks/useScrollbarVisibility";

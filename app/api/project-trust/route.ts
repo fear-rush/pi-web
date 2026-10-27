@@ -7,12 +7,12 @@ import type {
   ProjectTrustResponse,
   ProjectTrustUnreadableResponse,
 } from "@/lib/api-types";
-import { readProjectMcpServers } from "@/lib/mcp-config-read";
-import { isMcpEntryRefusal, validateMcpProject } from "@/lib/mcp-entry-request";
-import { invalidateModelsCache } from "@/lib/models-cache";
-import { getProjectTrustStatus, trustProject } from "@/lib/project-trust";
+import { readProjectMcpServers } from "@/lib/mcp/mcp-config-read";
+import { isMcpEntryRefusal, validateMcpProject } from "@/lib/mcp/mcp-entry-request";
+import { invalidateModelsCache } from "@/lib/models/models-cache";
+import { getProjectTrustStatus, trustProject } from "@/lib/project/project-trust";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
-import { destroyRpcSessionsForCwd, hasBusyRpcSessionForCwd } from "@/lib/rpc-manager";
+import { destroyRpcSessionsForCwd, hasBusyRpcSessionForCwd } from "@/lib/agent/rpc-manager";
 
 export const dynamic = "force-dynamic";
 

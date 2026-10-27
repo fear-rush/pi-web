@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { existsSync } from "fs";
-import { addWorktree, findCurrentWorktreePath, listWorktrees, removeWorktree, resolveProject, worktreeRemovalRequiresForce } from "@/lib/worktree";
-import { allowFileRoot, getAllowedFileRoots, isExistingFilePathAllowed, isFilePathAllowed } from "@/lib/file-access";
-import { projectIdentityKey } from "@/lib/project-identity";
+import { addWorktree, findCurrentWorktreePath, listWorktrees, removeWorktree, resolveProject, worktreeRemovalRequiresForce } from "@/lib/files/worktree";
+import { allowFileRoot, getAllowedFileRoots, isExistingFilePathAllowed, isFilePathAllowed } from "@/lib/files/file-access";
+import { projectIdentityKey } from "@/lib/project/project-identity";
 
 /** Same gate as /api/files: only session cwds / project roots / explicitly
  *  allowed dirs may be inspected or mutated through this endpoint. */

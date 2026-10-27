@@ -10,7 +10,7 @@ const React = await jiti.import("react");
 const { renderToStaticMarkup } = await jiti.import("react-dom/server");
 const { MermaidBlock, CodeBlock, downloadMermaidSvg } = await jiti.import("./MermaidBlock.tsx");
 const { I18nProvider } = await jiti.import("@/hooks/useI18n");
-const { loadPrismLanguages } = await jiti.import("@/lib/prism-languages");
+const { loadPrismLanguages } = await jiti.import("@/lib/rendering/prism-languages");
 
 // Simple sequenceDiagram for testing
 const mermaidSrc = `sequenceDiagram

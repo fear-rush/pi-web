@@ -8,7 +8,7 @@ import {
   type TerminalExtraKey,
   type TerminalModifier,
   type TerminalModifiers,
-} from "@/lib/terminal-extra-keys";
+} from "@/lib/terminal/terminal-extra-keys";
 
 const KEY_LABELS: Record<TerminalExtraKey | TerminalModifier, string> = {
   Escape: "ESC", "/": "/", "-": "-", Home: "HOME", ArrowUp: "↑", End: "END", PageUp: "PGUP",

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useI18n } from "@/hooks/useI18n";
-import type { EnabledModelsView } from "@/lib/enabled-models";
+import type { EnabledModelsView } from "@/lib/models/enabled-models";
 import {
   enabledModelsBulkActions,
   enabledModelsProviderToggle,

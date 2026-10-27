@@ -19,7 +19,7 @@ import {
   setMcpServersEnabled,
   type McpConfigFileTarget,
   type McpEnabledOutcome,
-} from "@/lib/mcp-config-file";
+} from "@/lib/mcp/mcp-config-file";
 import {
   MCP_ADD_MAX_TEXT,
   prepareMcpAdd,
@@ -27,8 +27,8 @@ import {
   readMcpAddValues,
   type McpAddRefusal,
   type McpAddRequest,
-} from "@/lib/mcp-add";
-import { readMcpOverview, readMcpServerConfigs, readMcpServerEntry } from "@/lib/mcp-config-read";
+} from "@/lib/mcp/mcp-add";
+import { readMcpOverview, readMcpServerConfigs, readMcpServerEntry } from "@/lib/mcp/mcp-config-read";
 import {
   isMcpEntryRefusal,
   mcpInternalsOrRefusal,
@@ -36,15 +36,15 @@ import {
   readMcpServerConfig,
   validateMcpProject,
   type McpEntryRefusal,
-} from "@/lib/mcp-entry-request";
-import { MCP_EXPOSURES, isMcpExposure, suggestFreeName } from "@/lib/mcp-import";
-import { mcpOAuthUrl, signOutMcpServer } from "@/lib/mcp-sign-in";
-import { forgetMcpEntryStatuses } from "@/lib/mcp-status";
-import { findWebPasswordField } from "@/lib/mcp-transport";
-import { holdRemovedEntry, returnRemovedEntry, takeRemovedEntry } from "@/lib/mcp-undo";
-import type { PiSdkInternals } from "@/lib/pi-sdk-internals";
-import { invalidateModelsCache } from "@/lib/models-cache";
-import { freshFolderTrustBreadth, getProjectTrustStatus, trustFreshFolderAndWrite } from "@/lib/project-trust";
+} from "@/lib/mcp/mcp-entry-request";
+import { MCP_EXPOSURES, isMcpExposure, suggestFreeName } from "@/lib/mcp/mcp-import";
+import { mcpOAuthUrl, signOutMcpServer } from "@/lib/mcp/mcp-sign-in";
+import { forgetMcpEntryStatuses } from "@/lib/mcp/mcp-status";
+import { findWebPasswordField } from "@/lib/mcp/mcp-transport";
+import { holdRemovedEntry, returnRemovedEntry, takeRemovedEntry } from "@/lib/mcp/mcp-undo";
+import type { PiSdkInternals } from "@/lib/agent/pi-sdk-internals";
+import { invalidateModelsCache } from "@/lib/models/models-cache";
+import { freshFolderTrustBreadth, getProjectTrustStatus, trustFreshFolderAndWrite } from "@/lib/project/project-trust";
 import { hasJsonContentType, isApiRequestAllowed } from "@/lib/request-security";
 
 export const dynamic = "force-dynamic";

@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as undici from "undici";
-import { readRegularFileText } from "./regular-file";
+import { readRegularFileText } from "./files/regular-file";
 
 export const DEFAULT_HTTP_IDLE_TIMEOUT_MS = 300_000;
 

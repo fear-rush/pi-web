@@ -9,7 +9,7 @@ import {
   type MutableRefObject,
   type PointerEvent,
 } from "react";
-import { clampPanelWidth } from "@/lib/panel-layout";
+import { clampPanelWidth } from "@/lib/settings/panel-layout";
 
 interface DragState {
   pointerId: number;

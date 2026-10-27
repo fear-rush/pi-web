@@ -17,27 +17,27 @@ import {
   isDocumentPreviewPath,
   isImagePath,
   isVideoPath,
-} from "@/lib/file-types";
-import { encodeFilePathForApi, getFileDirectory, getFileName, getRelativeFilePath } from "@/lib/file-paths";
-import { fileVersion, fileVersionChanged } from "@/lib/file-version";
+} from "@/lib/files/file-types";
+import { encodeFilePathForApi, getFileDirectory, getFileName, getRelativeFilePath } from "@/lib/files/file-paths";
+import { fileVersion, fileVersionChanged } from "@/lib/files/file-version";
 import { HIDDEN_PAGE_GRACE_MS, usePageHiddenFor } from "@/hooks/usePageHidden";
-import { parsePdfPageFragment, resolveLocalFileHref, shouldOpenLocalFileInApp } from "@/lib/file-links";
-import { parseFrontmatter } from "@/lib/frontmatter";
-import { isExternalMarkdownHref, jumpToMarkdownFragment, markdownAppUrlTransform, markdownPreviewRehypePlugins, markdownPreviewRemarkPlugins, markdownUrlTransform, normalizeDisplayMath } from "@/lib/markdown";
+import { parsePdfPageFragment, resolveLocalFileHref, shouldOpenLocalFileInApp } from "@/lib/files/file-links";
+import { parseFrontmatter } from "@/lib/files/frontmatter";
+import { isExternalMarkdownHref, jumpToMarkdownFragment, markdownAppUrlTransform, markdownPreviewRehypePlugins, markdownPreviewRemarkPlugins, markdownUrlTransform, normalizeDisplayMath } from "@/lib/rendering/markdown";
 import { CodeBlock, MermaidBlock } from "./MermaidBlock";
 import { DelimitedTable } from "./DelimitedTable";
-import { isDelimitedTablePath } from "@/lib/delimited-table";
+import { isDelimitedTablePath } from "@/lib/files/delimited-table";
 import { FrontmatterCard } from "./FrontmatterCard";
-import { diffGapLabel, parseUnifiedPatch, unifiedDiffLines, type SplitDiffGap, type UnifiedDiffLine } from "@/lib/patch";
-import type { GitFileDiffResponse } from "@/lib/git-types";
+import { diffGapLabel, parseUnifiedPatch, unifiedDiffLines, type SplitDiffGap, type UnifiedDiffLine } from "@/lib/session/patch";
+import type { GitFileDiffResponse } from "@/lib/files/git-types";
 import { useI18n } from "@/hooks/useI18n";
 import {
   resolveInitialFileDisplayMode,
   type FileViewerDisplayMode as DisplayMode,
   type FileViewerState,
-} from "@/lib/file-viewer-state";
+} from "@/lib/files/file-viewer-state";
 
-export type { FileViewerState } from "@/lib/file-viewer-state";
+export type { FileViewerState } from "@/lib/files/file-viewer-state";
 
 interface Props {
   filePath: string;

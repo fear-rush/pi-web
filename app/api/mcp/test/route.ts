@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { McpErrorResponse, McpTestResponse } from "@/lib/api-types";
-import { isMcpEntryRefusal, readConnectableMcpEntry } from "@/lib/mcp-entry-request";
-import { testMcpServer } from "@/lib/mcp-test";
+import { isMcpEntryRefusal, readConnectableMcpEntry } from "@/lib/mcp/mcp-entry-request";
+import { testMcpServer } from "@/lib/mcp/mcp-test";
 
 export const dynamic = "force-dynamic";
 

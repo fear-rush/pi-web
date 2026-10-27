@@ -710,7 +710,7 @@ test("a saved choice replaces the preference and its read error in the loaded ov
 });
 
 test("the exposure dropdown offers every exposure the SDK accepts, each described", async () => {
-  const { MCP_EXPOSURES } = await jiti.import("@/lib/mcp-import.ts");
+  const { MCP_EXPOSURES } = await jiti.import("@/lib/mcp/mcp-import.ts");
   assert.deepEqual([...MCP_EXPOSURE_OPTIONS], [...MCP_EXPOSURES]);
   for (const exposure of MCP_EXPOSURE_OPTIONS) {
     assert.equal(typeof messages[MCP_EXPOSURE_KEYS[exposure]], "string", exposure);

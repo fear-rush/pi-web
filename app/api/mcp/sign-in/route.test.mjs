@@ -23,9 +23,9 @@ await mkdir(agentDir, { recursive: true });
 await mkdir(join(cwd, ".pi"), { recursive: true });
 
 const jiti = createJiti(import.meta.url, { alias: { "@": process.cwd() } });
-const { allowFileRoot } = await jiti.import("../../../../lib/file-access.ts");
-const { clearMcpStatuses } = await jiti.import("../../../../lib/mcp-status.ts");
-const { cancelMcpSignIn, clearMcpSignIns, mcpSignInKey } = await jiti.import("../../../../lib/mcp-sign-in.ts");
+const { allowFileRoot } = await jiti.import("../../../../lib/files/file-access.ts");
+const { clearMcpStatuses } = await jiti.import("../../../../lib/mcp/mcp-status.ts");
+const { cancelMcpSignIn, clearMcpSignIns, mcpSignInKey } = await jiti.import("../../../../lib/mcp/mcp-sign-in.ts");
 const { POST: START } = await jiti.import("./route.ts");
 const flowRoute = await jiti.import("./[flowId]/route.ts");
 const mcpRoute = await jiti.import("../route.ts");

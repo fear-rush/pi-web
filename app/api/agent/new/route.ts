@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import type { ThinkingLevel } from "@earendil-works/pi-agent-core";
 import { existsSync } from "fs";
 import { randomUUID } from "crypto";
-import { allowFileRoot } from "@/lib/file-access";
-import { invalidateSessionListCache } from "@/lib/session-reader";
-import { startRpcSession } from "@/lib/rpc-manager";
+import { allowFileRoot } from "@/lib/files/file-access";
+import { invalidateSessionListCache } from "@/lib/session/session-reader";
+import { startRpcSession } from "@/lib/agent/rpc-manager";
 
 const THINKING_LEVELS = new Set<ThinkingLevel>(["off", "minimal", "low", "medium", "high", "xhigh", "max"]);
 

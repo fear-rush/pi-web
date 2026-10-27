@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { McpErrorResponse, McpSignInFlowInfo } from "@/lib/api-types";
-import { isMcpDisabledByOperator } from "@/lib/builtin-extensions";
-import { isMcpEntryRefusal, mcpProjectTrustRefusal, readConnectableMcpEntry } from "@/lib/mcp-entry-request";
-import { createMcpSignInDeps, mcpOAuthUrl, startMcpSignIn } from "@/lib/mcp-sign-in";
+import { isMcpDisabledByOperator } from "@/lib/agent/builtin-extensions";
+import { isMcpEntryRefusal, mcpProjectTrustRefusal, readConnectableMcpEntry } from "@/lib/mcp/mcp-entry-request";
+import { createMcpSignInDeps, mcpOAuthUrl, startMcpSignIn } from "@/lib/mcp/mcp-sign-in";
 
 export const dynamic = "force-dynamic";
 

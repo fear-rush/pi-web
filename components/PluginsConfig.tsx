@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import { sendAgentCommand } from "@/lib/agent-client";
+import { sendAgentCommand } from "@/lib/agent/agent-client";
 import type {
   PluginPackageInfo,
   PluginStandaloneExtensionInfo,
@@ -15,7 +15,7 @@ import { shortenPath } from "@/lib/display-path";
 import {
   getLastSettingsSelection,
   setLastSettingsSelection,
-} from "@/lib/settings-navigation";
+} from "@/lib/settings/settings-navigation";
 import {
   ConfigAddSourcePanel,
   ConfigButton,

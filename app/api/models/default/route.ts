@@ -7,12 +7,12 @@ import {
   shadowingProjectKeys,
   writeDefaultPreferences,
   type DefaultPreferencesEdit,
-} from "@/lib/default-preferences";
-import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/file-access";
-import { resolveVisibleModels } from "@/lib/model-scope";
-import { withDeferredProviderModels } from "@/lib/deferred-provider-models";
-import { invalidateModelsCache } from "@/lib/models-cache";
-import { projectTrustReloadOptions } from "@/lib/project-trust";
+} from "@/lib/models/default-preferences";
+import { getAllowedFileRoots, isExistingFilePathAllowed } from "@/lib/files/file-access";
+import { resolveVisibleModels } from "@/lib/models/model-scope";
+import { withDeferredProviderModels } from "@/lib/models/deferred-provider-models";
+import { invalidateModelsCache } from "@/lib/models/models-cache";
+import { projectTrustReloadOptions } from "@/lib/project/project-trust";
 
 export const dynamic = "force-dynamic";
 
