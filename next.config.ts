@@ -28,18 +28,12 @@ const nextConfig: NextConfig = {
   // next/image is only used for the static logo, so the /_next/image optimizer
   // (and its sharp/libheif attack surface, see GHSA-2xp9-vwfh-vxw4) is not needed.
   images: { unoptimized: true },
-  // `next dev` runs Turbopack and `npm run build` runs webpack.
+  // Both `next dev` and `next build` run Turbopack, and this rule keeps the
+  // Safari 16.2 regex rewrite in both (see lib/gfm-autolink-email-loader.cjs).
   turbopack: {
     rules: {
       "**/mdast-util-gfm-autolink-literal/lib/index.js": { loaders: [gfmAutolinkEmailLoader] },
     },
-  },
-  webpack(config) {
-    config.module.rules.push({
-      test: /[\\/]mdast-util-gfm-autolink-literal[\\/]lib[\\/]index\.js$/,
-      loader: gfmAutolinkEmailLoader,
-    });
-    return config;
   },
   // Node modules keep the syntax they ship unless listed here, and mermaid's
   // lazy diagram chunks are full of class `static {}` blocks (#753).
