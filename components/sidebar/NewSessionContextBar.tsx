@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
 import type { NewSessionContext, NewSessionTarget, ProjectChoice } from "@/lib/session/new-session-context";
 import { focusIfLost } from "@/lib/settings/stacked-dialog";
 import { ProjectWorktreePicker, type ProjectWorktreeControl, type ProjectWorktreePickerHandle } from "./ProjectWorktreePicker";
@@ -66,7 +65,6 @@ export function NewSessionContextBar({
   onRefreshWorktrees,
   onCreateWorktree,
 }: Props) {
-  const { t } = useI18n();
   const [homeDir, setHomeDir] = useState(() => homeDirFound);
   const pickerRef = useRef<ProjectWorktreePickerHandle>(null);
   const initialFocusRef = useRef(initialFocus);
@@ -102,9 +100,9 @@ export function NewSessionContextBar({
         layout="inline"
         context={context}
         mobile={mobile}
-        label={t("workspace.newSessionContext")}
+        label={"New session location"}
         homeDir={homeDir}
-        newWorktreeTitle={t("sidebar.newWorktreeForSession")}
+        newWorktreeTitle={"New worktree for a new session"}
         onPick={onPick}
         onUseDefaultDirectory={onUseDefaultDirectory}
         onOpenFolder={onOpenFolder}

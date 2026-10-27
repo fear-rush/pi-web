@@ -28,6 +28,9 @@ pi's packages depend on each other with `^` ranges, and the published pi-web's d
 
 ## Architecture
 
+Pi Web is English only: there is no locale system. A string lives inline where it is rendered;
+`lib/text.ts` holds only the ones whose key is chosen at runtime (label tables, status maps, push payloads).
+
 - **Browsing** (read-only, no AgentSession): `GET /api/sessions` lists `~/.pi/agent/sessions/`; `GET /api/sessions/[id]` reads the `.jsonl` through SDK `SessionManager` helpers and `lib/session/session-reader.ts`, or an open wrapper's in-memory `SessionManager`. `GET /api/agent/running` snapshots the running ids.
 - **Sending**: `POST /api/agent/[id]` → `startRpcSession()` (`lib/agent/rpc-manager.ts`) creates the AgentSession in-process (`createAgentSessionFromServices()`); `session.send(cmd)` → `session.prompt()`.
 - **Events**: `GET /api/agent/[id]/events` streams SSE `data: {...}` from `session.onEvent()`, fed by `session.subscribe()`.
@@ -104,7 +107,6 @@ lib/  (domain folders; cross-cutting modules stay at the root)
   agent/         AgentSession wrapper and registry, the SDK bridge, agent events and their wire format, extension UI plumbing, tool presets' runtime
   auth/          the web password, its throttle and the API request security checks
   files/         the file access allow-list, worktrees, uploads, the file tree, git status/diff, CSV/TSV parsing, text preview
-  i18n/          messages and the formatting registry
   mcp/           MCP config read/write, overrides, secrets, transports, the per-session host, test and OAuth sign-in
   models/        model catalogs, providers, enabledModels scopes, context windows, usage
   project/       project trust, identity, folders and their order, the workspace memory file
@@ -132,7 +134,6 @@ hooks/
                 session UI state, sidebar motion and group drag, files placement, resizable panels, shortcuts
   chat/         completion sound, chat appearance, drag-and-drop, Enter to send, scrollbar visibility
   layout/       mobile breakpoint, viewport height, page hidden, theme, terminal theme, fonts, Prism loading
-  useI18n.tsx   the translation context every panel reads
 
 bin/           the npm launcher: options, run records, process lifecycle, the preview-secret rotation
 public/        static assets, the service worker and the PWA manifest

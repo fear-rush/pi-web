@@ -1,7 +1,7 @@
 "use client";
 
+import { t, formatRelativeTime } from "@/lib/text";
 import { useEffect, useMemo, useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
 import { countRunningSubagents } from "@/lib/session/session-family";
 import type { SessionUsageSummary } from "@/lib/session/session-stats";
 import { formatActiveDuration, formatCompactCount, formatCostShort } from "@/lib/session/session-stats-format";
@@ -70,19 +70,19 @@ function useAgentUsage(ids: readonly string[], runningKey: string): Record<strin
 function usageTooltip(usage: SessionUsageSummary, t: (key: string) => string, locale: string): string {
   const { tokens } = usage;
   return [
-    `${t("session.totalActive")}: ${formatActiveDuration(usage.totalActiveMs)}`,
-    `${t("session.input")}: ${tokens.input.toLocaleString(locale)}`,
-    `${t("session.output")}: ${tokens.output.toLocaleString(locale)}`,
-    ...(tokens.cacheRead > 0 ? [`${t("session.cacheRead")}: ${tokens.cacheRead.toLocaleString(locale)}`] : []),
-    ...(tokens.cacheWrite > 0 ? [`${t("session.cacheWrite")}: ${tokens.cacheWrite.toLocaleString(locale)}`] : []),
-    `${t("session.total")}: ${tokens.total.toLocaleString(locale)}`,
-    ...(usage.cost > 0 ? [`${t("session.cost")}: $${usage.cost.toFixed(4)}`] : []),
-    `${t("session.toolCalls")}: ${usage.toolCalls.toLocaleString(locale)}`,
+    `${"Active Time"}: ${formatActiveDuration(usage.totalActiveMs)}`,
+    `${"Input"}: ${tokens.input.toLocaleString(locale)}`,
+    `${"Output"}: ${tokens.output.toLocaleString(locale)}`,
+    ...(tokens.cacheRead > 0 ? [`${"Cache Read"}: ${tokens.cacheRead.toLocaleString(locale)}`] : []),
+    ...(tokens.cacheWrite > 0 ? [`${"Cache Write"}: ${tokens.cacheWrite.toLocaleString(locale)}`] : []),
+    `${"Total"}: ${tokens.total.toLocaleString(locale)}`,
+    ...(usage.cost > 0 ? [`${"Cost"}: $${usage.cost.toFixed(4)}`] : []),
+    `${"Tool Calls"}: ${usage.toolCalls.toLocaleString(locale)}`,
   ].join("\n");
 }
 
 function UsageLine({ usage, style }: { usage: SessionUsageSummary; style?: React.CSSProperties }) {
-  const { locale, t } = useI18n();
+  const locale = "en-US";
   const cost = formatCostShort(usage.cost);
   return (
     <span
@@ -98,7 +98,7 @@ function UsageLine({ usage, style }: { usage: SessionUsageSummary; style?: React
         </span>
       )}
       {usage.tokens.total > 0 && (
-        <span>{t("agentSwitcher.tokens", { count: formatCompactCount(usage.tokens.total) })}</span>
+        <span>{`${formatCompactCount(usage.tokens.total)} tokens`}</span>
       )}
       {cost && <span style={{ color: "var(--text-muted)" }}>{cost}</span>}
     </span>
@@ -113,18 +113,6 @@ function sessionTitle(session: SessionInfo): string {
   return session.name || session.firstMessage || session.id.slice(0, 12);
 }
 
-function formatRelativeTime(value: string, locale: string): string {
-  const timestamp = new Date(value).getTime();
-  if (!Number.isFinite(timestamp)) return "";
-  const elapsedSeconds = Math.round((timestamp - Date.now()) / 1000);
-  const formatter = new Intl.RelativeTimeFormat(locale, { numeric: "auto" });
-  if (Math.abs(elapsedSeconds) < 60) return formatter.format(elapsedSeconds, "second");
-  const elapsedMinutes = Math.round(elapsedSeconds / 60);
-  if (Math.abs(elapsedMinutes) < 60) return formatter.format(elapsedMinutes, "minute");
-  const elapsedHours = Math.round(elapsedMinutes / 60);
-  if (Math.abs(elapsedHours) < 24) return formatter.format(elapsedHours, "hour");
-  return formatter.format(Math.round(elapsedHours / 24), "day");
-}
 
 export function statusColor(status: SubagentSessionStatus): string {
   if (status === "running" || status === "starting") return "var(--accent)";
@@ -183,13 +171,13 @@ function AgentRow({
   tabShown?: boolean;
   onToggleTab?: () => void;
 }) {
-  const { locale, t } = useI18n();
+  const locale = "en-US";
   const relation = session.relation?.kind === "subagent" ? session.relation : null;
   const status: SubagentSessionStatus = running ? "running" : relation?.status ?? "completed";
-  const primary = main ? t("agentSwitcher.main") : relation?.description || sessionTitle(session);
+  const primary = main ? "Main agent" : relation?.description || sessionTitle(session);
   const secondary = main
     ? sessionTitle(session)
-    : `${relation?.profile ?? t("agentSwitcher.subagent")} · ${formatRelativeTime(session.modified, locale)}`;
+    : `${relation?.profile ?? "Sub-agent"} · ${formatRelativeTime(session.modified, locale)}`;
 
   return (
     <div
@@ -249,7 +237,7 @@ function AgentRow({
         </span>
         <span style={{ display: "flex", alignItems: "center", gap: 6, color: main && !running ? "var(--text-dim)" : statusColor(status), fontSize: 11, whiteSpace: "nowrap" }}>
           {main && !running ? (
-            selected ? t("agentSwitcher.current") : null
+            selected ? "Current" : null
           ) : (
             <>
               <StatusIcon status={status} />
@@ -280,7 +268,6 @@ function AgentRow({
 }
 
 export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, runningSessionIds, onSelectSession, openSubagentTabIds, onToggleSubagentTab }: Props) {
-  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const sortedSubagents = useMemo(() => [...subagents].sort((a, b) => {
     const aRunning = runningSessionIds.has(a.id);
@@ -325,7 +312,7 @@ export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, r
   return (
     <div
       role="listbox"
-      aria-label={t("agentSwitcher.title")}
+      aria-label={"Agents"}
       style={{
         background: "var(--bg-panel)",
         borderLeft: "1px solid var(--border)",
@@ -338,20 +325,20 @@ export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, r
     >
       <div>
         <div style={{ minHeight: 44, display: "flex", alignItems: "center", gap: 8, padding: "7px 12px", borderBottom: "1px solid var(--border)" }}>
-          <strong style={{ fontSize: 12, fontWeight: 600 }}>{t("agentSwitcher.title")}</strong>
+          <strong style={{ fontSize: 12, fontWeight: 600 }}>{"Agents"}</strong>
           <span style={{ color: "var(--text-dim)", fontSize: 11 }}>
-            {t("agentSwitcher.count", { count: subagents.length })}
+            {`${subagents.length} sub-agents`}
           </span>
           <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
             {familyUsage && (
               <span style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0, overflow: "hidden" }}>
-                <span style={{ color: "var(--text-dim)", fontSize: 11, whiteSpace: "nowrap" }} title={t("agentSwitcher.totalUsageHint")}>{t("agentSwitcher.totalUsage")}</span>
+                <span style={{ color: "var(--text-dim)", fontSize: 11, whiteSpace: "nowrap" }} title={"Main agent and all sub-agents"}>{"Total"}</span>
                 <UsageLine usage={familyUsage} />
               </span>
             )}
             {runningCount > 0 && (
               <span style={{ color: "var(--accent)", fontSize: 11, whiteSpace: "nowrap" }}>
-                {t("agentSwitcher.runningCount", { count: runningCount })}
+                {`${runningCount} running`}
               </span>
             )}
           </span>
@@ -362,8 +349,8 @@ export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, r
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder={t("agentSwitcher.search")}
-              aria-label={t("agentSwitcher.search")}
+              placeholder={"Search agents"}
+              aria-label={"Search agents"}
               style={{
                 width: "100%", height: 32, padding: "0 10px",
                 border: "1px solid var(--border)", borderRadius: 6,
@@ -398,7 +385,7 @@ export function AgentSessionPanel({ rootSession, subagents, selectedSessionId, r
           ))}
           {visibleSubagents.length === 0 && (
             <div style={{ padding: "22px 12px", color: "var(--text-dim)", fontSize: 12, textAlign: "center" }}>
-              {t("agentSwitcher.noMatches")}
+              {"No matching agents"}
             </div>
           )}
         </div>

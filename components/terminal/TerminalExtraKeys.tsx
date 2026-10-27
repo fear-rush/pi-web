@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useSyncExternalStore, type PointerEvent } from "react";
-import { useI18n } from "@/hooks/useI18n";
 import {
   TERMINAL_EXTRA_KEY_ROWS,
   TERMINAL_REPEATING_KEYS,
@@ -57,7 +56,6 @@ interface Props {
 }
 
 export function TerminalExtraKeys({ modifiers, onKey, onToggleModifier }: Props) {
-  const { t } = useI18n();
   const repeatTimer = useRef<number | null>(null);
 
   const stopRepeat = () => {
@@ -84,7 +82,7 @@ export function TerminalExtraKeys({ modifiers, onKey, onToggleModifier }: Props)
   };
 
   return (
-    <div className="terminal-extra-keys" role="toolbar" aria-label={t("terminal.extraKeys")}>
+    <div className="terminal-extra-keys" role="toolbar" aria-label={"Terminal keys"}>
       {TERMINAL_EXTRA_KEY_ROWS.flat().map((key) => {
         const modifier = key === "ctrl" || key === "alt";
         return (

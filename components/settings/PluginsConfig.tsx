@@ -10,7 +10,7 @@ import type {
   PluginsResponse,
   ProjectTrustStatus,
 } from "@/lib/api-types";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { shortenPath } from "@/lib/display-path";
 import {
   getLastSettingsSelection,
@@ -51,7 +51,7 @@ import { itemsToSwitch, projectTrustReloadKey } from "./settings-ui-helpers";
 
 type PluginScope = PluginPackageInfo["scope"];
 type PluginAction = "install" | "remove" | "update" | "disable" | "enable";
-type Translate = ReturnType<typeof useI18n>["t"];
+type Translate = typeof t;
 
 const PLUGIN_SOURCE_EXAMPLES = ["npm:@scope/pi-plugin", "git:https://github.com/user/repo", "/absolute/path/to/plugin"];
 
@@ -89,22 +89,22 @@ function extensionKey(extension: PluginStandaloneExtensionInfo): string {
   return `extension\0${extension.path}`;
 }
 
-function scopeLabel(scope: PluginScope, t: Translate): string {
-  return scope === "project" ? t("skills.scope.project") : t("skills.scope.global");
+function scopeLabel(scope: PluginScope, _t: Translate): string {
+  return scope === "project" ? "project" : "global";
 }
 
 /** A package status as shown; English keeps the lower-case API value. */
-function statusLabel(status: PluginPackageInfo["status"], t: Translate): string {
+function statusLabel(status: PluginPackageInfo["status"], _t: Translate): string {
   return t(`plugins.status.${status}`);
 }
 
 /** The footer's resource totals, in the order of a package's resource summary. */
-function totalsSummary(totals: PluginsResponse["totals"], t: Translate): string {
+function totalsSummary(totals: PluginsResponse["totals"], _t: Translate): string {
   return [
-    t("i18n.resourceCount", { count: totals.extensions, label: t("i18n.extensionShort") }),
-    t("i18n.resourceCount", { count: totals.skills, label: t("i18n.skillShort") }),
-    t("i18n.resourceCount", { count: totals.prompts, label: t("i18n.promptShort") }),
-    t("i18n.resourceCount", { count: totals.themes, label: t("i18n.themeShort") }),
+    `${totals.extensions} ${t("i18n.extensionShort")}`,
+    `${totals.skills} ${t("i18n.skillShort")}`,
+    `${totals.prompts} ${t("i18n.promptShort")}`,
+    `${totals.themes} ${t("i18n.themeShort")}`,
   ].join(" · ");
 }
 
@@ -112,22 +112,22 @@ function diagnosticText(diagnostic: PluginsResponse["diagnostics"][number]): str
   return `${diagnostic.type}: ${diagnostic.source ? `${diagnostic.source}: ` : ""}${diagnostic.message}`;
 }
 
-function resourceSummary(pkg: PluginPackageInfo, t: Translate): string {
-  if (pkg.disabled) return t("i18n.disabled");
+function resourceSummary(pkg: PluginPackageInfo, _t: Translate): string {
+  if (pkg.disabled) return "Disabled";
   const parts = [
-    pkg.counts.extensions ? t("i18n.resourceCount", { count: pkg.counts.extensions, label: t("i18n.extensionShort") }) : "",
-    pkg.counts.skills ? t("i18n.resourceCount", { count: pkg.counts.skills, label: t("i18n.skillShort") }) : "",
-    pkg.counts.prompts ? t("i18n.resourceCount", { count: pkg.counts.prompts, label: t("i18n.promptShort") }) : "",
-    pkg.counts.themes ? t("i18n.resourceCount", { count: pkg.counts.themes, label: t("i18n.themeShort") }) : "",
+    pkg.counts.extensions ? `${pkg.counts.extensions} ${t("i18n.extensionShort")}` : "",
+    pkg.counts.skills ? `${pkg.counts.skills} ${t("i18n.skillShort")}` : "",
+    pkg.counts.prompts ? `${pkg.counts.prompts} ${t("i18n.promptShort")}` : "",
+    pkg.counts.themes ? `${pkg.counts.themes} ${t("i18n.themeShort")}` : "",
   ].filter(Boolean);
-  return parts.length ? parts.join(" · ") : t("i18n.noResources");
+  return parts.length ? parts.join(" · ") : "No resources";
 }
 
-function versionSummary(pkg: PluginPackageInfo, t: Translate): string {
+function versionSummary(pkg: PluginPackageInfo, _t: Translate): string {
   const parts = [];
-  if (pkg.version) parts.push(t("i18n.installedVersion", { version: pkg.version }));
-  if (pkg.configuredVersion) parts.push(t("i18n.configuredVersion", { version: pkg.configuredVersion }));
-  return parts.length ? parts.join(" · ") : t("i18n.unknown");
+  if (pkg.version) parts.push(`installed ${pkg.version}`);
+  if (pkg.configuredVersion) parts.push(`configured ${pkg.configuredVersion}`);
+  return parts.length ? parts.join(" · ") : "Unknown";
 }
 
 /** Where pi installs a package of this scope (`DefaultPackageManager`'s npm and git roots). */
@@ -157,12 +157,11 @@ function statusColor(status: PluginPackageInfo["status"]): string {
 }
 
 function ResourceList({ pkg }: { pkg: PluginPackageInfo }) {
-  const { t } = useI18n();
   const groups = ([
-    ["extension", t("i18n.extensions")],
-    ["skill", t("i18n.skills")],
-    ["prompt", t("i18n.prompts")],
-    ["theme", t("i18n.themes")],
+    ["extension", "Extensions"],
+    ["skill", "Skills"],
+    ["prompt", "Prompts"],
+    ["theme", "Themes"],
   ] as const)
     .map(([kind, label]) => ({
       kind,
@@ -174,7 +173,7 @@ function ResourceList({ pkg }: { pkg: PluginPackageInfo }) {
   if (groups.length === 0) {
     return (
       <div style={{ fontSize: 12, color: "var(--text-dim)" }}>
-        {pkg.disabled ? t("i18n.packageDisabled") : t("i18n.noResolvedResources")}
+        {pkg.disabled ? "Package disabled." : "No resolved resources"}
       </div>
     );
   }
@@ -266,11 +265,10 @@ function AddPluginPanel({
   onScopeChange: (scope: PluginScope) => void;
   onInstall: () => void;
 }) {
-  const { t } = useI18n();
 
   return (
     <ConfigAddSourcePanel
-      title={t("i18n.addPlugin")}
+      title={"Add plugin"}
       catalogs={[{
         href: "https://pi.dev/packages",
         label: "pi.dev/packages",
@@ -288,17 +286,17 @@ function AddPluginPanel({
       target={
         <ConfigSaveTarget
           value={scope}
-          label={t("config.saveTo")}
+          label={"Save to"}
           options={[
             { value: "global", label: scopeLabel("global", t) },
             { value: "project", label: scopeLabel("project", t), disabled: !projectResourcesLoaded },
           ]}
           path={installLocation(scope, cwd)}
-          disabledReason={t("trust.projectScopeUnavailable")}
+          disabledReason={"Project installs are unavailable while project resources are not loaded."}
           onChange={onScopeChange}
         />
       }
-      inputLabel={t("config.source")}
+      inputLabel={"Source"}
       inputId="plugin-source"
       placeholder="npm:@scope/package"
       value={source}
@@ -306,7 +304,7 @@ function AddPluginPanel({
       normalizeValue={normalizePluginSourceInput}
       onValueChange={onSourceChange}
       onSubmit={onInstall}
-      examplesLabel={t("config.examples")}
+      examplesLabel={"Examples"}
       examples={PLUGIN_SOURCE_EXAMPLES}
       error={actionError}
     >
@@ -316,7 +314,7 @@ function AddPluginPanel({
         disabled={busy || !source.trim()}
         className="is-pushed-right"
       >
-        {busy ? t("i18n.installing") : t("i18n.install")}
+        {busy ? "Installing..." : "Install"}
       </ConfigButton>
     </ConfigAddSourcePanel>
   );
@@ -349,7 +347,6 @@ function PackageDetail({
   onCheckUpdate: () => void;
   onReloadSession: () => void;
 }) {
-  const { t } = useI18n();
   const key = packageKey(pkg);
   const busy = (busyKey?.endsWith(key) || busyKey?.startsWith("bulk:")) ?? false;
   const reloadBusy = busyKey === "reload";
@@ -375,7 +372,7 @@ function PackageDetail({
                   color: "var(--text-dim)",
                 }}
               >
-                {t("i18n.disabled")}
+                {"Disabled"}
               </span>
             ) : pkg.filtered && (
               <span
@@ -387,7 +384,7 @@ function PackageDetail({
                   color: "#d97706",
                 }}
               >
-                {t("i18n.filtered")}
+                {"filtered"}
               </span>
             )}
             <span
@@ -412,15 +409,15 @@ function PackageDetail({
                 ? () => onAction("update", pkg)
                 : onCheckUpdate}
               disabled={busy || reloadBusy || checkingUpdate}
-              title={updateAvailable ? t("i18n.updateAvailable") : undefined}
+              title={updateAvailable ? "Update available" : undefined}
             >
                {busyKey === `update:${key}`
-                 ? t("i18n.updating")
+                 ? "Updating..."
                  : checkingUpdate
-                   ? t("i18n.checking")
+                   ? "Checking..."
                    : updateAvailable || !canCheckForUpdates
-                     ? t("i18n.update")
-                     : t("i18n.check")}
+                     ? "Update"
+                     : "Check"}
             </ConfigButton>
             <ConfigButton
               size="small"
@@ -428,7 +425,7 @@ function PackageDetail({
               disabled={!sessionId || reloadBusy || busy}
               aria-describedby={sessionId ? undefined : reloadReasonId}
             >
-               {reloadBusy ? t("i18n.reloading") : t("i18n.reloadSession")}
+               {reloadBusy ? "Reloading..." : "Reload session"}
             </ConfigButton>
             <ConfigButton
               variant="danger"
@@ -436,38 +433,38 @@ function PackageDetail({
               onClick={() => onAction("remove", pkg)}
               disabled={busy || reloadBusy}
             >
-               {busyKey === `remove:${key}` ? t("i18n.removing") : t("i18n.remove")}
+               {busyKey === `remove:${key}` ? "Removing…" : "Remove"}
             </ConfigButton>
             <ConfigSwitch
               checked={enabled}
               loading={busy || reloadBusy}
               onChange={() => onAction(pkg.disabled ? "enable" : "disable", pkg)}
-              label={pkg.disabled ? t("i18n.enablePackage") : t("i18n.disablePackage")}
+              label={pkg.disabled ? "Enable package" : "Disable package"}
             />
           </ConfigDetailActions>
         </ConfigDetailHeader>
         {!sessionId && (
           <div id={reloadReasonId} className="config-detail-heading-note">
-            {t("i18n.openSessionToReload")}
+            {"Open a session to reload"}
           </div>
         )}
       </div>
 
       <ConfigDetailGrid>
         {description && (
-          <ConfigDetailGridRow label={t("i18n.description")}>
+          <ConfigDetailGridRow label={"Description"}>
             {description}
           </ConfigDetailGridRow>
         )}
         <ConfigDetailGridRow
-          label={t("i18n.status")}
+          label={"Status"}
           tone="plain"
           style={{ color: statusColor(pkg.status), textTransform: "capitalize" }}
         >
           {statusLabel(pkg.status, t)}
         </ConfigDetailGridRow>
         <ConfigDetailGridRow
-          label={t("i18n.version")}
+          label={"Version"}
           tone="plain"
           style={{ display: "flex", flexDirection: "column", gap: 4 }}
         >
@@ -475,7 +472,7 @@ function PackageDetail({
             <span className="skill-version-value">{versionSummary(pkg, t)}</span>
             {updateAvailable && (
               <span className="skill-version-value is-update" title={updateStatus.displayName}>
-                {t("i18n.updateAvailable")}
+                {"Update available"}
               </span>
             )}
             {canCheckForUpdates && (checkingUpdate || (updateStatus && !updateAvailable)) && (
@@ -489,12 +486,12 @@ function PackageDetail({
                       : "is-muted"}`}
               >
                 {checkingUpdate
-                  ? t("i18n.checking")
+                  ? "Checking..."
                   : updateStatus?.state === "up-to-date"
-                    ? t("i18n.upToDate")
+                    ? "Up to date"
                     : updateStatus?.state === "unsupported"
-                      ? t("i18n.automaticChecksUnavailable")
-                      : updateStatus?.message || t("i18n.checkFailed")}
+                      ? "Automatic checks unavailable"
+                      : updateStatus?.message || "Check failed"}
               </span>
             )}
           </div>
@@ -502,22 +499,22 @@ function PackageDetail({
             <span style={{ fontSize: 12, color: "#ef4444" }}>{updateError}</span>
           )}
         </ConfigDetailGridRow>
-        <ConfigDetailGridRow label={t("i18n.package")} mono>
-          {pkg.packageName ?? t("i18n.unknown")}
+        <ConfigDetailGridRow label={"Package"} mono>
+          {pkg.packageName ?? "Unknown"}
         </ConfigDetailGridRow>
-        <ConfigDetailGridRow label={t("i18n.resources")}>
+        <ConfigDetailGridRow label={"Resources"}>
           {resourceSummary(pkg, t)}
         </ConfigDetailGridRow>
-        <ConfigDetailGridRow label={t("i18n.installedPath")} tone={pkg.installedPath ? "muted" : "error"} mono>
-          {pkg.installedPath ? shortenPath(pkg.installedPath) : t("i18n.notFound")}
+        <ConfigDetailGridRow label={"Installed path"} tone={pkg.installedPath ? "muted" : "error"} mono>
+          {pkg.installedPath ? shortenPath(pkg.installedPath) : "Not found"}
         </ConfigDetailGridRow>
-        <ConfigDetailGridRow label={t("i18n.cwd")} tone="dim" mono>
+        <ConfigDetailGridRow label={"CWD"} tone="dim" mono>
           {shortenPath(cwd)}
         </ConfigDetailGridRow>
       </ConfigDetailGrid>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-        <ConfigSectionTitle>{t("i18n.resolvedResources")}</ConfigSectionTitle>
+        <ConfigSectionTitle>{"Resolved Resources"}</ConfigSectionTitle>
         <ResourceList pkg={pkg} />
       </div>
 
@@ -536,7 +533,6 @@ function PackageDetail({
 }
 
 function StandaloneExtensionDetail({ extension }: { extension: PluginStandaloneExtensionInfo }) {
-  const { t } = useI18n();
   const status = extension.enabled ? "loaded" : "disabled";
 
   return (
@@ -549,13 +545,13 @@ function StandaloneExtensionDetail({ extension }: { extension: PluginStandaloneE
       </ConfigDetailHeader>
       <ConfigDetailGrid>
         <ConfigDetailGridRow
-          label={t("i18n.status")}
+          label={"Status"}
           tone="plain"
           style={{ color: extension.enabled ? "var(--accent)" : "var(--text-dim)" }}
         >
           {statusLabel(status, t)}
         </ConfigDetailGridRow>
-        <ConfigDetailGridRow label={t("i18n.installedPath")} mono>
+        <ConfigDetailGridRow label={"Installed path"} mono>
           {shortenPath(extension.path)}
         </ConfigDetailGridRow>
       </ConfigDetailGrid>
@@ -579,7 +575,6 @@ export function PluginsConfig({
   /** The page's trust status for `cwd`; a new decision loads the list again. */
   trust?: ProjectTrustStatus | null;
 }) {
-  const { t } = useI18n();
   const [data, setData] = useState<PluginsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -718,16 +713,16 @@ export function PluginsConfig({
       if (!res.ok || next.error) throw new Error(next.error ?? `HTTP ${res.status}`);
       setData(next);
       setUpdateStatuses({});
-      setActionMessage(t("i18n.packagesUpdated"));
+      setActionMessage("Packages updated.");
       if (sessionId) {
-        setActionMessage(`${t("i18n.packagesUpdated")} ${t("agents.reloadRequired")}`);
+        setActionMessage(`${"Packages updated."} ${"Reload the current session to apply this change."}`);
       }
     } catch (err) {
       setActionError(err instanceof Error ? err.message : String(err));
     } finally {
       setUpdatingAll(false);
     }
-  }, [cwd, sessionId, t]);
+  }, [cwd, sessionId]);
 
   const runAction = useCallback(async (action: PluginAction, pkg: PluginPackageInfo) => {
     const key = packageKey(pkg);
@@ -751,7 +746,7 @@ export function PluginsConfig({
             ? extensionKey(next.standaloneExtensions[0])
             : null);
         if (next.packages.length === 0 && next.standaloneExtensions.length === 0) setAddMode(true);
-        setActionMessage(t("i18n.packageRemoved"));
+        setActionMessage("Package removed.");
         setUpdateStatuses((current) => {
           const nextStatuses = { ...current };
           delete nextStatuses[key];
@@ -759,10 +754,10 @@ export function PluginsConfig({
         });
       } else {
         const messages: Record<Exclude<PluginAction, "remove">, string> = {
-          install: t("i18n.packageInstalled"),
-          update: t("i18n.packageUpdated"),
-          disable: t("i18n.packageDisabled"),
-          enable: t("i18n.packageEnabled"),
+          install: "Package installed.",
+          update: "Package updated.",
+          disable: "Package disabled.",
+          enable: "Package enabled.",
         };
         setActionMessage(messages[action]);
         if (action === "update") {
@@ -778,7 +773,7 @@ export function PluginsConfig({
     } finally {
       setBusyKey(null);
     }
-  }, [cwd, t]);
+  }, [cwd]);
 
   // Behaves like the package switch, for every package of one scope: the
   // confirmation appears in the package detail and the session is reloaded by
@@ -791,7 +786,7 @@ export function PluginsConfig({
   ) => {
     const targets = packagesToSwitch(groupPackages, enabled);
     const keptOn = enabled ? 0 : filteredPackagesKeptOn(groupPackages).length;
-    const note = keptOn > 0 ? t("plugins.bulkKeptFiltered", { count: keptOn }) : undefined;
+    const note = keptOn > 0 ? `${keptOn} filtered package(s) stayed on: disabling one removes its resource filters, so use its own switch.` : undefined;
     setActionError(null);
     setActionMessage(null);
     setGroupStatus(note ? { scope, note } : null);
@@ -814,15 +809,15 @@ export function PluginsConfig({
       setData(plugins);
       const failures = results.filter((result) => result.error);
       if (failures.length < results.length) {
-        const message = enabled ? t("plugins.bulkEnabled") : t("plugins.bulkDisabled");
-        setActionMessage(sessionId ? `${message} ${t("agents.reloadRequired")}` : message);
+        const message = enabled ? "Packages enabled." : "Packages disabled.";
+        setActionMessage(sessionId ? `${message} ${"Reload the current session to apply this change."}` : message);
       }
       if (failures.length > 0) {
         setGroupStatus({
           scope,
           note,
           error: [
-            t("plugins.bulkFailed", { count: failures.length, total: results.length }),
+            `Could not change ${failures.length} of ${results.length} packages:`,
             ...failures.map((failure) => `${failure.source}: ${failure.error}`),
           ].join("\n"),
         });
@@ -832,7 +827,7 @@ export function PluginsConfig({
     } finally {
       setBusyKey(null);
     }
-  }, [cwd, sessionId, t]);
+  }, [cwd, sessionId]);
 
   const installPlugin = useCallback(async () => {
     const source = normalizePluginSourceInput(installSource).trim();
@@ -856,13 +851,17 @@ export function PluginsConfig({
       setSelected(installed ? packageKey(installed) : key);
       setAddMode(false);
       setInstallSource("");
-      setActionMessage(t("i18n.packageInstalled"));
+      setActionMessage("Package installed.");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : String(err));
     } finally {
       setBusyKey(null);
     }
-  }, [cwd, installScope, installSource, t]);
+  }, [
+	cwd,
+	installScope,
+	installSource
+]);
 
   const reloadSession = useCallback(async () => {
     if (!sessionId) return;
@@ -874,13 +873,17 @@ export function PluginsConfig({
       await sendAgentCommand(sessionId, { type: "reload" });
       onReloaded?.();
       await loadPlugins();
-      setActionMessage(t("i18n.sessionReloaded"));
+      setActionMessage("Session reloaded.");
     } catch (err) {
       setActionError(err instanceof Error ? err.message : String(err));
     } finally {
       setBusyKey(null);
     }
-  }, [loadPlugins, onReloaded, sessionId, t]);
+  }, [
+	loadPlugins,
+	onReloaded,
+	sessionId
+]);
 
   const addBusy = busyKey?.startsWith("install:") ?? false;
   const availableUpdateCount = Object.values(updateStatuses).filter(
@@ -890,16 +893,16 @@ export function PluginsConfig({
   const footerBusy = loading || busyKey !== null || checkingUpdates.size > 0 || updatingAll;
 
   return (
-    <ConfigPanelShell embedded={embedded} title={t("common.plugins")} subtitle={shortenPath(cwd)} closeLabel={t("i18n.close")} onClose={onClose}>
+    <ConfigPanelShell embedded={embedded} title={"Plugins"} subtitle={shortenPath(cwd)} closeLabel={"Close"} onClose={onClose}>
 
-        {!projectResourcesLoaded && <ConfigTrustNotice message={t("trust.pluginsNotLoaded")} />}
+        {!projectResourcesLoaded && <ConfigTrustNotice message={"Project plugins are not loaded because this project is not trusted."} />}
 
         <ConfigSplitView>
           <ConfigSidebar>
             <ConfigSidebarList>
               {loading ? (
                 <div className="config-sidebar-message">
-                  {t("i18n.loading")}
+                  {"Loading..."}
                 </div>
               ) : error ? (
                 <div className="config-sidebar-message is-error">
@@ -907,13 +910,13 @@ export function PluginsConfig({
                 </div>
               ) : packages.length === 0 && standaloneExtensions.length === 0 ? (
                 <div className="config-sidebar-message is-empty">
-                  {t("i18n.noPlugins")}
+                  {"No plugins configured"}
                 </div>
               ) : (
                 <>
                   {standaloneExtensions.length > 0 && (
                     <div className="config-sidebar-group">
-                      <ConfigSidebarGroupLabel>{t("i18n.extensions")}</ConfigSidebarGroupLabel>
+                      <ConfigSidebarGroupLabel>{"Extensions"}</ConfigSidebarGroupLabel>
                       {standaloneExtensions.map((extension) => {
                         const key = extensionKey(extension);
                         return (
@@ -979,7 +982,7 @@ export function PluginsConfig({
                                 {pkg.source}
                               </ConfigSidebarText>
                               {updateStatuses[packageKey(pkg)]?.state === "update-available" && (
-                                <span title={t("i18n.updateAvailable")} className="skill-update-indicator">
+                                <span title={"Update available"} className="skill-update-indicator">
                                   ↑
                                 </span>
                               )}
@@ -1000,7 +1003,7 @@ export function PluginsConfig({
                   setActionMessage(null);
                 }}
               >
-                 {t("i18n.addPlugin")}
+                 {"Add plugin"}
             </ConfigListAction>
           </ConfigSidebar>
 
@@ -1037,7 +1040,7 @@ export function PluginsConfig({
                 onReloadSession={reloadSession}
               />
               ) : (
-                <ConfigEmptyState>{t("i18n.selectPackage")}</ConfigEmptyState>
+                <ConfigEmptyState>{"Select a package"}</ConfigEmptyState>
               )}
             </ConfigDetailStack>
           </ConfigDetail>
@@ -1047,39 +1050,39 @@ export function PluginsConfig({
             availableUpdateCount > 0 ? (
               <span style={{ fontSize: 12, color: "var(--accent)" }}>
                 {availableUpdateCount}{" "}
-                {availableUpdateCount === 1 ? t("i18n.update") : t("i18n.updates")}
+                {availableUpdateCount === 1 ? "Update" : "updates"}
               </span>
             ) : data?.diagnostics.length ? (
               <ConfigFooterStatus
                 tone={data.diagnostics.some((d) => d.type === "error") ? "error" : "warning"}
                 summary={data.diagnostics.length === 1
-                  ? t("plugins.diagnostic")
-                  : t("plugins.diagnostics", { count: data.diagnostics.length })}
+                  ? "1 diagnostic"
+                  : `${data.diagnostics.length} diagnostics`}
                 details={data.diagnostics.map(diagnosticText)}
               />
             ) : (
               <ConfigFooterStatus summary={data ? totalsSummary(data.totals, t) : ""} />
             )}
         >
-          {!embedded && <ConfigButton onClick={onClose}>{t("i18n.close")}</ConfigButton>}
+          {!embedded && <ConfigButton onClick={onClose}>{"Close"}</ConfigButton>}
           {hasCheckablePackages && (
             <ConfigButton
               variant={availableUpdateCount > 0 ? "primary" : "secondary"}
               onClick={() => void (availableUpdateCount > 0 ? updateAllPluginsAction() : checkForUpdates())}
               disabled={footerBusy}
-              title={availableUpdateCount > 0 ? t("i18n.updateAllPluginsHint") : undefined}
+              title={availableUpdateCount > 0 ? "Updates all configured plugins" : undefined}
             >
               {updatingAll
-                ? t("i18n.updating")
+                ? "Updating..."
                 : checkingAll
-                  ? t("i18n.checking")
+                  ? "Checking..."
                   : availableUpdateCount > 0
-                    ? `${t("i18n.updateAllPlugins")} (${availableUpdateCount})`
-                    : t("i18n.checkUpdates")}
+                    ? `${"Update all"} (${availableUpdateCount})`
+                    : "Check updates"}
             </ConfigButton>
           )}
           <ConfigButton variant="secondary" onClick={() => void loadPlugins()} disabled={footerBusy}>
-             {t("i18n.refresh")}
+             {"Refresh"}
           </ConfigButton>
         </ConfigFooter>
     </ConfigPanelShell>

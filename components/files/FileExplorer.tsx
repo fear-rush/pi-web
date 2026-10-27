@@ -18,8 +18,8 @@ import { buildSearchTree, type SearchTreeNode } from "@/lib/session/search-tree"
 import type { FileTreeHiddenReason } from "@/lib/files/file-tree-visibility";
 import { createExpandedPathsMemory } from "@/lib/files/file-tree-expansion";
 import { droppedItems } from "@/hooks/chat/useDragDrop";
-import { useI18n } from "@/hooks/useI18n";
-type Translate = ReturnType<typeof useI18n>["t"];
+import { t } from "@/lib/text";
+type Translate = typeof t;
 
 /** Why a listed entry is normally left out; only listings with `hidden=1` report it. */
 type HiddenReason = Exclude<FileTreeHiddenReason, "always">;
@@ -328,7 +328,7 @@ export function TreeNode({
     if (!pendingLinkTarget) return;
     // A link to `/`, `~` or a parent of the project opens far more than a
     // sibling folder, and a cloned repository can contain one.
-    if (node.outsideLinkEncloses && !window.confirm(t("files.allowEnclosingLinkConfirm", { target: pendingLinkTarget }))) {
+    if (node.outsideLinkEncloses && !window.confirm(`${pendingLinkTarget} contains this project or your home folder. Allowing it lets Pi Web browse everything below it until it restarts. Continue?`)) {
       return;
     }
     setAllowingLink(true);
@@ -342,7 +342,7 @@ export function TreeNode({
     } finally {
       setAllowingLink(false);
     }
-  }, [node.fullPath, node.outsideLinkEncloses, pendingLinkTarget, loadChildren, t]);
+  }, [node.fullPath, node.outsideLinkEncloses, pendingLinkTarget, loadChildren]);
 
   return (
     <div>
@@ -414,8 +414,8 @@ export function TreeNode({
         </span>
         {!hovered && pendingLinkTarget && (
           <span
-            title={t("files.outsideLink", { target: pendingLinkTarget })}
-            aria-label={t("files.outsideLink", { target: pendingLinkTarget })}
+            title={`Links to ${pendingLinkTarget}, outside this project`}
+            aria-label={`Links to ${pendingLinkTarget}, outside this project`}
             style={{ width: 14, height: 14, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)" }}
           >
             <OutsideLinkIcon />
@@ -423,8 +423,8 @@ export function TreeNode({
         )}
         {highlighted && (
           <span
-            title={t("files.newlyUploaded")}
-            aria-label={t("files.newlyUploaded")}
+            title={"Newly uploaded"}
+            aria-label={"Newly uploaded"}
             style={{ width: 14, height: 14, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}
           >
             <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3b82f6" }} />
@@ -435,8 +435,8 @@ export function TreeNode({
         )}
         {!hovered && containsGitChanges && (
           <span
-            title={t("files.containsChangedFiles")}
-            aria-label={t("files.containsChangedFiles")}
+            title={"Contains changed files"}
+            aria-label={"Contains changed files"}
             style={{
               width: 14,
               height: 14,
@@ -460,7 +460,7 @@ export function TreeNode({
               e.stopPropagation();
               onAtMention(getRelativeFilePath(node.fullPath, cwd), node.isDir);
             }}
-            title={t("files.insertPath")}
+            title={"Insert path into chat"}
             style={{
               position: "absolute",
               right: !node.isDir ? 28 : 4,
@@ -483,7 +483,7 @@ export function TreeNode({
             }}
           >
             <MentionIcon />
-            {t("files.mention")}
+            {"mention"}
           </button>
         )}
         {hovered && !node.isDir && (
@@ -491,7 +491,7 @@ export function TreeNode({
             href={`/api/files/${encodeFilePathForApi(node.fullPath)}?type=download`}
             download
             onClick={(e) => e.stopPropagation()}
-            title={t("files.download")}
+            title={"Download file"}
             style={{
               position: "absolute",
               right: 4,
@@ -537,15 +537,15 @@ export function TreeNode({
             color: "var(--text-dim)",
           }}
         >
-          <span style={{ wordBreak: "break-all" }}>{t("files.outsideLink", { target: pendingLinkTarget })}</span>
+          <span style={{ wordBreak: "break-all" }}>{`Links to ${pendingLinkTarget}, outside this project`}</span>
           {node.outsideLinkEncloses && (
-            <span style={{ color: "#f59e0b" }}>{t("files.outsideLinkEncloses")}</span>
+            <span style={{ color: "#f59e0b" }}>{"That folder contains this project or your home folder."}</span>
           )}
           <button
             type="button"
             onClick={handleAllowLink}
             disabled={allowingLink}
-            title={t("files.allowOutsideLinkTitle", { target: pendingLinkTarget })}
+            title={`Browse ${pendingLinkTarget} until Pi Web restarts, the same as selecting it as a project directory`}
             style={{
               height: 20,
               padding: "0 8px",
@@ -560,7 +560,7 @@ export function TreeNode({
               whiteSpace: "nowrap",
             }}
           >
-            {t("files.allowOutsideLink")}
+            {"Allow browsing"}
           </button>
           {allowLinkError && (
             <span role="alert" style={{ color: "#f87171", wordBreak: "break-word" }}>{allowLinkError}</span>
@@ -698,7 +698,7 @@ function ChangeRow({
             e.stopPropagation();
             onAtMention(rel, false);
           }}
-          title={t("files.insertPath")}
+          title={"Insert path into chat"}
           style={{
             position: "absolute",
             right: 4,
@@ -721,7 +721,7 @@ function ChangeRow({
           }}
         >
           <MentionIcon />
-          {t("files.mention")}
+          {"mention"}
         </button>
       )}
     </div>
@@ -741,7 +741,6 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
   onFileSearchOpenChange,
   showHidden = false,
 }, ref) {
-  const { t } = useI18n();
   const [roots, setRoots] = useState<FileNode[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -1003,11 +1002,11 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
     const folders = items.flatMap((item) => (item.kind === "folder" ? [item.name] : []));
     void prepareUpload(files, directory).then(() => {
       if (folders.length === 0) return;
-      const notice = t("chat.dropFoldersUnsupported", { names: folders.join(", ") });
+      const notice = `Folders cannot be dropped here; drop the files inside instead: ${folders.join(", ")}`;
       // An error from this upload says why its files did not land: keep it.
       setUploadError((error) => (error && files.length > 0 ? error : notice));
     });
-  }, [prepareUpload, resetFileDrag, t]);
+  }, [prepareUpload, resetFileDrag]);
 
   const handleExplorerDrop = useCallback((event: React.DragEvent) => {
     if (!event.dataTransfer.types.includes("Files")) return;
@@ -1118,7 +1117,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
       {showUploadFeedback && (
         <div style={{ padding: "6px 8px", borderBottom: "1px solid var(--border)" }}>
         {uploadBusy && (
-          <div role="status" aria-live="polite" aria-label={uploadPhase === "checking" ? t("files.checking") : t("files.uploading", { progress: uploadProgress })}>
+          <div role="status" aria-live="polite" aria-label={uploadPhase === "checking" ? "Checking files" : `Uploading, ${uploadProgress}%`}>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, minHeight: 14, color: "var(--text-muted)" }}>
               {uploadPhase === "checking" ? (
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" style={{ animation: "spin 0.8s linear infinite" }} aria-hidden="true">
@@ -1144,22 +1143,22 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
         {pendingConflict && (
           <div role="alert" style={{ padding: 7, border: "1px solid color-mix(in srgb, #f59e0b 55%, var(--border))", borderRadius: 4, background: "color-mix(in srgb, #f59e0b 9%, var(--bg-panel))" }}>
             <div style={{ fontSize: 11, color: "var(--text)", lineHeight: 1.35, overflowWrap: "anywhere" }}>
-              {t("files.conflictSummary", { count: pendingConflict.conflicts.length, countSuffix: pendingConflict.conflicts.length === 1 ? "" : "s", files: pendingConflict.conflicts.join(", ") })}
+              {`${pendingConflict.conflicts.length} file${pendingConflict.conflicts.length === 1 ? "" : "s"} already exist: ${pendingConflict.conflicts.join(", ")}`}
             </div>
             {pendingConflict.nonReplaceable.length > 0 && (
               <div style={{ marginTop: 3, fontSize: 10, color: "#f59e0b", lineHeight: 1.35, overflowWrap: "anywhere" }}>
-                {t("files.cannotReplace", { files: pendingConflict.nonReplaceable.join(", ") })}
+                {`Cannot replace: ${pendingConflict.nonReplaceable.join(", ")}`}
               </div>
             )}
             <div style={{ display: "flex", gap: 5, marginTop: 7 }}>
               <button type="button" onClick={() => void performUpload(pendingConflict.files, "overwrite", pendingConflict.directory)} style={{ height: 22, padding: "0 7px", border: "1px solid #ef4444", borderRadius: 4, background: "transparent", color: "#ef4444", cursor: "pointer", fontSize: 10 }}>
-                {t("files.replace")}
+                {"Replace"}
               </button>
               <button type="button" onClick={() => void performUpload(pendingConflict.files, "skip", pendingConflict.directory)} style={{ height: 22, padding: "0 7px", border: "1px solid var(--border)", borderRadius: 4, background: "var(--bg-panel)", color: "var(--text)", cursor: "pointer", fontSize: 10 }}>
-                {t("files.skipExisting")}
+                {"Skip existing"}
               </button>
               <button type="button" onClick={() => setPendingConflict(null)} style={{ height: 22, padding: "0 7px", border: "none", borderRadius: 4, background: "transparent", color: "var(--text-muted)", cursor: "pointer", fontSize: 10 }}>
-                {t("files.cancel")}
+                {"Cancel"}
               </button>
             </div>
           </div>
@@ -1168,7 +1167,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
         {uploadError && (
           <div role="alert" style={{ display: "flex", alignItems: "flex-start", gap: 6, fontSize: 11, lineHeight: 1.35, color: "#f87171" }}>
             <span style={{ minWidth: 0, flex: 1, overflowWrap: "anywhere" }}>{uploadError}</span>
-            <DismissButton onClick={() => setUploadError(null)} title={t("files.dismissError")} />
+            <DismissButton onClick={() => setUploadError(null)} title={"Dismiss error"} />
           </div>
         )}
 
@@ -1208,15 +1207,15 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
                 <button
                   type="button"
                   onClick={addUploadedFilesToChat}
-                  title={uploadSummary.uploaded.length === 1 ? t("files.addUploadedFile") : t("files.addAllUploadedFiles")}
-                  aria-label={uploadSummary.uploaded.length === 1 ? t("files.addUploadedFile") : t("files.addAllUploadedFiles")}
+                  title={uploadSummary.uploaded.length === 1 ? "Add uploaded file to chat" : "Add all uploaded files to chat"}
+                  aria-label={uploadSummary.uploaded.length === 1 ? "Add uploaded file to chat" : "Add all uploaded files to chat"}
                   style={{ height: 22, padding: "0 7px", display: "flex", alignItems: "center", justifyContent: "center", gap: 4, flexShrink: 0, border: "1px solid var(--border)", borderRadius: 4, background: "var(--bg-panel)", color: "var(--accent)", cursor: "pointer", fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}
                 >
                   <MentionIcon />
-                  {t("files.mention")}
+                  {"mention"}
                 </button>
               )}
-              <DismissButton onClick={() => setUploadSummary(null)} title={t("files.dismissUploadResults")} />
+              <DismissButton onClick={() => setUploadSummary(null)} title={"Dismiss upload results"} />
             </div>
             {uploadSummary.errors.map((item) => (
               <div key={item.name} title={item.error} style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 3, minWidth: 0, fontSize: 10, color: "#f87171" }}>
@@ -1245,16 +1244,16 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
             onKeyDown={(event) => { if (event.key === "Escape") onFileSearchOpenChange?.(false); }}
-            placeholder={t("sidebar.searchFilesPlaceholder")}
-            aria-label={t("sidebar.searchFiles")}
+            placeholder={"Search files…"}
+            aria-label={"Search files"}
             style={{ width: "100%", boxSizing: "border-box", padding: "6px 24px", border: "1px solid var(--border)", borderRadius: 8, outline: "none", background: "var(--bg)", color: "var(--text)", fontFamily: "var(--font-mono)", fontSize: 11 }}
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery("")}
-              title={t("sidebar.clearSearch")}
-              aria-label={t("sidebar.clearSearch")}
+              title={"Clear search"}
+              aria-label={"Clear search"}
               style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", display: "flex", alignItems: "center", justifyContent: "center", width: 18, height: 18, padding: 0, border: "none", borderRadius: 4, background: "none", color: "var(--text-dim)", cursor: "pointer" }}
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; e.currentTarget.style.color = "var(--text)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "var(--text-dim)"; }}
@@ -1267,9 +1266,9 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
         </div>
         {hasSearchQuery && (
           <div style={{ paddingTop: 3 }}>
-            {searchLoading && <div role="status" style={{ padding: "6px 2px", fontSize: 10, color: "var(--text-dim)" }}>{t("sidebar.searchingFiles")}</div>}
-            {!searchLoading && searchError && <div role="alert" style={{ padding: "6px 2px", fontSize: 10, color: "#f87171" }}>{t("i18n.networkError")}</div>}
-            {!searchLoading && !searchError && searchPaths.length === 0 && <div style={{ padding: "6px 2px", fontSize: 10, color: "var(--text-dim)" }}>{t("sidebar.noMatchingFiles")}</div>}
+            {searchLoading && <div role="status" style={{ padding: "6px 2px", fontSize: 10, color: "var(--text-dim)" }}>{"Searching…"}</div>}
+            {!searchLoading && searchError && <div role="alert" style={{ padding: "6px 2px", fontSize: 10, color: "#f87171" }}>{"Network error"}</div>}
+            {!searchLoading && !searchError && searchPaths.length === 0 && <div style={{ padding: "6px 2px", fontSize: 10, color: "var(--text-dim)" }}>{"No matching files"}</div>}
             {!searchLoading && !searchError && searchPaths.length > 0 && (
               <div>
                 {searchRoots.map((node) => (
@@ -1307,15 +1306,11 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
       {!changesCollapsed && gitFiles.length > 0 && (
         <div style={{ padding: "0 4px 2px" }}>
           <div
-            aria-label={t("files.changeStats", {
-              count: gitFiles.length,
-              additions: gitLineStats.additions,
-              deletions: gitLineStats.deletions,
-            })}
+            aria-label={`${gitFiles.length} changed files, ${gitLineStats.additions} lines added, ${gitLineStats.deletions} lines deleted`}
             style={{ display: "flex", alignItems: "center", gap: 6, height: 24, padding: "0 10px", fontSize: 12 }}
           >
             <span style={{ color: "var(--text-dim)" }}>
-              {t("files.changedCount", { count: gitFiles.length })}
+              {`${gitFiles.length} files`}
             </span>
             <span style={{ color: GIT_STATUS_COLORS.added, fontFamily: "var(--font-mono)" }}>+{gitLineStats.additions}</span>
             <span style={{ color: GIT_STATUS_COLORS.deleted, fontFamily: "var(--font-mono)" }}>-{gitLineStats.deletions}</span>
@@ -1364,7 +1359,7 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
           )}
           {!loading && !error && roots.length === 0 && (
             <div style={{ padding: "8px 12px", fontSize: 11, color: "var(--text-dim)" }}>
-              {t("files.noFiles")}
+              {"No files found"}
             </div>
           )}
         </div>
@@ -1397,11 +1392,9 @@ export const FileExplorer = forwardRef<FileExplorerHandle, Props>(function FileE
             <path d="m7 9 5-5 5 5" />
             <path d="M5 20h14" />
           </svg>
-          {t("files.dropToUpload", {
-            directory: dropTargetPath
+          {`Release to upload to ${dropTargetPath
               ? (getRelativeFilePath(dropTargetPath, cwd) || dropTargetPath)
-              : (getFileName(cwd) || cwd),
-          })}
+              : (getFileName(cwd) || cwd)}`}
         </div>
       )}
     </div>

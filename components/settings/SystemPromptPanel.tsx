@@ -1,24 +1,22 @@
-type Translate = (key: string, params?: Record<string, string | number>) => string;
 
 interface Props {
   loading: boolean;
   prompt: string | null;
-  translate: Translate;
 }
 
-export function SystemPromptPanel({ loading, prompt, translate }: Props) {
+export function SystemPromptPanel({ loading, prompt }: Props) {
   return (
-    <section className="system-prompt-panel" aria-label={translate("system.prompt")}>
+    <section className="system-prompt-panel" aria-label={"System prompt"}>
       <div className="system-prompt-scroll">
         {prompt ? (
           <div className="system-prompt-text">{prompt}</div>
         ) : (
           <div className="system-prompt-empty">
             {prompt === ""
-              ? translate("system.empty")
+              ? "System prompt is empty (tools are disabled)"
               : loading
-                ? translate("system.loading")
-                : translate("system.load")}
+                ? "Loading system prompt…"
+                : "System prompt has not loaded yet"}
           </div>
         )}
       </div>

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { MessageView } from "../chat/MessageView";
 import { StatusIcon, statusColor } from "../sidebar/AgentSessionPanel";
 import { buildToolResultsMap, EMPTY_TRANSCRIPT, mergeTailPage, prependOlderPage, type SubagentTranscript } from "./subagent-viewer-state";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import type { SessionInfo } from "@/lib/types";
 
 interface Props {
@@ -44,7 +44,7 @@ function toTranscript(page: Partial<SubagentTranscript>): SubagentTranscript {
  * synchronously, so a 2 s poll shows the run at message/tool-call resolution.
  */
 export function SubagentViewer({ sessionId, fallbackLabel, running, onOpenFile }: Props) {
-  const { t, locale } = useI18n();
+  const locale = "en-US";
   const [info, setInfo] = useState<SessionInfo | null>(null);
   const [label, setLabel] = useState(fallbackLabel);
   const [transcript, setTranscript] = useState<SubagentTranscript>(EMPTY_TRANSCRIPT);
@@ -201,7 +201,7 @@ export function SubagentViewer({ sessionId, fallbackLabel, running, onOpenFile }
         </span>
         <strong
           style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, fontWeight: 600 }}
-          title={relation ? `${relation.profile ?? t("agentSwitcher.subagent")} · ${label}` : label}
+          title={relation ? `${relation.profile ?? "Sub-agent"} · ${label}` : label}
         >
           {label}
         </strong>
@@ -215,8 +215,8 @@ export function SubagentViewer({ sessionId, fallbackLabel, running, onOpenFile }
         <button
           type="button"
           onClick={() => setRefreshKey((key) => key + 1)}
-          title={t("subagent.refresh")}
-          aria-label={t("subagent.refresh")}
+          title={"Refresh"}
+          aria-label={"Refresh"}
           style={{
             display: "grid", placeItems: "center", width: 24, height: 24, flexShrink: 0,
             background: "none", border: "none", borderRadius: 4, color: "var(--text-dim)", cursor: "pointer", padding: 0,
@@ -238,11 +238,11 @@ export function SubagentViewer({ sessionId, fallbackLabel, running, onOpenFile }
       >
         {notFound ? (
           <div style={{ padding: "24px 16px", color: "var(--text-muted)", fontSize: 12, textAlign: "center" }}>
-            {running ? t("subagent.viewer.starting") : t("subagent.viewer.error")}
+            {running ? "Sub-agent session is starting…" : "Failed to load sub-agent session"}
           </div>
         ) : error && messages.length === 0 ? (
           <div role="alert" style={{ padding: "24px 16px", color: "#dc2626", fontSize: 12, textAlign: "center" }}>
-            {t("subagent.viewer.error")}
+            {"Failed to load sub-agent session"}
             <div style={{ marginTop: 6, color: "var(--text-dim)", fontFamily: "var(--font-mono)", overflowWrap: "anywhere" }}>{error}</div>
           </div>
         ) : (
@@ -259,7 +259,7 @@ export function SubagentViewer({ sessionId, fallbackLabel, running, onOpenFile }
                     cursor: loadingEarlier ? "default" : "pointer",
                   }}
                 >
-                  {t("i18n.loadMore")}
+                  {"Load more"}
                 </button>
               </div>
             )}
@@ -277,7 +277,7 @@ export function SubagentViewer({ sessionId, fallbackLabel, running, onOpenFile }
             ))}
             {messages.length === 0 && !error && (
               <div style={{ padding: "24px 16px", color: "var(--text-dim)", fontSize: 12, textAlign: "center" }}>
-                {t("subagent.viewer.empty")}
+                {"No messages yet"}
               </div>
             )}
           </>

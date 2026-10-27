@@ -1,6 +1,5 @@
 "use client";
 
-import { useI18n } from "@/hooks/useI18n";
 import { getFileName } from "@/lib/files/file-paths";
 import type { WrittenFile } from "@/lib/session/turn-written-files";
 import { getFileIcon } from "../files/FileIcons";
@@ -14,11 +13,10 @@ export function TurnWrittenFiles({ files, onOpenFile }: {
   files: WrittenFile[];
   onOpenFile?: (filePath: string) => void;
 }) {
-  const { t } = useI18n();
   if (files.length === 0) return null;
 
   return (
-    <div aria-label={t("chat.filesWritten")} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, marginTop: 6 }}>
+    <div aria-label={"Files changed"} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 6, marginTop: 6 }}>
       {files.map(({ filePath }) => {
         const name = getFileName(filePath);
         return (
@@ -26,7 +24,7 @@ export function TurnWrittenFiles({ files, onOpenFile }: {
             key={filePath}
             type="button"
             title={filePath}
-            aria-label={t("chat.openWrittenFile", { name })}
+            aria-label={`Open ${name}`}
             onClick={() => onOpenFile?.(filePath)}
             style={{
               display: "inline-flex",

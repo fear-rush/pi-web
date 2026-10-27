@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getFileIcon } from "../files/FileIcons";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import type { FileViewerDisplayMode, FileViewerState } from "@/lib/files/file-viewer-state";
 
 export interface Tab {
@@ -27,7 +27,6 @@ interface Props {
 }
 
 export function TabBar({ tabs, activeTabId, onSelectTab, onCloseTab }: Props) {
-  const { t } = useI18n();
   const [hoveredClose, setHoveredClose] = useState<string | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -80,7 +79,7 @@ export function TabBar({ tabs, activeTabId, onSelectTab, onCloseTab }: Props) {
           <div
             key={tab.id}
             role="tab"
-            aria-label={tab.kind === "terminal" ? t("terminal.tabLabel", { name: tab.label }) : tab.kind === "agent" ? t("subagent.tabLabel", { name: tab.label }) : tab.label}
+            aria-label={tab.kind === "terminal" ? `Terminal: ${tab.label}` : tab.kind === "agent" ? `Sub-agent ${tab.label}` : tab.label}
             aria-selected={isActive}
             tabIndex={isActive || (!activeTabId && tabs[0].id === tab.id) ? 0 : -1}
             onKeyDown={(event) => {

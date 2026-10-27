@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useState, type FormEvent } from "react";
-import { I18nProvider, useI18n } from "@/hooks/useI18n";
 import { safeLoginDestination } from "@/lib/login-destination";
 
 function safeDestination(): string {
@@ -11,16 +10,15 @@ function safeDestination(): string {
 }
 
 function LoginForm() {
-  const { t } = useI18n();
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   const failureMessage = async (response: Response): Promise<string> => {
-    if (response.status === 401) return t("auth.invalidPassword");
-    if (response.status !== 429) return t("auth.loginFailed");
+    if (response.status === 401) return "Incorrect password";
+    if (response.status !== 429) return "Could not log in. Try again.";
     const seconds = Number(response.headers.get("retry-after"));
-    return t("auth.tooManyAttempts", { seconds: Number.isFinite(seconds) && seconds > 0 ? seconds : 1 });
+    return `Too many failed attempts. Try again in ${Number.isFinite(seconds) && seconds > 0 ? seconds : 1}s.`;
   };
 
   const submit = async (event: FormEvent<HTMLFormElement>) => {
@@ -39,7 +37,7 @@ function LoginForm() {
       }
       window.location.replace(safeDestination());
     } catch {
-      setError(t("auth.loginFailed"));
+      setError("Could not log in. Try again.");
     } finally {
       setBusy(false);
     }
@@ -52,18 +50,18 @@ function LoginForm() {
           <Image src="/icons/apple-touch-icon.png" width={52} height={52} alt="" priority />
           <div>
             <h1>Pi Web</h1>
-            <p>{t("auth.prompt")}</p>
+            <p>{"Sign in to continue"}</p>
           </div>
         </header>
         <form className="web-login-form" onSubmit={submit}>
           <div className="web-login-composer">
-            <label className="web-login-label" htmlFor="web-login-password">{t("auth.password")}</label>
+            <label className="web-login-label" htmlFor="web-login-password">{"Password"}</label>
             <input
               id="web-login-password"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              placeholder={t("auth.password")}
+              placeholder={"Password"}
               autoComplete="current-password"
               autoFocus
               required
@@ -74,7 +72,7 @@ function LoginForm() {
                 <line x1="2" y1="7" x2="11" y2="7" />
                 <polyline points="7.5 3 12 7 7.5 11" />
               </svg>
-              {busy ? t("auth.loggingIn") : t("auth.logIn")}
+              {busy ? "Logging in..." : "Log in"}
             </button>
           </div>
           <p className="web-login-error" role="alert" aria-live="polite">{error}</p>
@@ -85,5 +83,5 @@ function LoginForm() {
 }
 
 export default function LoginPage() {
-  return <I18nProvider><LoginForm /></I18nProvider>;
+  return <LoginForm />;
 }

@@ -2,7 +2,6 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import type { BranchPreview, SessionEntry, SessionTreeNode } from "@/lib/types";
-import { useI18n } from "@/hooks/useI18n";
 
 interface Props {
   tree: SessionTreeNode[];
@@ -258,7 +257,6 @@ function TreeNodeView({ node, activePathIds, depth, isLast, parentLines, onSelec
 }
 
 export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, containerRef, open: openProp, onToggle, hasSession, compact, hideInlineButton, locked = false }: Props) {
-  const { t } = useI18n();
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp !== undefined ? openProp : openInternal;
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -290,14 +288,14 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
 
   const lockedNotice = locked && (
     <div style={{ padding: "2px 0 4px", fontSize: 11, color: "var(--text-dim)", fontStyle: "italic" }}>
-      {t("i18n.branchesLockedWhileRunning")}
+      {"Branches can't be switched while the session is running"}
     </div>
   );
 
   const noBranchReason = !hasSession
-    ? t("i18n.noActiveSession")
+    ? "No active session"
     : !hasSessionBranches(tree)
-      ? t("i18n.noBranches")
+      ? "This session has no branches"
       : null;
 
   const topLevel = selectTopLevelBranches(tree);
@@ -343,12 +341,12 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
           }}
           onMouseEnter={(e) => { e.currentTarget.style.color = "var(--text)"; }}
           onMouseLeave={(e) => { e.currentTarget.style.color = open ? "var(--text)" : "var(--text-muted)"; }}
-           title={t("i18n.branches")}
-           aria-label={t("i18n.branches")}
+           title={"Branches"}
+           aria-label={"Branches"}
           aria-pressed={open}
         >
           {branchIcon}
-           {!compact && <span>{t("i18n.branches")}</span>}
+           {!compact && <span>{"Branches"}</span>}
         </button>
         {open && dropdownPos && (
           <div style={{
@@ -406,7 +404,7 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
         }}
       >
         {branchIcon}
-         <span style={{ color: "var(--text-muted)" }}>{t("i18n.branches")}</span>
+         <span style={{ color: "var(--text-muted)" }}>{"Branches"}</span>
         {chevron}
       </button>
 
@@ -439,7 +437,7 @@ export function BranchNavigator({ tree, activeLeafId, onLeafChange, inline, cont
             </div>
           ) : (
             <div style={{ padding: "10px 16px", fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
-              {noBranchReason ?? t("i18n.noBranches")}
+              {noBranchReason ?? "This session has no branches"}
             </div>
           )}
         </div>

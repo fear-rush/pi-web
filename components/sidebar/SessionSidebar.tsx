@@ -82,7 +82,7 @@ import {
 } from "@/lib/session/session-ui-state-shared";
 import { focusIfLost, type FocusDocument } from "@/lib/settings/stacked-dialog";
 import { useFilesPlacement } from "@/hooks/agent/useFilesPlacement";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { useIsMobile } from "@/hooks/layout/useIsMobile";
 import { useResizablePanel } from "@/hooks/agent/useResizablePanel";
 import { useScrollbarVisibility } from "@/hooks/chat/useScrollbarVisibility";
@@ -463,7 +463,6 @@ function buttonAnchor(element: HTMLElement, align: "start" | "end"): SidebarMenu
 }
 
 export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSession, controlRef, onNewSessionContextChange, initialSessionId, initialSessionLinked, skipInitialProjectSelection, onInitialRestoreDone, refreshKey, onSessionDeleted, selectedCwd: selectedCwdProp, onCwdChange, onOpenFile, onOpenTerminal, explorerRefreshKey, onExplorerRefresh, onAtMention, onAtMentions, onBackgroundTaskDone, onRunningSessionIdsChange, onSessionsChange }: Props) {
-  const { t } = useI18n();
   const isMobile = useIsMobile();
   const [allSessions, setAllSessions] = useState<SessionInfo[]>([]);
   // Tracked in a ref only: the version is compared against the polled value to
@@ -657,7 +656,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const getDefaultFilesHeight = useCallback(() => Math.round(sidebarBodyHeight() * FILES_SECTION_DEFAULT_SHARE), [sidebarBodyHeight]);
   const getMaxFilesHeight = useCallback(() => sidebarBodyHeight() - SESSIONS_SECTION_MIN_HEIGHT, [sidebarBodyHeight]);
   const filesSizer = useResizablePanel({
-    ariaLabel: t("sidebar.resizeFiles"),
+    ariaLabel: "Resize file browser",
     axis: "vertical",
     cssVariable: "--sidebar-files-height",
     defaultWidth: FILES_SECTION_DEFAULT_HEIGHT,
@@ -1109,12 +1108,21 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         }
         // Session not found — notify parent so it can show the placeholder
         onInitialRestoreDone?.();
-        if (initialSessionLinked) showToast(t("sidebar.sessionNotFound"));
+        if (initialSessionLinked) showToast("This session no longer exists");
       }
       const projects = getRecentProjects(allSessions);
       if (projects.length > 0) setSelectedCwd(projects[0].root);
     }
-  }, [allSessions, selectedCwd, initialSessionId, initialSessionLinked, skipInitialProjectSelection, onSelectSession, onInitialRestoreDone, showToast, t]);
+  }, [
+	allSessions,
+	selectedCwd,
+	initialSessionId,
+	initialSessionLinked,
+	skipInitialProjectSelection,
+	onSelectSession,
+	onInitialRestoreDone,
+	showToast
+]);
 
   // Prefer an exact UI selection while a refetch is in flight. Once the
   // response catches up, the server-resolved path handles Windows case and
@@ -1351,16 +1359,16 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     && selectedProject?.key === worktreeState.projectKey
     && !showWorktreeSwitcher
     ? {
-        label: t("sidebar.openRepoRoot"),
-        title: t("sidebar.openRepoRootTitle"),
+        label: "Open repo root",
+        title: "Open the repository root to manage worktrees.",
       }
     : null;
   const worktreeLoading = Boolean(selectedCwd && worktreeLoadingCwd === selectedCwd);
   const inactiveWorktreeSelector = worktreeGuide
     ?? (worktreeLoading && !showWorktreeSwitcher && !(selectedCwd && nonGitCwdsRef.current?.has(selectedCwd))
       ? {
-           label: t("sidebar.worktrees"),
-           title: t("sidebar.checkingWorktrees"),
+           label: "Worktrees...",
+           title: "Checking worktrees for this directory.",
         }
       : null);
 
@@ -1535,8 +1543,12 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   useEffect(() => {
     if (uiWriteFailures === shownUiWriteFailuresRef.current) return;
     shownUiWriteFailuresRef.current = uiWriteFailures;
-    showToast(t("sidebar.uiStateFailed", { error: uiStateError ?? "" }));
-  }, [uiWriteFailures, uiStateError, showToast, t]);
+    showToast(`Couldn’t save: ${uiStateError ?? ""}`);
+  }, [
+	uiWriteFailures,
+	uiStateError,
+	showToast
+]);
 
   // A drop, or Move up/down: the project goes next to another of its band.
   // Its band's projects without a place are saved first, top to bottom, so
@@ -1720,12 +1732,12 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       });
     }
     const message = archivable.length === 1
-      ? t("sidebar.archivedToast", { title: shortTitle(sessionRowTitle(archivable[0].root), TOAST_TITLE_MAX) })
-      : t("sidebar.archivedManyToast", { count: archivable.length });
+      ? `Archived “${shortTitle(sessionRowTitle(archivable[0].root), TOAST_TITLE_MAX)}”`
+      : `Archived ${archivable.length} sessions`;
     showToast(message, [
       {
         id: "undo",
-        label: t("sidebar.undo"),
+        label: "Undo",
         onClick: () => {
           for (const entries of chunkForSessionUiRequests(snapshot)) {
             void applyUiState({ action: "restore", entries });
@@ -1735,9 +1747,18 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
           focusAfterCommit(() => familyRowButton(archivable[0].root.id));
         },
       },
-      { id: "view", label: t("sidebar.viewArchive"), onClick: () => openArchiveView() },
+      { id: "view", label: "View", onClick: () => openArchiveView() },
     ]);
-  }, [applyUiState, focusAfterCommit, familyRowButton, openArchiveView, restoreUnread, showToast, snapshotUiState, t, unreadSessionIds]);
+  }, [
+	applyUiState,
+	focusAfterCommit,
+	familyRowButton,
+	openArchiveView,
+	restoreUnread,
+	showToast,
+	snapshotUiState,
+	unreadSessionIds
+]);
 
   // The row's archive button. A running family would come straight back, so
   // it is not archived (the row offers no button for it either).
@@ -1756,12 +1777,12 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       void applyUiState({ action: "set", ids: part, archived: false });
     }
     const message = families.length === 1
-      ? t("sidebar.restoredToast", { title: shortTitle(sessionRowTitle(families[0].root), TOAST_TITLE_MAX) })
-      : t("sidebar.restoredManyToast", { count: families.length });
+      ? `Restored “${shortTitle(sessionRowTitle(families[0].root), TOAST_TITLE_MAX)}”`
+      : `Restored ${families.length} sessions`;
     showToast(message, [
       {
         id: "undo",
-        label: t("sidebar.undo"),
+        label: "Undo",
         onClick: () => {
           for (const entries of chunkForSessionUiRequests(snapshot)) {
             void applyUiState({ action: "restore", entries });
@@ -1771,7 +1792,13 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         },
       },
     ]);
-  }, [applyUiState, familyRowButton, focusAfterCommit, showToast, snapshotUiState, t]);
+  }, [
+	applyUiState,
+	familyRowButton,
+	focusAfterCommit,
+	showToast,
+	snapshotUiState
+]);
 
   const restoreFamily = useCallback((family: SessionFamily) => restoreFamilies([family]), [restoreFamilies]);
 
@@ -1915,8 +1942,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       // toast's ellipsis cuts the name before it, never the suffix. A copy
       // left unnamed (its source had no title) is cut as other toasts are.
       const title = sessionRowTitle(forked);
-      const { head: message, tail } = splitBeforeForkSuffix(t("sidebar.forkedToast", { title }), title)
-        ?? { head: t("sidebar.forkedToast", { title: shortTitle(title, TOAST_TITLE_MAX) }), tail: undefined };
+      const { head: message, tail } = splitBeforeForkSuffix(`Forked “${title}”`, title)
+        ?? { head: `Forked “${shortTitle(title, TOAST_TITLE_MAX)}”`, tail: undefined };
       if (selectedSessionIdRef.current !== selectedAtClick) {
         // Another session was opened meanwhile: the user stays there. The
         // copy waits in its group, unread (so it shows beyond the group's
@@ -1924,17 +1951,17 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         setAllSessions((current) => (current.some((session) => session.id === forked.id) ? current : [forked, ...current]));
         setUnreadSessionIds((prev) => new Set(prev).add(forked.id));
         void loadSessions();
-        showToast(message, [{ id: "open", label: t("sidebar.open"), onClick: () => openForkedRef.current(forked, null) }], tail);
+        showToast(message, [{ id: "open", label: "Open", onClick: () => openForkedRef.current(forked, null) }], tail);
         return;
       }
       openForkedRef.current(forked, row.key);
       showToast(message, [], tail);
     } catch (error) {
-      showToast(t("sidebar.forkFailed", { error: error instanceof Error ? error.message : String(error) }));
+      showToast(`Couldn’t fork: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       forkingIdsRef.current.delete(source.id);
     }
-  }, [loadSessions, showToast, t]);
+  }, [loadSessions, showToast]);
 
   // Open in new tab (the row menu's T): the row's session in a browser tab of
   // its own, by the same link its title carries. This tab's selection, cwd and
@@ -2042,7 +2069,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     setMenu(null);
     if (ids.length === 0 || deletingRunsRef.current.has(runKey)) return;
     deletingRunsRef.current.add(runKey);
-    showToast(t("sidebar.deletingSessions"));
+    showToast("Deleting sessions…");
     try {
       const outcome = await deleteProjectSessions(ids, fetch);
       for (const id of outcome.deleted) onSessionDeleted?.(id);
@@ -2050,17 +2077,22 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       // current or pinned): focus that fell to the page with it moves on.
       void loadSessions().then(() => focusAfterCommit(focusTarget));
       if (outcome.error !== null) {
-        showToast(t("sidebar.deleteFailed", { error: outcome.error }));
+        showToast(`Couldn’t delete: ${outcome.error}`);
         return;
       }
       const count = outcome.deletedRoots.length;
-      const parts = [count === 1 ? t("sidebar.deletedOneToast") : t("sidebar.deletedManyToast", { count })];
-      if (outcome.running.length > 0) parts.push(t("sidebar.keptRunningToast", { count: outcome.running.length }));
+      const parts = [count === 1 ? "Deleted 1 session" : `Deleted ${count} sessions`];
+      if (outcome.running.length > 0) parts.push(`kept ${outcome.running.length} running`);
       showToast(parts.join(" · "));
     } finally {
       deletingRunsRef.current.delete(runKey);
     }
-  }, [focusAfterCommit, loadSessions, onSessionDeleted, showToast, t]);
+  }, [
+	focusAfterCommit,
+	loadSessions,
+	onSessionDeleted,
+	showToast
+]);
 
   const deleteAllProjectSessions = useCallback((project: SidebarProject) => {
     const { ids } = familiesToDelete(treeSelectionInput, project.key);
@@ -2276,7 +2308,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       shortcut: entry.shortcut,
       danger: entry.id === "delete",
       disabled: entry.disabledReason !== undefined,
-      disabledReason: entry.disabledReason === "running" ? t("sidebar.cannotArchiveRunning") : undefined,
+      disabledReason: entry.disabledReason === "running" ? "Running" : undefined,
       onSelect: ({ shiftKey }) => runSessionAction(entry.id, row, shiftKey),
     };
   });
@@ -2290,13 +2322,13 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     const nameItems = projectNameMenuEntries(project).map((id): SidebarMenuItem => (id === "rename-project" ? {
       type: "item",
       id,
-      label: t("sidebar.renameProject"),
+      label: "Rename…",
       icon: <PencilIcon />,
       onSelect: () => startProjectRename(project),
     } : {
       type: "item",
       id,
-      label: t("sidebar.resetProjectName"),
+      label: "Reset name",
       icon: <RestoreIcon />,
       onSelect: () => { void applyUiState({ action: "rename-project", projectKey: project.key, name: null }); },
     }));
@@ -2314,14 +2346,14 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "open-in-files",
-        label: t("sidebar.openInFilesTab"),
+        label: "Open in Files",
         icon: <FolderIcon />,
         onSelect: () => openProjectInFiles(project),
       },
       {
         type: "item",
         id: "open-new-tab",
-        label: t("sidebar.openInNewTab"),
+        label: "Open in new tab",
         icon: <OpenInNewTabIcon />,
         shortcut: "T",
         onSelect: () => openProjectInNewTab(project),
@@ -2330,7 +2362,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "move-up",
-        label: t("sidebar.moveProjectUp"),
+        label: "Move up",
         icon: <ChevronIcon className="sidebar-icon-up" />,
         disabled: up === null,
         onSelect: () => { if (up) moveProject(project.key, up.anchorKey, up.position); },
@@ -2338,7 +2370,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "move-down",
-        label: t("sidebar.moveProjectDown"),
+        label: "Move down",
         icon: <ChevronIcon className="sidebar-icon-down" />,
         disabled: down === null,
         onSelect: () => { if (down) moveProject(project.key, down.anchorKey, down.position); },
@@ -2347,7 +2379,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         // This project open, every other one closed.
         type: "item",
         id: "collapse-others",
-        label: t("sidebar.collapseOtherGroups"),
+        label: "Collapse other projects",
         icon: <ChevronIcon />,
         disabled: model.projects.every((other) => isGroupExpanded(other, shownGroupExpansion) === (other.key === project.key)),
         onSelect: () => setAllGroupsExpanded((other) => other.key === project.key),
@@ -2355,7 +2387,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "expand-all",
-        label: t("sidebar.expandAllGroups"),
+        label: "Expand all projects",
         icon: <ChevronIcon className="sidebar-icon-down" />,
         disabled: model.projects.every((other) => isGroupExpanded(other, shownGroupExpansion)),
         onSelect: () => setAllGroupsExpanded(() => true),
@@ -2364,7 +2396,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "archive-older",
-        label: t("sidebar.archiveOlderThanWeek", { count: olderCount }),
+        label: `Archive sessions older than 7 days · ${olderCount}`,
         icon: <ArchiveIcon />,
         disabled: olderCount === 0,
         onSelect: () => archiveOlderSessions(project),
@@ -2372,7 +2404,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "view-archived",
-        label: t("sidebar.viewArchived", { count: archivedCount }),
+        label: `View archived · ${archivedCount}`,
         icon: <ArchiveIcon />,
         disabled: archivedCount === 0,
         onSelect: () => openArchiveView(project.key),
@@ -2380,7 +2412,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "delete-all",
-        label: t("sidebar.deleteProjectSessions", { count: deletable.ids.length }),
+        label: `Delete all sessions… · ${deletable.ids.length}`,
         icon: <TrashIcon />,
         danger: true,
         disabled: deletable.ids.length === 0,
@@ -2407,11 +2439,11 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {notes.map((note) => <p key={note} className="sidebar-menu-question-text">{note}</p>)}
       <div className="sidebar-menu-question-buttons">
         <button type="button" className="sidebar-menu-question-confirm" disabled={count === 0} onClick={onConfirm}>
-          {t("sidebar.deleteCount", { count })}
+          {`Delete ${count}`}
         </button>
         {!isMobile && (
           <button type="button" className="sidebar-menu-question-cancel" data-sidebar-menu-autofocus="" onClick={onCancel}>
-            {t("sidebar.cancel")}
+            {"Cancel"}
           </button>
         )}
       </div>
@@ -2421,11 +2453,11 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   const projectDeleteBody = (project: SidebarProject): ReactNode => {
     const { ids, running } = familiesToDelete(treeSelectionInput, project.key);
     return deleteQuestionBody({
-      heading: t("sidebar.deleteProjectSessionsHeading", { name: project.name }),
+      heading: `Delete all sessions in ${project.name}`,
       headingTitle: project.root,
       notes: [
-        t("sidebar.deleteProjectSessionsMessage"),
-        ...(running > 0 ? [t("sidebar.deleteProjectSessionsRunning", { count: running })] : []),
+        "Pinned and archived sessions go too. This can’t be undone.",
+        ...(running > 0 ? [`Sessions running now are kept (${running}).`] : []),
       ],
       count: ids.length,
       onConfirm: () => deleteAllProjectSessions(project),
@@ -2439,7 +2471,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "restore-all",
-        label: t("sidebar.restoreAllArchived", { count: ids.length }),
+        label: `Restore all · ${ids.length}`,
         icon: <RestoreIcon />,
         disabled: ids.length === 0,
         onSelect: () => restoreFamilies(familiesOf(ids)),
@@ -2448,7 +2480,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "delete-all",
-        label: t("sidebar.deleteAllArchived", { count: ids.length }),
+        label: `Delete all… · ${ids.length}`,
         icon: <TrashIcon />,
         danger: true,
         disabled: ids.length === 0,
@@ -2468,7 +2500,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "collapse-all",
-        label: t("sidebar.collapseAllGroups"),
+        label: "Collapse all projects",
         icon: <ChevronIcon />,
         disabled: folded === archiveGroups.length,
         onSelect: () => setAllArchiveGroupsExpanded(false),
@@ -2476,7 +2508,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "expand-all",
-        label: t("sidebar.expandAllGroups"),
+        label: "Expand all projects",
         icon: <ChevronIcon className="sidebar-icon-down" />,
         disabled: folded === 0,
         onSelect: () => setAllArchiveGroupsExpanded(true),
@@ -2485,7 +2517,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "restore-all",
-        label: t("sidebar.restoreAllArchived", { count: all.length }),
+        label: `Restore all · ${all.length}`,
         icon: <RestoreIcon />,
         disabled: all.length === 0,
         onSelect: () => restoreFamilies(familiesOf(all)),
@@ -2493,7 +2525,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "delete-old",
-        label: t("sidebar.deleteOldArchived", { count: old.length }),
+        label: `Delete archived over 30 days ago… · ${old.length}`,
         icon: <TrashIcon />,
         danger: true,
         disabled: old.length === 0,
@@ -2505,7 +2537,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       {
         type: "item",
         id: "delete-all",
-        label: t("sidebar.deleteAllArchived", { count: all.length }),
+        label: `Delete all… · ${all.length}`,
         icon: <TrashIcon />,
         danger: true,
         disabled: all.length === 0,
@@ -2519,10 +2551,10 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
 
   const archiveDeleteBody = (scope: ArchiveDeleteScope | { projectKey: string }, project: SidebarProject | null): ReactNode => deleteQuestionBody({
     heading: project
-      ? t("sidebar.deleteArchivedInProjectHeading", { name: project.name })
+      ? `Delete archived sessions in ${project.name}`
       : t(scope === "old" ? "sidebar.deleteOldArchivedHeading" : "sidebar.deleteAllArchivedHeading"),
     headingTitle: project?.root,
-    notes: [t("sidebar.deleteArchivedMessage")],
+    notes: ["Their subagent sessions go too. This can’t be undone."],
     count: archiveDeleteIds(scope).length,
     onConfirm: () => deleteArchived(scope),
     onCancel: () => askArchiveDelete(undefined),
@@ -2536,26 +2568,26 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   let menuBody: ReactNode = null;
   if (menu?.kind === "row" && menuRow) {
     menuTitle = sessionRowTitle(menuRow.family.root);
-    menuLabel = t("sidebar.sessionActions");
+    menuLabel = "Session actions";
     menuItems = sessionMenuItems(menuRow);
   } else if (menu?.kind === "group") {
     // The project as the tree has it now: pinned, unpinned, renamed or moved in another window while the menu is open.
     const project = projectByKey.get(menu.project.key) ?? menu.project;
     menuTitle = project.name;
-    menuLabel = t("sidebar.projectActions", { name: project.name });
+    menuLabel = `${project.name} actions`;
     menuItems = groupMenuItems(project, menu.olderCount);
     if (menu.askDelete) menuBody = projectDeleteBody(project);
     menuWidth = 264;
   } else if (menu?.kind === "archive-group") {
     const project = archiveGroups.find((row) => row.project.key === menu.project.key)?.project ?? menu.project;
     menuTitle = project.name;
-    menuLabel = t("sidebar.archivedProjectActions", { name: project.name });
+    menuLabel = `Archived sessions of ${project.name}`;
     menuItems = archiveGroupMenuItems(project);
     if (menu.askDelete) menuBody = archiveDeleteBody({ projectKey: project.key }, project);
     menuWidth = 248;
   } else if (menu?.kind === "archive") {
-    menuTitle = t("sidebar.archived");
-    menuLabel = t("sidebar.archiveActions");
+    menuTitle = "Archived";
+    menuLabel = "Archive actions";
     menuItems = archiveMenuItems();
     if (menu.askDelete) menuBody = archiveDeleteBody(menu.askDelete, null);
     menuWidth = 280;
@@ -2609,7 +2641,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   } as const;
 
   const explorerCwd = selectedCwd ?? selectedCwdProp ?? null;
-  const changedFilesTitle = explorerCwd && changesCount > 0 ? t("sidebar.changedFiles", { count: changesCount }) : undefined;
+  const changedFilesTitle = explorerCwd && changesCount > 0 ? `${changesCount} changed files` : undefined;
   // The changes view's key turns disabled once nothing is changed (a
   // commit, a revert), under a keyboard user too. The browser blurs it to
   // the page only at its next rendering update (current Chromium), after
@@ -2633,8 +2665,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
   // chosen tab's label is bolder, the files tab carries the count). The
   // brand's text reports its own changes (fitHeader).
   const fitHeader = useHeaderFit(headerRef, (stacked
-    ? ["below", t("sidebar.new")]
-    : ["tabs", t("sidebar.tabSessions"), t("sidebar.tabFiles"), t("sidebar.new"), explorerCwd && changesCount > 0 ? changesCount : "", sidebarTab]
+    ? ["below", "New"]
+    : ["tabs", "Sessions", "Files", "New", explorerCwd && changesCount > 0 ? changesCount : "", sidebarTab]
   ).join("\n"));
   const archivedCount = model.archivedCount;
 
@@ -2648,7 +2680,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
     <ToolbarIconButton
       onClick={() => { if (explorerCwd) onOpenTerminal?.(explorerCwd); }}
       disabled={!explorerCwd || !onOpenTerminal}
-      title={t("terminal.open")}
+      title={"Open workspace terminal"}
     >
       <TerminalIcon size={keyIconSize} />
     </ToolbarIconButton>
@@ -2679,7 +2711,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         fileExplorerRef.current?.openUploadPicker();
       }}
       disabled={!explorerCwd || explorerUploadBusy}
-      title={t("sidebar.uploadFilesTitle")}
+      title={"Upload files to project root"}
     >
       <UploadIcon size={keyIconSize} />
     </ToolbarIconButton>
@@ -2694,7 +2726,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         explorerRefreshTimerRef.current = setTimeout(() => setExplorerRefreshDone(false), 2000);
       }}
       disabled={!explorerCwd}
-      title={t("sidebar.refreshExplorer")}
+      title={"Refresh file list"}
       done={explorerRefreshDone}
     >
       {explorerRefreshDone ? <CheckIcon size={keyIconSize} /> : <RefreshIcon size={keyIconSize} />}
@@ -2708,7 +2740,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         saveShowIgnoredFiles(next);
       }}
       disabled={!explorerCwd}
-      title={t("sidebar.showIgnoredFiles")}
+      title={"Show ignored files"}
       pressed={showIgnoredFiles}
       className={className}
     >
@@ -2731,7 +2763,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         setChangesCollapsed((collapsed) => !collapsed);
       }}
       disabled={changesKeyDisabled}
-      title={t("sidebar.changedFiles", { count: changesCount })}
+      title={`${changesCount} changed files`}
       pressed={!changesKeyDisabled && !changesCollapsed}
     >
       <ChangesIcon size={keyIconSize} />
@@ -2773,7 +2805,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       <div ref={headerRef} className="sidebar-header">
         {stacked && <PiWebTitle onWidthChange={fitHeader} />}
         {!stacked && (
-          <div className="sidebar-tabs-list" role="tablist" aria-label={t("sidebar.tabsLabel")}>
+          <div className="sidebar-tabs-list" role="tablist" aria-label={"Sidebar view"}>
             <button
               ref={sessionsTabRef}
               type="button"
@@ -2787,7 +2819,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               onKeyDown={handleTabKeyDown}
             >
               <MessageIcon size={13} className="sidebar-tab-icon" />
-              <span className="sidebar-tab-label">{t("sidebar.tabSessions")}</span>
+              <span className="sidebar-tab-label">{"Sessions"}</span>
             </button>
             <button
               ref={filesTabRef}
@@ -2803,7 +2835,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               onKeyDown={handleTabKeyDown}
             >
               <FolderIcon size={13} className="sidebar-tab-icon" />
-              <span className="sidebar-tab-label">{t("sidebar.tabFiles")}</span>
+              <span className="sidebar-tab-label">{"Files"}</span>
               {explorerCwd && changesCount > 0 && <span className="sidebar-tab-count" aria-hidden="true">{changesCount}</span>}
             </button>
           </div>
@@ -2814,10 +2846,10 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
           className="sidebar-new-button"
           onClick={handleNewSession}
           disabled={!selectedCwd}
-          title={selectedCwd ? t("sidebar.newSessionTitle", { path: selectedCwd }) : t("sidebar.selectProject")}
+          title={selectedCwd ? `New session in ${selectedCwd}` : "Select project…"}
         >
           <PlusIcon size={12} />
-          <span className="sidebar-new-label">{t("sidebar.new")}</span>
+          <span className="sidebar-new-label">{"New"}</span>
         </button>
         <button
           ref={searchButtonRef}
@@ -2836,8 +2868,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
             }
             setSessionSearchOpen((open) => !open);
           }}
-          title={searchesFiles ? t("sidebar.searchFiles") : t("sidebar.toggleSessionSearch")}
-          aria-label={searchesFiles ? t("sidebar.searchFiles") : t("sidebar.toggleSessionSearch")}
+          title={searchesFiles ? "Search files" : "Search conversations"}
+          aria-label={searchesFiles ? "Search files" : "Search conversations"}
           aria-expanded={searchesFiles ? fileSearchOpen : sessionSearchOpen}
           aria-controls={searchesFiles ? "file-search-input" : "session-search-input"}
           className={`sidebar-search-toggle${(searchesFiles ? fileSearchOpen : sessionSearchOpen) ? " is-active" : ""}`}
@@ -2852,7 +2884,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         ref={sessionsPanelRef}
         id="session-sidebar-panel-sessions"
         role={stacked ? "region" : "tabpanel"}
-        aria-label={stacked ? t("sidebar.tabSessions") : undefined}
+        aria-label={stacked ? "Sessions" : undefined}
         aria-labelledby={stacked ? undefined : "session-sidebar-tab-sessions"}
         hidden={!stacked && sidebarTab !== "sessions"}
         className="sidebar-panel sidebar-sessions-panel"
@@ -2866,8 +2898,8 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               autoFocus
               value={sessionSearchQuery}
               maxLength={200}
-              aria-label={t("sidebar.searchSessions")}
-              placeholder={t("sidebar.searchSessions")}
+              aria-label={"Search all conversations..."}
+              placeholder={"Search all conversations..."}
               onChange={(event) => setSessionSearchQuery(event.target.value)}
               onKeyDown={(event) => {
                 if (event.key === "Escape" && !event.nativeEvent.isComposing && event.keyCode !== 229) {
@@ -2895,7 +2927,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               <SessionTree
                 {...treeProps}
                 rows={model.rows}
-                emptyLabel={t("sidebar.noSessions")}
+                emptyLabel={"No sessions found"}
                 reveal={treeReveal}
                 onRevealHandled={handleRevealHandled}
               />
@@ -2913,19 +2945,19 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                     ref={archiveBackRef}
                     type="button"
                     className="sidebar-archive-back"
-                    title={t("sidebar.backToSessions")}
-                    aria-label={`${t("sidebar.backToSessions")}: ${t("sidebar.archivedCount", { count: archivedCount })}`}
+                    title={"Back"}
+                    aria-label={`${"Back"}: ${`Archived · ${archivedCount}`}`}
                     onClick={() => setArchiveView(false)}
                   >
                     <ChevronIcon size={13} className="sidebar-icon-back" />
-                    <span>{t("sidebar.archived")}</span>
+                    <span>{"Archived"}</span>
                     <span className="sidebar-archive-count">· {archivedCount}</span>
                   </button>
                   <button
                     type="button"
                     className={`sidebar-archive-menu-button${menu?.kind === "archive" ? " is-active" : ""}`}
-                    title={t("sidebar.archiveActions")}
-                    aria-label={t("sidebar.archiveActions")}
+                    title={"Archive actions"}
+                    aria-label={"Archive actions"}
                     aria-haspopup="menu"
                     aria-expanded={menu?.kind === "archive"}
                     disabled={archiveGroups.length === 0}
@@ -2937,7 +2969,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 <SessionTree
                   {...treeProps}
                   rows={archiveRows}
-                  emptyLabel={t("sidebar.noArchived")}
+                  emptyLabel={"No archived sessions"}
                   reveal={archiveReveal}
                   onRevealHandled={handleArchiveRevealHandled}
                 />
@@ -2957,7 +2989,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
           aria-controls="session-sidebar-panel-files"
           className={`panel-resize-handle sidebar-files-resize-handle${filesSizer.isResizing ? " is-resizing" : ""}`}
           data-resize-handle="sidebar-files"
-          title={`${t("sidebar.resizeFiles")}: ${t("sidebar.resizeFilesHint")}`}
+          title={`${"Resize file browser"}: ${"Drag to resize. Double-click or press Enter to reset."}`}
         />
       )}
 
@@ -2968,7 +3000,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         ref={filesPanelRef}
         id="session-sidebar-panel-files"
         role={stacked ? "region" : "tabpanel"}
-        aria-label={stacked ? t("sidebar.tabFiles") : undefined}
+        aria-label={stacked ? "Files" : undefined}
         aria-labelledby={stacked ? undefined : "session-sidebar-tab-files"}
         hidden={!stacked && sidebarTab !== "files"}
         className="sidebar-panel sidebar-files-panel"
@@ -2990,11 +3022,11 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               onClick={() => setFilesSectionCollapsed(!filesCollapsed)}
             >
               <ChevronIcon size={12} strokeWidth={3} className={`session-tree-chevron${filesCollapsed ? "" : " is-open"}`} />
-              <span className="sidebar-files-section-label">{t("sidebar.tabFiles")}</span>
+              <span className="sidebar-files-section-label">{"Files"}</span>
               {/* As the pinned section's count; the changes key says it to a screen reader. */}
               {changedFilesTitle && <span className="sidebar-files-section-count" aria-hidden="true">· {changesCount}</span>}
             </button>
-            <div className="sidebar-files-keys" role="group" aria-label={t("sidebar.fileActions")}>
+            <div className="sidebar-files-keys" role="group" aria-label={"File actions"}>
               {terminalButton}
               {fileManagerButton}
               {uploadButton}
@@ -3012,7 +3044,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                   setFileSearchOpen((open) => !open);
                 }}
                 disabled={!explorerCwd}
-                title={t("sidebar.searchFiles")}
+                title={"Search files"}
                 expanded={fileSearchOpen}
                 controls="file-search-input"
               >
@@ -3045,12 +3077,12 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
               layout={stacked ? "row" : "stacked"}
               context={newSessionContext ?? { project: null, worktrees: null, currentWorktreePath: null, projects: projectChoiceList }}
               mobile={isMobile}
-              label={t("sidebar.projectAndWorktree")}
-              placeholder={initialSessionId && !restoredRef.current ? "" : t("sidebar.selectProject")}
+              label={"Project and worktree"}
+              placeholder={initialSessionId && !restoredRef.current ? "" : "Select project…"}
               homeDir={homeDir}
               projectActivity={projectActivity}
               worktreeHint={inactiveWorktreeSelector}
-              newWorktreeTitle={t("sidebar.createWorktreeTitle")}
+              newWorktreeTitle={"Create a worktree checkout for a branch"}
               onPick={handleFilesPick}
               onUseDefaultDirectory={() => { void handleDefaultCwd(); }}
               onOpenFolder={handleCustomPathClick}
@@ -3065,7 +3097,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
                 tree's two views last (what it lists, then its changes); its
                 search is the toolbar row's search button. */}
             {!stacked && explorerCwd && (
-              <div className="sidebar-files-actions" role="group" aria-label={t("sidebar.fileActions")}>
+              <div className="sidebar-files-actions" role="group" aria-label={"File actions"}>
                 {onOpenTerminal && terminalButton}
                 {fileManagerButton}
                 {uploadButton}
@@ -3079,7 +3111,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
           {explorerCwd && fileManagerErrorMessage && (
             <div role="alert" className="sidebar-files-error">
               <span className="sidebar-files-error-text">{fileManagerErrorMessage}</span>
-              <DismissButton onClick={() => setFileManagerError(null)} title={t("files.dismissError")} />
+              <DismissButton onClick={() => setFileManagerError(null)} title={"Dismiss error"} />
             </div>
           )}
           {/* Mounted whenever there is a cwd, also while the tab or the folded
@@ -3113,7 +3145,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
         ariaLabel={menuLabel}
         title={menuTitle}
         items={menuItems}
-        cancelLabel={t("sidebar.cancel")}
+        cancelLabel={"Cancel"}
         focusCancel={menuBody !== null}
         onClose={closeMenu}
         returnFocusTo={menu?.opener ?? null}
@@ -3121,7 +3153,7 @@ export function SessionSidebar({ selectedSessionId, onSelectSession, onNewSessio
       >
         {menuBody}
       </SidebarMenu>
-      <SidebarToast toast={toast} onDismiss={() => setToast(null)} dismissLabel={t("sidebar.dismiss")} />
+      <SidebarToast toast={toast} onDismiss={() => setToast(null)} dismissLabel={"Dismiss"} />
     </div>
   );
 }

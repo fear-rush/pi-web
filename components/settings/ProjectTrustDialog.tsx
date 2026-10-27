@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import type {
   McpConfigFieldRef,
   McpConfigFileInfo,
@@ -187,7 +187,6 @@ export function ProjectTrustDialogView({
   onCancel: () => void;
   onConfirm: () => void;
 }) {
-  const { t } = useI18n();
   const loading = listing.state === "loading";
   const notice = listing.state === "loaded" ? settledTrustNotice(listing.status) : undefined;
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -242,16 +241,16 @@ export function ProjectTrustDialogView({
           </svg>
           <div className="project-trust-content">
             <div id="project-trust-title" className="project-trust-title">
-              {t("trust.dialogTitle")}
+              {"Trust this project?"}
             </div>
             <div id="project-trust-description" className="project-trust-text">
-              {t("trust.dialogBody")}
+              {"Project resources can run local code. Trust only projects whose contents you know."}
             </div>
             <code className="project-trust-path">{revealHiddenCharacters(cwd)}</code>
             {notice && <p id={NOTICE_ID} role="status" className="project-trust-notice">{t(notice)}</p>}
             {listing.state === "loaded" && listing.statusError !== undefined && (
               <div className="project-trust-mcp-failed">
-                <p className="project-trust-mcp-line is-warning">{t("mcp.reason.trust-unreadable")}</p>
+                <p className="project-trust-mcp-line is-warning">{"Pi Web cannot read the trust store (trust.json), or another program has it locked."}</p>
                 <code className="project-trust-mcp-detail">{revealHiddenCharacters(listing.statusError)}</code>
               </div>
             )}
@@ -267,7 +266,7 @@ export function ProjectTrustDialogView({
             onClick={onCancel}
             disabled={busy}
           >
-            {notice ? t("trust.close") : t("trust.cancel")}
+            {notice ? "Close" : "Cancel"}
           </button>
           {!notice && (
             <button
@@ -278,7 +277,7 @@ export function ProjectTrustDialogView({
               aria-busy={busy || undefined}
               aria-describedby={loading ? STATUS_ID : undefined}
             >
-              {busy ? t("trust.trusting") : t("trust.trustProject")}
+              {busy ? "Trusting..." : "Trust project"}
             </button>
           )}
         </div>
@@ -289,11 +288,10 @@ export function ProjectTrustDialogView({
 
 /** Why trusting failed: the translated reason, or for an internal or network failure its diagnostic. */
 function ProjectTrustError({ error }: { error: ProjectTrustFailure }) {
-  const { t } = useI18n();
   const translated = error.reason !== undefined && error.reason !== "internal";
   return (
     <div role="alert" className="project-trust-error">
-      {translated ? t(`mcp.reason.${error.reason}`) : t("trust.trustFailed")}
+      {translated ? t(`mcp.reason.${error.reason}`) : "Could not trust this project."}
       {!translated && <code className="project-trust-error-detail">{revealHiddenCharacters(error.error)}</code>}
     </div>
   );
@@ -301,9 +299,8 @@ function ProjectTrustError({ error }: { error: ProjectTrustFailure }) {
 
 /** The trust dialog's list of the project's MCP servers; exported for tests. */
 export function ProjectTrustMcpSection({ listing }: { listing: ProjectTrustMcpListing }) {
-  const { t } = useI18n();
   if (listing.state === "loading") {
-    return <p id={STATUS_ID} role="status" className="project-trust-mcp-status">{t("trust.mcp.loading")}</p>;
+    return <p id={STATUS_ID} role="status" className="project-trust-mcp-status">{"Reading .pi/mcp.json…"}</p>;
   }
   if (listing.state === "failed" || listing.listing.mcpError !== undefined || !listing.listing.mcpFile) {
     let detail: string | undefined;
@@ -327,14 +324,14 @@ export function ProjectTrustMcpSection({ listing }: { listing: ProjectTrustMcpLi
   if (!file.exists && file.problems.length === 0) return null;
   return (
     <section className="project-trust-mcp" aria-labelledby="project-trust-mcp-title">
-      <div id="project-trust-mcp-title" className="project-trust-mcp-title">{t("trust.mcp.title")}</div>
-      {servers.length > 0 && <p className="project-trust-mcp-intro">{t("trust.mcp.intro")}</p>}
+      <div id="project-trust-mcp-title" className="project-trust-mcp-title">{"MCP servers in .pi/mcp.json"}</div>
+      {servers.length > 0 && <p className="project-trust-mcp-intro">{"Trusting this project lets these servers connect, in Pi Web and in the pi CLI, which share this decision. A stdio server runs its command on the computer running Pi Web."}</p>}
       <McpFileProblems file={file} />
       {servers.length === 0 && file.problems.length === 0 && (
-        <p className="project-trust-mcp-line">{t("trust.mcp.none")}</p>
+        <p className="project-trust-mcp-line">{"The file declares no servers."}</p>
       )}
       {servers.some((server) => !server.validated) && (
-        <p className="project-trust-mcp-line">{t("trust.mcp.unchecked")}</p>
+        <p className="project-trust-mcp-line">{"Pi Web cannot load the SDK's MCP checks, so these entries are listed unchecked."}</p>
       )}
       {servers.length > 0 && (
         <ul className="project-trust-mcp-list">
@@ -346,7 +343,6 @@ export function ProjectTrustMcpSection({ listing }: { listing: ProjectTrustMcpLi
 }
 
 function McpFileProblems({ file }: { file: McpConfigFileInfo }) {
-  const { t } = useI18n();
   return (
     <>
       {file.problems.map((problem) => {
@@ -363,7 +359,6 @@ function McpFileProblems({ file }: { file: McpConfigFileInfo }) {
 }
 
 function McpFieldChips({ fields }: { fields: McpConfigFieldRef[] }) {
-  const { t } = useI18n();
   return (
     <>
       {fields.map((field) => {
@@ -379,14 +374,13 @@ function McpFieldChips({ fields }: { fields: McpConfigFieldRef[] }) {
 }
 
 function McpVariableChips({ server }: { server: McpServerInfo }) {
-  const { t } = useI18n();
   return (
     <>
       {mcpVariableChips(server.variableReferences).map(({ variable, field }) => {
         const label = mcpFieldLabel(field);
         return (
           <code key={`${variable}\0${field.kind}\0${field.name ?? ""}`} className="project-trust-mcp-chip">
-            {t("mcp.server.variableIn", { variable, field: t(label.key, label.params) })}
+            {`${variable} in ${t(label.key, label.params)}`}
           </code>
         );
       })}
@@ -395,7 +389,6 @@ function McpVariableChips({ server }: { server: McpServerInfo }) {
 }
 
 function McpServerItem({ server }: { server: McpServerInfo }) {
-  const { t } = useI18n();
   const overrideText = (keys: McpOverrideKey[]) => {
     const notice = mcpOverrideNotice(keys);
     return t(notice.key, notice.params);
@@ -411,25 +404,25 @@ function McpServerItem({ server }: { server: McpServerInfo }) {
       </div>
       {target !== undefined && <code className="project-trust-mcp-target">{target}</code>}
       {server.cwd !== undefined && (
-        <p className="project-trust-mcp-line">{t("trust.mcp.cwd", { path: revealHiddenCharacters(server.cwd) })}</p>
+        <p className="project-trust-mcp-line">{`Working directory: ${revealHiddenCharacters(server.cwd)}`}</p>
       )}
       {mcpServerHasHiddenCharacters(server) && (
-        <p className="project-trust-mcp-line is-warning">{t("mcp.server.hiddenCharacters")}</p>
+        <p className="project-trust-mcp-line is-warning">{"Holds invisible or control characters, shown here as \\u{…} codes."}</p>
       )}
       {server.invalidError !== undefined && (
         <p className="project-trust-mcp-line is-warning">
-          {t("mcp.server.invalid")} <code className="project-trust-mcp-chip">{revealHiddenCharacters(server.invalidError)}</code>
+          {"Pi refuses this entry, so it never connects:"} <code className="project-trust-mcp-chip">{revealHiddenCharacters(server.invalidError)}</code>
         </p>
       )}
       {server.webPasswordField && (
         <p className="project-trust-mcp-line is-warning">
-          {t("mcp.server.webPassword")} <McpFieldChips fields={[server.webPasswordField]} />
+          {"References PI_WEB_PASSWORD. Pi Web refuses to connect it, but the pi CLI reads this file too and would send the password on if that variable is set where the CLI runs:"} <McpFieldChips fields={[server.webPasswordField]} />
         </p>
       )}
-      {!server.enabled && <p className="project-trust-mcp-line">{t("mcp.server.disabled")}</p>}
+      {!server.enabled && <p className="project-trust-mcp-line">{"Turned off in the file, so it does not connect."}</p>}
       {connects && server.commandFields.length > 0 && (
         <p className="project-trust-mcp-line is-warning">
-          {t("mcp.server.commandFields")} <McpFieldChips fields={server.commandFields} />
+          {"Runs a shell command on every connection:"} <McpFieldChips fields={server.commandFields} />
         </p>
       )}
       {connects && server.variableReferences.length > 0 && (
@@ -437,9 +430,9 @@ function McpServerItem({ server }: { server: McpServerInfo }) {
           {t(mcpVariableReferencesKey(server))} <McpVariableChips server={server} />
         </p>
       )}
-      {server.replacesGlobal && <p className="project-trust-mcp-line is-warning">{t("mcp.server.replacesGlobal")}</p>}
+      {server.replacesGlobal && <p className="project-trust-mcp-line is-warning">{"Replaces your global server of the same name while this project is trusted."}</p>}
       {server.override && <p className="project-trust-mcp-line is-warning">{overrideText(server.override.keys)}</p>}
-      {server.masked && <p className="project-trust-mcp-line is-dim">{t("mcp.server.masked")}</p>}
+      {server.masked && <p className="project-trust-mcp-line is-dim">{"Parts that look like secrets are hidden."}</p>}
     </li>
   );
 }

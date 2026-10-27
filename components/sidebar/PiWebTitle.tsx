@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
 
 /**
  * The sidebar's brand with the files below the sessions (its toolbar row,
@@ -84,7 +83,6 @@ export function PiWebTitle({ onWidthChange }: {
    */
   onWidthChange?: () => void;
 }) {
-  const { t } = useI18n();
   const [versionShown, setVersionShown] = useState(false);
   const revertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const appVersion = process.env.NEXT_PUBLIC_APP_VERSION;
@@ -119,7 +117,7 @@ export function PiWebTitle({ onWidthChange }: {
     <button
       type="button"
       className={`sidebar-brand${versionShown ? " is-version" : ""}`}
-      aria-label={t("sidebar.brandLabel", { app: appVersion ?? "0.0.0", pi: piVersion ?? "0.0.0" })}
+      aria-label={`Pi Web, versions: web ${appVersion ?? "0.0.0"}, pi ${piVersion ?? "0.0.0"}`}
       onClick={handleClick}
     >
       {text}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import {
   codemodeTotalCost,
   formatCodemodeCost,
@@ -25,7 +25,6 @@ const STATUS_STYLE: Record<CodemodeCallStatus, { icon: string; color: string }> 
 };
 
 function CallRow({ call }: { call: CodemodeCallView }) {
-  const { t } = useI18n();
   const status = STATUS_STYLE[call.status];
   const duration = formatCodemodeDuration(call.durationMs);
   return (
@@ -65,7 +64,6 @@ export function CodemodeCallList({ calls, omitted, isError }: {
   omitted: number;
   isError: boolean;
 }) {
-  const { t } = useI18n();
   const [showAll, setShowAll] = useState(false);
   if (calls.length === 0 && omitted === 0) return null;
   const hidden = showAll ? 0 : Math.max(0, calls.length - CODEMODE_VISIBLE_CALLS);
@@ -87,9 +85,9 @@ export function CodemodeCallList({ calls, omitted, isError }: {
         minWidth: 0,
       }}
     >
-      <div style={{ color: "var(--text-dim)", fontFamily: "inherit", fontSize: 11 }}>{t("codemode.calls")}</div>
+      <div style={{ color: "var(--text-dim)", fontFamily: "inherit", fontSize: 11 }}>{"Tool calls"}</div>
       {omitted > 0 && (
-        <div style={{ color: "var(--text-dim)" }}>{t("codemode.omittedCalls", { count: omitted })}</div>
+        <div style={{ color: "var(--text-dim)" }}>{`${omitted} earlier calls not shown`}</div>
       )}
       {hidden > 0 && (
         <button
@@ -97,7 +95,7 @@ export function CodemodeCallList({ calls, omitted, isError }: {
           onClick={() => setShowAll(true)}
           style={{ alignSelf: "flex-start", padding: 0, border: "none", background: "none", color: "var(--accent)", cursor: "pointer", font: "inherit" }}
         >
-          {t("codemode.showEarlierCalls", { count: hidden })}
+          {`Show ${hidden} earlier calls`}
         </button>
       )}
       <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
@@ -106,7 +104,7 @@ export function CodemodeCallList({ calls, omitted, isError }: {
         ))}
       </ul>
       {totalCost !== null && (
-        <div style={{ color: "var(--text-dim)" }}>{t("codemode.modelCost", { cost: formatCodemodeCost(totalCost) })}</div>
+        <div style={{ color: "var(--text-dim)" }}>{`Model calls: ${formatCodemodeCost(totalCost)}`}</div>
       )}
     </div>
   );

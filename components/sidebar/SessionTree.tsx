@@ -1,5 +1,6 @@
 "use client";
 
+import { formatRelativeTime, formatShortRelativeTime } from "@/lib/text";
 import {
   memo,
   useCallback,
@@ -30,10 +31,8 @@ import {
 } from "@/lib/session/session-tree";
 import type { SessionInfo } from "@/lib/types";
 import { isPlainActivation, sessionDeepLink } from "@/lib/session/session-links";
-import { formatRelativeTime, formatShortRelativeTime } from "@/lib/i18n/format";
 import { skillExpansionToCommand } from "@/lib/agent/slash-display";
 import { useGroupDrag, type GroupDragHandlers } from "@/hooks/agent/useGroupDrag";
-import { useI18n } from "@/hooks/useI18n";
 import { useScrollbarVisibility } from "@/hooks/chat/useScrollbarVisibility";
 import type { SidebarMenuAnchor } from "./SidebarMenu";
 import {
@@ -95,7 +94,7 @@ export interface SessionTreeProps {
   layout: SidebarLayout;
   /** Shown above the footer rows when there are no session/group rows; null = none. */
   emptyLabel: string | null;
-  /** Shows t("sidebar.loading") instead of rows. */
+  /** Shows "Loading..." instead of rows. */
   loading: boolean;
   error: string | null;
   renamingRootId: string | null;
@@ -180,7 +179,6 @@ export function SessionTree(props: SessionTreeProps): ReactNode {
     activeMenuRowKey,
     reveal,
   } = props;
-  const { t } = useI18n();
   // Rows read the handlers at event time, so memoized rows need not re-render
   // when the parent passes new callbacks.
   const handlersRef = useRef(props);
@@ -406,7 +404,7 @@ export function SessionTree(props: SessionTreeProps): ReactNode {
 
   return (
     <div ref={treeRef} className={`session-tree${layout === "mobile" ? " is-mobile" : ""}${ghostProject ? " is-group-dragging" : ""}`}>
-      {loading && <div className="session-tree-message">{t("sidebar.loading")}</div>}
+      {loading && <div className="session-tree-message">{"Loading..."}</div>}
       {error && <div className="session-tree-message is-error">{error}</div>}
       {showEmpty && <div className="session-tree-message">{emptyLabel}</div>}
       <div
@@ -512,7 +510,7 @@ const SessionRowView = memo(function SessionRowView({
   menuOpen: boolean;
   handlers: Handlers;
 }) {
-  const { locale, t } = useI18n();
+  const locale = "en-US";
   const { family, context, status } = row;
   const root = family.root;
   const title = sessionRowTitle(root);
@@ -542,9 +540,9 @@ const SessionRowView = memo(function SessionRowView({
         }}
       >
         <DeleteConfirm
-          label={t("sidebar.deleteSession", { title: shortTitle })}
-          deleteLabel={t("sidebar.delete")}
-          cancelLabel={t("sidebar.cancel")}
+          label={`Delete ${shortTitle}?`}
+          deleteLabel={"Delete"}
+          cancelLabel={"Cancel"}
           onConfirm={(event) => {
             event.stopPropagation();
             handlers.current.onDeleteConfirm(family, event);
@@ -563,7 +561,7 @@ const SessionRowView = memo(function SessionRowView({
       <div className={className} style={rowStyle(top, height)} data-row-key={row.key}>
         <RenameInput
           initialValue={title}
-          label={t("sidebar.rename")}
+          label={"Rename"}
           onCommit={(value) => handlers.current.onRenameCommit(family, value)}
           onCancel={() => handlers.current.onRenameCancel()}
         />
@@ -575,7 +573,7 @@ const SessionRowView = memo(function SessionRowView({
   // A fork named by the sidebar's Fork: the ellipsis cuts its title before
   // the suffix that tells it from its source, never the suffix.
   const forkTitle = root.name && root.relation?.kind === "fork" ? splitForkSuffix(root.name) : null;
-  const details = root.detailsPending ? "…" : t("sidebar.messagesCount", { count: root.messageCount });
+  const details = root.detailsPending ? "…" : `${root.messageCount} msgs`;
   const tooltip = `${title}\n${details} · ${formatRelativeTime(root.modified, locale, nowDate)}${branch ? ` · ⑂ ${branch}` : ""}`;
 
   // The right column says the one thing worth knowing: awaiting input, else
@@ -589,17 +587,17 @@ const SessionRowView = memo(function SessionRowView({
     // The run is parked on a dialog only the user can answer: the same slot as
     // the spinner, in the unread dot's shape, in warning amber. The tooltip says
     // which of the two it is, since the row keeps its running actions.
-    meta = <span className="session-tree-awaiting" role="img" aria-label={t("sidebar.agentAwaitingInput")} />;
+    meta = <span className="session-tree-awaiting" role="img" aria-label={"Agent waiting for your input"} />;
     metaState = " is-awaiting";
-    metaTitle = t("sidebar.agentAwaitingInput");
+    metaTitle = "Agent waiting for your input";
   } else if (status.running) {
-    meta = <SpinnerIcon size={12} label={t("sidebar.agentRunning")} />;
+    meta = <SpinnerIcon size={12} label={"Agent running…"} />;
     metaState = " is-running";
-    metaTitle = t("sidebar.agentRunning");
+    metaTitle = "Agent running…";
   } else if (status.unread) {
-    meta = <span className="session-tree-unread" role="img" aria-label={t("sidebar.newSessionActivity")} />;
+    meta = <span className="session-tree-unread" role="img" aria-label={"New session activity"} />;
     metaState = " is-unread";
-    metaTitle = t("sidebar.newActivity");
+    metaTitle = "New activity";
   } else if (context === "pinned") {
     meta = <span className="session-tree-project">{row.project.name}</span>;
   } else if (context === "archive" && row.archivedAt !== null) {
@@ -672,8 +670,8 @@ const SessionRowView = memo(function SessionRowView({
             <button
               type="button"
               className="session-tree-action session-tree-quick-action"
-              aria-label={t("sidebar.restore")}
-              title={t("sidebar.restore")}
+              aria-label={"Restore"}
+              title={"Restore"}
               onClick={(event) => {
                 event.stopPropagation();
                 handlers.current.onRestoreFamily(family);
@@ -685,8 +683,8 @@ const SessionRowView = memo(function SessionRowView({
             <button
               type="button"
               className="session-tree-action session-tree-quick-action"
-              aria-label={t("sidebar.archive")}
-              title={t("sidebar.archive")}
+              aria-label={"Archive"}
+              title={"Archive"}
               onClick={(event) => {
                 event.stopPropagation();
                 handlers.current.onArchiveFamily(family);
@@ -698,8 +696,8 @@ const SessionRowView = memo(function SessionRowView({
           <button
             type="button"
             className={`session-tree-action session-tree-more-action${menuOpen ? " is-active" : ""}`}
-            aria-label={t("sidebar.moreActions")}
-            title={t("sidebar.moreActions")}
+            aria-label={"More actions"}
+            title={"More actions"}
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             onClick={(event) => {
@@ -814,7 +812,7 @@ function DeleteConfirm({
  * Spinner + count and dot + count; the label carries the count for screen
  * readers. Also a project's badge in the project menus (ProjectWorktreePicker).
  */
-export function ActivitySummary({ running, unread, t }: { running: number; unread: number; t: (key: string) => string }) {
+export function ActivitySummary({ running, unread }: { running: number; unread: number }) {
   if (running === 0 && unread === 0) return null;
   return (
     <span className="session-tree-summary">
@@ -822,8 +820,8 @@ export function ActivitySummary({ running, unread, t }: { running: number; unrea
         <span
           className="session-tree-summary-running"
           role="img"
-          title={t("sidebar.agentRunning")}
-          aria-label={`${t("sidebar.agentRunning")} (${running})`}
+          title={"Agent running…"}
+          aria-label={`${"Agent running…"} (${running})`}
         >
           <SpinnerIcon size={10} />
           {running}
@@ -833,8 +831,8 @@ export function ActivitySummary({ running, unread, t }: { running: number; unrea
         <span
           className="session-tree-summary-unread"
           role="img"
-          title={t("sidebar.newSessionActivity")}
-          aria-label={`${t("sidebar.newSessionActivity")} (${unread})`}
+          title={"New session activity"}
+          aria-label={`${"New session activity"} (${unread})`}
         >
           <span className="session-tree-summary-dot" />
           {unread}
@@ -869,7 +867,6 @@ const GroupRowView = memo(function GroupRowView({
   drag: GroupDragHandlers;
   handlers: Handlers;
 }) {
-  const { t } = useI18n();
   const { project, expanded } = row;
   const rowRef = useRef<HTMLDivElement>(null);
   const className = [
@@ -899,7 +896,7 @@ const GroupRowView = memo(function GroupRowView({
       <div ref={rowRef} className={`${className} is-renaming`} style={rowStyle(top, height)} data-row-key={row.key}>
         <RenameInput
           initialValue={project.name}
-          label={t("sidebar.projectName")}
+          label={"Project name"}
           maxLength={MAX_PROJECT_NAME_LENGTH}
           onCommit={(value) => handlers.current.onRenameProjectCommit(project, value)}
           onCancel={() => handlers.current.onRenameProjectCancel()}
@@ -928,15 +925,15 @@ const GroupRowView = memo(function GroupRowView({
             below it do and every header's chevron lines up. */}
         <ChevronIcon size={12} strokeWidth={3} className={`session-tree-chevron${expanded ? " is-open" : ""}`} />
         <span className="session-tree-group-name">{project.name}</span>
-        {project.pinned && <PinIcon size={10} className="session-tree-group-pin" label={t("sidebar.pinnedProject")} />}
-        {!expanded && <ActivitySummary running={row.running} unread={row.unread} t={t} />}
+        {project.pinned && <PinIcon size={10} className="session-tree-group-pin" label={"Pinned"} />}
+        {!expanded && <ActivitySummary running={row.running} unread={row.unread} />}
       </button>
       <span className="session-tree-group-actions">
         <button
           type="button"
           className="session-tree-group-action"
-          aria-label={t("sidebar.newSessionInProject", { name: project.name })}
-          title={t("sidebar.newSessionInProject", { name: project.name })}
+          aria-label={`New session in ${project.name}`}
+          title={`New session in ${project.name}`}
           onClick={(event) => {
             event.stopPropagation();
             handlers.current.onGroupNew(project);
@@ -947,8 +944,8 @@ const GroupRowView = memo(function GroupRowView({
         <button
           type="button"
           className={`session-tree-group-action${menuOpen ? " is-active" : ""}`}
-          aria-label={t("sidebar.projectActions", { name: project.name })}
-          title={t("sidebar.projectActions", { name: project.name })}
+          aria-label={`${project.name} actions`}
+          title={`${project.name} actions`}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           onClick={(event) => {
@@ -977,7 +974,6 @@ const PlainRowView = memo(function PlainRowView({
   handlers: Handlers;
   onMoreAction: (rowKey: string, key: string, action: "more" | "less", button: HTMLElement) => void;
 }) {
-  const { t } = useI18n();
   const style = rowStyle(top, height);
 
   switch (row.kind) {
@@ -991,22 +987,22 @@ const PlainRowView = memo(function PlainRowView({
             onClick={() => handlers.current.onTogglePinned()}
           >
             <ChevronIcon size={12} strokeWidth={3} className={`session-tree-chevron${row.collapsed ? "" : " is-open"}`} />
-            <span className="session-tree-pinned-label">{t("sidebar.pinned")}</span>
+            <span className="session-tree-pinned-label">{"Pinned"}</span>
             <span className="session-tree-pinned-count">· {row.count}</span>
             {row.collapsed && row.running > 0 && (
               <span
                 className="session-tree-pinned-dot is-running"
                 role="img"
-                title={t("sidebar.agentRunning")}
-                aria-label={`${t("sidebar.agentRunning")} (${row.running})`}
+                title={"Agent running…"}
+                aria-label={`${"Agent running…"} (${row.running})`}
               />
             )}
             {row.collapsed && row.unread > 0 && (
               <span
                 className="session-tree-pinned-dot is-unread"
                 role="img"
-                title={t("sidebar.newSessionActivity")}
-                aria-label={`${t("sidebar.newSessionActivity")} (${row.unread})`}
+                title={"New session activity"}
+                aria-label={`${"New session activity"} (${row.unread})`}
               />
             )}
           </button>
@@ -1024,7 +1020,7 @@ const PlainRowView = memo(function PlainRowView({
               data-more-action="more"
               onClick={(event) => onMoreAction(row.key, moreKey, "more", event.currentTarget)}
             >
-              {t("sidebar.showMore", { count: row.hidden })}
+              {`Show more · ${row.hidden}`}
             </button>
           )}
           {row.canShowLess && (
@@ -1034,7 +1030,7 @@ const PlainRowView = memo(function PlainRowView({
               data-more-action="less"
               onClick={(event) => onMoreAction(row.key, moreKey, "less", event.currentTarget)}
             >
-              {t("sidebar.showLess")}
+              {"Show less"}
             </button>
           )}
         </div>
@@ -1043,7 +1039,7 @@ const PlainRowView = memo(function PlainRowView({
     case "group-empty":
       return (
         <div className="session-tree-row session-tree-group-empty" style={style} data-row-key={row.key}>
-          {t("sidebar.noLiveSessions")}
+          {"No sessions yet"}
         </div>
       );
     case "footer-open":
@@ -1055,7 +1051,7 @@ const PlainRowView = memo(function PlainRowView({
             onClick={(event) => handlers.current.onOpenOtherProject(event.currentTarget)}
           >
             <FolderPlusIcon size={12} />
-            <span className="session-tree-footer-label">{t("sidebar.openOtherProject")}</span>
+            <span className="session-tree-footer-label">{"Open another project…"}</span>
           </button>
         </div>
       );
@@ -1064,7 +1060,7 @@ const PlainRowView = memo(function PlainRowView({
         <div className="session-tree-row session-tree-footer" style={style} data-row-key={row.key}>
           <button type="button" className="session-tree-footer-button" onClick={() => handlers.current.onOpenArchive()}>
             <ArchiveIcon size={12} />
-            <span className="session-tree-footer-label">{t("sidebar.archivedCount", { count: row.count })}</span>
+            <span className="session-tree-footer-label">{`Archived · ${row.count}`}</span>
             <ChevronIcon size={10} className="session-tree-footer-chevron" />
           </button>
         </div>
@@ -1090,7 +1086,6 @@ const ArchiveGroupRowView = memo(function ArchiveGroupRowView({
   menuOpen: boolean;
   handlers: Handlers;
 }) {
-  const { t } = useI18n();
   const { project, expanded } = row;
   const className = [
     "session-tree-row session-tree-group session-tree-archive-group",
@@ -1114,8 +1109,8 @@ const ArchiveGroupRowView = memo(function ArchiveGroupRowView({
         <button
           type="button"
           className={`session-tree-group-action${menuOpen ? " is-active" : ""}`}
-          aria-label={t("sidebar.archivedProjectActions", { name: project.name })}
-          title={t("sidebar.archivedProjectActions", { name: project.name })}
+          aria-label={`Archived sessions of ${project.name}`}
+          title={`Archived sessions of ${project.name}`}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           onClick={(event) => {

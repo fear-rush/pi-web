@@ -20,7 +20,7 @@ import { ChatInput, type ChatInputHandle } from "./ChatInput";
 import { ChatMinimap, useMessageRefs } from "./ChatMinimap";
 import { ExtensionStatusBar } from "../shell/ExtensionStatusBar";
 import { AnsiText } from "./AnsiText";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { phaseLabel } from "@/lib/session/chat-phase-label";
 import { useAgentSession, type AgentEndInfo, type NewSessionChoices, type NoticeItem } from "@/hooks/agent/useAgentSession";
 import { selectHasStreamingContent, selectIsStreaming, selectStreamingMessage, useStreamingSelector } from "@/hooks/agent/useStreamingSelector";
@@ -202,7 +202,7 @@ function ProcessDetailsGroup({ messageCount, toolCallCount, durationMs, cacheMis
   // The chevron already says this folds; the words stay in the accessible name.
   const parts = [`${messageCount} ${t(messageCount === 1 ? "chat.message" : "chat.messages")}`];
   if (toolCallCount > 0) parts.push(`${toolCallCount} ${t(toolCallCount === 1 ? "chat.toolCall" : "chat.toolCalls")}`);
-  if (durationMs !== undefined) parts.push(t("chat.turnDuration", { time: formatTurnDuration(durationMs) }));
+  if (durationMs !== undefined) parts.push(`took ${formatTurnDuration(durationMs)}`);
   // Folded, the cache misses inside are added up here (#1265); open, each shows under its step.
   const cacheMissText = cacheMisses && !(expanded || reveal) ? cacheMissSummaryText(t, cacheMisses) : undefined;
 
@@ -211,7 +211,7 @@ function ProcessDetailsGroup({ messageCount, toolCallCount, durationMs, cacheMis
       <button
         type="button"
         aria-expanded={expanded || reveal}
-        aria-label={[t("chat.processDetails"), ...parts, ...(cacheMissText ? [cacheMissText] : [])].join(" · ")}
+        aria-label={["Process details", ...parts, ...(cacheMissText ? [cacheMissText] : [])].join(" · ")}
         onClick={() => setExpanded((v) => !v)}
         style={{
           display: "flex",
@@ -228,7 +228,7 @@ function ProcessDetailsGroup({ messageCount, toolCallCount, durationMs, cacheMis
           fontSize: 12,
           textAlign: "left",
         }}
-        title={expanded ? t("chat.collapseProcess") : t("chat.expandProcess")}
+        title={expanded ? "Collapse process details" : "Expand process details"}
       >
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, transform: expanded ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>
           <polyline points="4 2.5 7.5 6 4 9.5" />
@@ -248,7 +248,6 @@ function ProcessDetailsGroup({ messageCount, toolCallCount, durationMs, cacheMis
 }
 
 export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initialScrollPosition, onScrollPositionChange, sessionRunning, newSessionCwd, newSessionDraftKey, newSessionContextBar, initialNewSessionChoices, onNewSessionChoicesChange, onAgentEnd, onToolEnd, onAttentionNeeded, onSessionCreated, onSessionForked, modelsRefreshKey, chatInputRef, onBranchDataChange, onSystemPromptChange, onSystemToolsChange, onSystemInfoLoaderChange, onSessionStatsChange, onSessionStatsPanelOpen, onOpenSettings, onContextUsageChange, onOpenFile, onFilesUploaded, onOpenSubagent, onAskInNewChat, quoteSelectionEnabled = false, initialPrompt, onInitialPromptConsumed, soundEnabled = true, onSoundToggle, playDoneSound = () => {}, unlockAudio, holdAudio }: Props) {
-  const { t } = useI18n();
   const isMobile = useIsMobile();
   const completionNotificationsEnabled = session?.relation?.kind !== "subagent";
 
@@ -378,10 +377,10 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
     if (!quoteInputOpen || !quotedSelection) return;
     quoteChatInputRef.current?.insertIfEmpty(buildQuotedSelection(
       quotedSelection.text,
-      t("chat.quoteIntro"),
-      t("chat.quoteQuestion"),
+      "About this passage:",
+      "My question:",
     ));
-  }, [quoteInputOpen, quotedSelection, t]);
+  }, [quoteInputOpen, quotedSelection]);
 
   useLayoutEffect(() => {
     const popover = quotePopoverRef.current;
@@ -431,15 +430,19 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
     if (!quotedSelection) return;
     chatInputRef?.current?.insertText(buildQuotedSelection(
       quotedSelection.text,
-      t("chat.quoteIntro"),
-      t("chat.quoteQuestion"),
+      "About this passage:",
+      "My question:",
     ));
     // No `removeAllRanges()` here: inserting focuses the composer, and that
     // focus already collapses the page's selection. Calling it afterwards also
     // clears the composer's own selection and drops its caret to offset 0
     // (#1319), so the quote would be typed in front of instead of after.
     closeQuotedSelection();
-  }, [chatInputRef, quotedSelection, closeQuotedSelection, t]);
+  }, [
+	chatInputRef,
+	quotedSelection,
+	closeQuotedSelection
+]);
 
   const askSelectionInNewChat = useCallback(async (prompt: string) => {
     const sourceSessionId = sessionIdRef.current ?? session?.id;
@@ -766,7 +769,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
   const uploadDroppedFiles = useCallback(async (files: File[]) => {
     const cwd = session?.cwd ?? newSessionCwd;
     if (!cwd) {
-      addNotice({ type: "warning", message: t("chat.dropNeedsCwd") });
+      addNotice({ type: "warning", message: "Choose a working directory before adding files." });
       return;
     }
     try {
@@ -777,28 +780,38 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
       const mentions = dropMentionText(files, [...uploaded, ...skipped]);
       if (mentions) chatInputRef?.current?.insertText(mentions);
       if (uploaded.length > 0) {
-        addNotice({ type: "success", message: t("chat.dropUploaded", { count: uploaded.length }) });
+        addNotice({ type: "success", message: `Copied ${uploaded.length} file(s) into the working directory` });
         onFilesUploaded?.();
       }
       if (skipped.length > 0) {
-        addNotice({ type: "warning", message: t("chat.dropAlreadyExists", { names: skipped.join(", ") }) });
+        addNotice({ type: "warning", message: `Already in the working directory and not replaced; the mention points to the existing file: ${skipped.join(", ")}` });
       }
       for (const failure of data.errors ?? []) {
-        addNotice({ type: "error", message: t("chat.dropFailed", { message: `${failure.name}: ${failure.error}` }) });
+        addNotice({ type: "error", message: `Upload failed: ${`${failure.name}: ${failure.error}`}` });
       }
     } catch (uploadError) {
-      addNotice({ type: "error", message: t("chat.dropFailed", { message: uploadError instanceof Error ? uploadError.message : String(uploadError) }) });
+      addNotice({ type: "error", message: `Upload failed: ${uploadError instanceof Error ? uploadError.message : String(uploadError)}` });
     }
-  }, [addNotice, chatInputRef, newSessionCwd, onFilesUploaded, session?.cwd, t]);
+  }, [
+	addNotice,
+	chatInputRef,
+	newSessionCwd,
+	onFilesUploaded,
+	session?.cwd
+]);
 
   const onDrop = useCallback((items: DroppedItem[]) => {
     const { images, files, folders } = splitDroppedItems(items);
     if (images.length > 0) chatInputRef?.current?.addImages(images);
     if (folders.length > 0) {
-      addNotice({ type: "warning", message: t("chat.dropFoldersUnsupported", { names: folders.join(", ") }) });
+      addNotice({ type: "warning", message: `Folders cannot be dropped here; drop the files inside instead: ${folders.join(", ")}` });
     }
     if (files.length > 0) void uploadDroppedFiles(files);
-  }, [addNotice, chatInputRef, t, uploadDroppedFiles]);
+  }, [
+	addNotice,
+	chatInputRef,
+	uploadDroppedFiles
+]);
 
   const onAttachFiles = useCallback((files: File[]) => {
     onDrop(files.map((file) => ({ kind: "file", file })));
@@ -1004,7 +1017,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
   if (loading) {
     return (
       <div className="flex h-full items-center justify-center text-text-muted">
-         {t("chat.loadingSession")}
+         {"Loading session..."}
       </div>
     );
   }
@@ -1323,7 +1336,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
                 <>
                   {hasMore && (
                      <div ref={setSentinel} className="py-3 text-center text-xs text-text-muted">
-                       {t("chat.loadEarlier")}
+                       {"Scroll up to load earlier messages"}
                     </div>
                   )}
                   {rendered.slice(startIndex)}
@@ -1342,7 +1355,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
 
             {bashRunning && !pendingBash && (
               <div className="py-2 text-[13px] text-text-muted">
-                 <span className="animate-[pulse_1.5s_infinite]">{t("chat.runningCommand")}</span>
+                 <span className="animate-[pulse_1.5s_infinite]">{"Running command..."}</span>
               </div>
             )}
 
@@ -1407,8 +1420,8 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
               style={{ width: "100%", minWidth: 0, margin: 0, padding: 0, border: "none", display: "flex", flexDirection: "column", gap: 10 }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 600 }}>{t("chat.askInNewChat")}</span>
-                <button type="button" className="file-viewer-icon-button" title={t("i18n.close")} aria-label={t("i18n.close")} disabled={quoteSubmitting} onClick={closeQuotedSelection} style={{ border: "none" }}>
+                <span style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 600 }}>{"Ask in new chat"}</span>
+                <button type="button" className="file-viewer-icon-button" title={"Close"} aria-label={"Close"} disabled={quoteSubmitting} onClick={closeQuotedSelection} style={{ border: "none" }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
                 </button>
               </div>
@@ -1425,21 +1438,21 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
           <button
             type="button"
             className="file-viewer-icon-button"
-            title={t("chat.askInCurrent")}
-            aria-label={t("chat.askInCurrent")}
+            title={"Ask here"}
+            aria-label={"Ask here"}
             onPointerDown={(event) => event.preventDefault()}
             onClick={askSelectionHere}
             style={{ width: "auto", height: 35, flex: "0 0 auto", gap: 5, padding: "0 10px", border: "none", fontSize: 12, fontWeight: 500 }}
           >
             <span aria-hidden="true" style={{ fontSize: 15 }}>@</span>
-            <span>{t("chat.askInCurrent")}</span>
+            <span>{"Ask here"}</span>
           </button>
           {onAskInNewChat && quotedSelection.sourceEntryId && !bashRunning && (
             <button
               type="button"
               className="file-viewer-icon-button"
-              title={t("chat.askInNewChat")}
-              aria-label={t("chat.askInNewChat")}
+              title={"Ask in new chat"}
+              aria-label={"Ask in new chat"}
               onPointerDown={(event) => event.preventDefault()}
               onClick={() => { setQuoteInputOpen(true); window.getSelection()?.removeAllRanges(); }}
               style={{ width: "auto", height: 35, flex: "0 0 auto", gap: 5, padding: "0 10px", border: "none", fontSize: 12, fontWeight: 500 }}
@@ -1447,7 +1460,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M6 3v12M18 9a9 9 0 0 1-9 9" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" />
               </svg>
-              <span>{t("chat.askInNewChat")}</span>
+              <span>{"Ask in new chat"}</span>
             </button>
           )}
           </>}
@@ -1473,8 +1486,8 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
             <button
               type="button"
               className={`chat-scroll-to-bottom${showScrollToBottom && !pendingScrollRestore ? " is-visible" : ""}`}
-              title={t("chat.scrollToLatest")}
-              aria-label={t("chat.scrollToLatest")}
+              title={"Scroll to latest"}
+              aria-label={"Scroll to latest"}
               onClick={() => scrollToBottom("smooth")}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -1497,7 +1510,7 @@ export function ChatWindow({ session, searchTarget, onSearchTargetHandled, initi
                   <span className="new-session-brand-name">Pi Web</span>
                   <span className="new-session-meta">
                     <span>web v{process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0"}</span>
-                    <NewSessionUpdateLink label={(version) => t("appUpdate.releaseNotes", { version })} />
+                    <NewSessionUpdateLink label={(version) => `Pi Web v${version} is available. View release notes`} />
                     <span aria-hidden="true">·</span>
                     <span className="new-session-meta-pi">pi v{process.env.NEXT_PUBLIC_PI_VERSION ?? "0.0.0"}</span>
                   </span>
@@ -1678,11 +1691,10 @@ function getExtensionDialogSummary(request: ExtensionDialogRequest): string | un
 
 /** "+N more": requests of the same kind queued behind the one on screen, each shown once that one closes. */
 function ExtensionWaitingCount({ count }: { count: number }) {
-  const { t } = useI18n();
   if (count <= 0) return null;
   return (
     <span style={{ fontSize: 11, fontWeight: 650, color: "var(--accent)", whiteSpace: "nowrap", flexShrink: 0 }}>
-      {t("chat.extensionMoreWaiting", { count })}
+      {`+${count} more`}
     </span>
   );
 }
@@ -1708,7 +1720,6 @@ function ExtensionDialog({
   waitingCount: number;
   onRespond: (request: ExtensionDialogRequest, response: { value: string } | { confirmed: boolean } | { cancelled: true }) => void;
 }) {
-  const { t } = useI18n();
   const [value, setValue] = useState(request.method === "editor" ? request.prefill ?? "" : "");
   const [collapsed, setCollapsed] = useState(false);
   // Dialogs open at the historical width and grow only when their own content cannot
@@ -1764,7 +1775,7 @@ function ExtensionDialog({
 
   const countdown = remainingSeconds !== null && (
     <span style={{ fontSize: 11, color: "var(--text-dim)", whiteSpace: "nowrap", flexShrink: 0 }}>
-      {t("chat.extensionExpiresIn", { seconds: remainingSeconds })}
+      {`expires in ${remainingSeconds}s`}
     </span>
   );
 
@@ -1818,7 +1829,7 @@ function ExtensionDialog({
           }}
         >
           <span style={{ fontSize: 11, fontWeight: 650, color: "var(--accent)", flexShrink: 0 }}>
-            {t("chat.extensionPending")}
+            {"Awaiting response"}
           </span>
           <span style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
             {request.title}
@@ -1831,7 +1842,7 @@ function ExtensionDialog({
           <ExtensionWaitingCount count={waitingCount} />
           {countdown}
           <span style={{ fontSize: 12, color: "var(--text-muted)", flexShrink: 0 }}>
-            {t("chat.extensionExpand")}
+            {"Expand"}
           </span>
         </button>
       ) : (
@@ -1860,7 +1871,7 @@ function ExtensionDialog({
                 separate message field, so extensions put multi-line text here. */}
             <div style={{ color: "var(--text)", fontSize: 14, fontWeight: 650, lineHeight: 1.45, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{request.title}</div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 3, color: "var(--text-dim)", fontSize: 11, fontFamily: "var(--font-mono)" }}>
-              <span>{t("chat.extensionRequest")}</span>
+              <span>{"extension request"}</span>
               <ExtensionWaitingCount count={waitingCount} />
               {countdown}
             </div>
@@ -1868,8 +1879,8 @@ function ExtensionDialog({
           <button
             type="button"
             onClick={toggleFull}
-            title={full ? t("chat.extensionRestoreSize") : t("chat.extensionMaximize")}
-            aria-label={full ? t("chat.extensionRestoreSize") : t("chat.extensionMaximize")}
+            title={full ? "Restore size" : "Maximize"}
+            aria-label={full ? "Restore size" : "Maximize"}
             style={{
               display: "grid",
               placeItems: "center",
@@ -1889,8 +1900,8 @@ function ExtensionDialog({
             type="button"
             onClick={() => setCollapsed(true)}
             aria-expanded={true}
-            title={t("chat.extensionCollapse")}
-            aria-label={t("chat.extensionCollapse")}
+            title={"Collapse"}
+            aria-label={"Collapse"}
             style={{
               display: "grid",
               placeItems: "center",
@@ -2034,7 +2045,7 @@ function ExtensionDialog({
               cursor: "pointer",
             }}
           >
-             {t("chat.cancel")}
+             {"Cancel"}
           </button>
           {request.method === "confirm" ? (
             <button
@@ -2048,7 +2059,7 @@ function ExtensionDialog({
                 cursor: "pointer",
               }}
             >
-               {t("chat.confirm")}
+               {"Confirm"}
             </button>
           ) : request.method !== "select" ? (
             <button
@@ -2062,7 +2073,7 @@ function ExtensionDialog({
                 cursor: "pointer",
               }}
             >
-               {t("chat.submit")}
+               {"Submit"}
             </button>
           ) : null}
         </div>
@@ -2084,7 +2095,6 @@ function ExtensionCustomPanel({
   waitingCount: number;
   onInput: (request: ExtensionCustomRequest, data: string) => void;
 }) {
-  const { t } = useI18n();
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const composingRef = useRef(false);
   const [collapsed, setCollapsed] = useState(false);
@@ -2131,10 +2141,10 @@ function ExtensionCustomPanel({
           }}
         >
           <span style={{ fontSize: 11, fontWeight: 650, color: "var(--accent)", flexShrink: 0 }}>
-            {t("chat.extensionPending")}
+            {"Awaiting response"}
           </span>
           <span style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
-            {t("chat.extensionPanel")}
+            {"Extension panel"}
           </span>
           {summary && (
             <span style={{ fontSize: 12, color: "var(--text-dim)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "34%", flexShrink: 1 }}>
@@ -2143,7 +2153,7 @@ function ExtensionCustomPanel({
           )}
           <ExtensionWaitingCount count={waitingCount} />
           <span style={{ fontSize: 12, color: "var(--text-muted)", flexShrink: 0 }}>
-            {t("chat.extensionExpand")}
+            {"Expand"}
           </span>
         </button>
       ) : (
@@ -2173,7 +2183,7 @@ function ExtensionCustomPanel({
       >
         <textarea
           ref={inputRef}
-           aria-label={t("chat.extensionInput")}
+           aria-label={"Extension terminal input"}
           autoCapitalize="off"
           autoComplete="off"
           autoCorrect="off"
@@ -2220,15 +2230,15 @@ function ExtensionCustomPanel({
           }}
         />
         <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "10px 12px", borderBottom: "1px solid var(--border)" }}>
-           <div style={{ color: "var(--text)", fontSize: 13, fontWeight: 650 }}>{t("chat.extensionPanel")}</div>
+           <div style={{ color: "var(--text)", fontSize: 13, fontWeight: 650 }}>{"Extension panel"}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <ExtensionWaitingCount count={waitingCount} />
             <button
               type="button"
               onClick={() => setCollapsed(true)}
               aria-expanded={true}
-              title={t("chat.extensionCollapse")}
-              aria-label={t("chat.extensionCollapse")}
+              title={"Collapse"}
+              aria-label={"Collapse"}
               style={{
                 display: "grid",
                 placeItems: "center",
@@ -2258,7 +2268,7 @@ function ExtensionCustomPanel({
                 fontSize: 12,
               }}
             >
-               {t("chat.close")}
+               {"Close"}
             </button>
           </div>
         </div>

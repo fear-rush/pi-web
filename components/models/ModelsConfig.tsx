@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback, useId, useRef } from "react";
-import { useI18n } from "@/hooks/useI18n";
 import type { ModelCatalogPreset, ModelCatalogRecommendation } from "@/lib/models/model-catalog";
 import type { DiscoveredModel } from "@/lib/models/model-discovery";
 import { ContextWindowError, normalizeContextWindowOverrides, withContextWindowOverride } from "@/lib/models/model-context";
@@ -223,7 +222,6 @@ function SecretTextInput({
   style?: React.CSSProperties;
 }) {
   const [visible, setVisible] = useState(false);
-  const { t } = useI18n();
 
   useEffect(() => {
     if (!value) setVisible(false);
@@ -244,8 +242,8 @@ function SecretTextInput({
       <button
         type="button"
         onClick={() => setVisible((v) => !v)}
-         aria-label={visible ? t("i18n.hideDetails") : t("i18n.showDetails")}
-         title={visible ? t("i18n.hideDetails") : t("i18n.showDetails")}
+         aria-label={visible ? "Hide details" : "Show details"}
+         title={visible ? "Hide details" : "Show details"}
         style={{
           position: "absolute",
           right: 5,
@@ -286,11 +284,10 @@ function NumInput({ value, onChange, placeholder }: { value: string; onChange: (
 }
 
 function Select({ value, onChange, options, required }: { value: string; onChange: (v: string) => void; options: readonly string[]; required?: boolean }) {
-  const { t } = useI18n();
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)}
       style={{ ...inputStyle, color: value ? "var(--text)" : "var(--text-dim)" }}>
-       {!required && <option value="">— {t("i18n.default")} / none —</option>}
+       {!required && <option value="">— {"Default"} / none —</option>}
       {options.map((o) => <option key={o} value={o}>{o}</option>)}
     </select>
   );
@@ -318,7 +315,6 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
   onRename: (n: string) => void; onDelete: () => void;
   onAddModels: (models: DiscoveredModel[]) => void; enabledModels: EnabledModelsController;
 }) {
-  const { t } = useI18n();
   const [discoveryState, setDiscoveryState] = useState<ModelDiscoveryState>({ phase: "idle" });
   const [discoveryQuery, setDiscoveryQuery] = useState("");
   const [selectedModelIds, setSelectedModelIds] = useState<string[]>([]);
@@ -405,22 +401,22 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
       <div className="config-detail-heading">
         <ConfigDetailHeader>
           <ConfigDetailHeaderInfo>
-            <SectionTitle>{t("i18n.provider")}</SectionTitle>
+            <SectionTitle>{"Provider"}</SectionTitle>
           </ConfigDetailHeaderInfo>
           <ConfigDetailActions>
             <EnabledModelsProviderSwitch providerId={name} controller={enabledModels} noteId={switchNoteId} />
-            <ConfigButton variant="danger" size="small" onClick={onDelete}>{t("i18n.delete")}</ConfigButton>
+            <ConfigButton variant="danger" size="small" onClick={onDelete}>{"Delete"}</ConfigButton>
           </ConfigDetailActions>
         </ConfigDetailHeader>
         <EnabledModelsProviderSwitchNote providerId={name} controller={enabledModels} id={switchNoteId} />
       </div>
 
-       <Field label={t("i18n.providerName")}>
+       <Field label={"Provider name"}>
         <TextInput value={editingName} onChange={onEditingNameChange} placeholder="provider-name" mono />
         {editingName !== name && editingName.trim() && (
           <button onClick={() => onRename(editingName.trim())}
             style={{ marginTop: 4, padding: "3px 10px", background: "var(--accent)", border: "none", borderRadius: 4, color: "var(--accent-contrast)", cursor: "pointer", fontSize: 11, alignSelf: "flex-start" }}>
-             {t("i18n.rename")}
+             {"Rename"}
           </button>
         )}
       </Field>
@@ -432,7 +428,7 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
 
       <Field label="API Key">
         <SecretTextInput value={provider.apiKey ?? ""} onChange={(v) => set("apiKey", v || undefined)}
-          placeholder={t("models.apiKeyPlaceholder")} mono />
+          placeholder={"ENV_VAR_NAME, !shell-command, or literal key"} mono />
       </Field>
 
       <Field label="API">
@@ -457,7 +453,7 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
               cursor: discoveryState.phase === "loading" ? "not-allowed" : "pointer", fontSize: 11,
             }}
           >
-            {discoveryState.phase === "loading" ? t("models.discoveryFetching") : t("models.discoveryFetch")}
+            {discoveryState.phase === "loading" ? "Importing models…" : "Import models…"}
           </button>
         )}
 
@@ -472,8 +468,8 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
             <input
               value={discoveryQuery}
               onChange={(event) => setDiscoveryQuery(event.target.value)}
-              placeholder={t("models.discoveryFilterPlaceholder", { count: discoveryState.models.length })}
-              aria-label={t("models.discoveryFilter")}
+              placeholder={`Filter ${discoveryState.models.length} models…`}
+              aria-label={"Filter upstream models"}
               style={{ ...inputStyle, width: "100%", minWidth: 0 }}
             />
 
@@ -494,10 +490,10 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
                   onChange={toggleShownModels}
                   style={{ width: 13, height: 13, accentColor: "var(--accent)", flexShrink: 0 }}
                 />
-                {t("models.discoverySelectShown")}
+                {"Select shown"}
               </label>
               {shownDiscoveredModels.length === 0 ? (
-                <div style={{ padding: 12, color: "var(--text-dim)", fontSize: 11 }}>{t("models.discoveryNoMatches")}</div>
+                <div style={{ padding: 12, color: "var(--text-dim)", fontSize: 11 }}>{"No matching models."}</div>
               ) : shownDiscoveredModels.map((model, index) => {
                 const alreadyAdded = existingModelIds.has(model.id);
                 const checked = selectedModelIds.includes(model.id);
@@ -521,7 +517,7 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
                       <span style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text)", fontSize: 11 }}>{model.name ?? model.id}</span>
                       {model.name && <code style={{ display: "block", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-dim)", fontSize: 10, fontFamily: "var(--font-mono)" }}>{model.id}</code>}
                     </span>
-                    {alreadyAdded && <span style={{ color: "var(--text-dim)", fontSize: 10 }}>{t("models.discoveryAdded")}</span>}
+                    {alreadyAdded && <span style={{ color: "var(--text-dim)", fontSize: 10 }}>{"added"}</span>}
                   </label>
                 );
               })}
@@ -530,8 +526,8 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
               <span title={discoveryState.endpoint} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-dim)", fontSize: 10 }}>
                 {filteredDiscoveredModels.length > shownDiscoveredModels.length
-                  ? t("models.discoveryShowing", { shown: shownDiscoveredModels.length, total: filteredDiscoveredModels.length })
-                  : t("models.discoveryFetched", { count: discoveryState.models.length })}
+                  ? `Showing first ${shownDiscoveredModels.length} of ${filteredDiscoveredModels.length}`
+                  : `${discoveryState.models.length} models fetched`}
               </span>
               <button
                 onClick={addSelectedModels}
@@ -539,8 +535,8 @@ function ProviderDetail({ name, editingName, provider, onChange, onEditingNameCh
                 style={{ height: 28, padding: "0 11px", border: "none", borderRadius: 5, background: selectedCount ? "var(--accent)" : "var(--bg-panel)", color: selectedCount ? "var(--accent-contrast)" : "var(--text-dim)", cursor: selectedCount ? "pointer" : "not-allowed", fontSize: 11, fontWeight: 600, whiteSpace: "nowrap" }}
               >
                 {selectedCount
-                  ? t("models.discoveryAddSelectedCount", { count: selectedCount })
-                  : t("models.discoveryAddSelected")}
+                  ? `Add selected (${selectedCount})`
+                  : "Add selected"}
               </button>
             </div>
           </>
@@ -831,7 +827,6 @@ function ModelDetail({
   onDelete: () => void;
 }) {
   const [testState, setTestState] = useState<ModelTestState>({ phase: "idle" });
-  const { t } = useI18n();
   const [catalogState, setCatalogState] = useState<ModelCatalogState>({ phase: "idle" });
   const [costEditing, setCostEditing] = useState(false);
   const [costDraft, setCostDraft] = useState<ModelCostDraft>(() => modelCostToDraft(model.cost));
@@ -870,15 +865,15 @@ function ModelDetail({
   };
   const testSummary = (() => {
     if (testState.phase === "idle") return null;
-     if (testState.phase === "testing") return t("i18n.testingModel");
+     if (testState.phase === "testing") return "Testing model connection...";
     const meta = [
       testState.latencyMs !== undefined ? `${testState.latencyMs}ms` : null,
       testState.status !== undefined ? `HTTP ${testState.status}` : null,
     ].filter(Boolean);
     if (testState.phase === "success") {
-       return [t("i18n.connected"), ...meta, testState.responseText || null].filter(Boolean).join(" · ");
+       return ["Connected", ...meta, testState.responseText || null].filter(Boolean).join(" · ");
     }
-     return [t("i18n.failed"), ...meta, testState.message].filter(Boolean).join(" · ");
+     return ["Failed", ...meta, testState.message].filter(Boolean).join(" · ");
   })();
 
   useEffect(() => {
@@ -977,22 +972,19 @@ function ModelDetail({
     if (catalogState.phase !== "success") return null;
     const { recommendation, appliedCount } = catalogState;
     const applied = appliedCount > 0
-      ? t("models.catalogFilled", { count: appliedCount })
-      : t("models.catalogNoEmptyFields");
+      ? `${appliedCount} fields filled`
+      : "No empty fields to fill";
     if (recommendation.price.status === "unreliable") {
       const price = recommendation.price.reason === "no-exact-match"
-        ? t("models.catalogNoExactMatch")
-        : t("models.catalogPriceUnreliable");
+        ? "No exact models.dev match"
+        : "No reliable price found";
       return `${applied} · ${price}`;
     }
     const price = recommendation.price.method === "provider"
-      ? t("models.catalogPriceProvider", { provider: recommendation.price.providerName ?? recommendation.price.providerId ?? providerName })
+      ? `Price matched Provider ${recommendation.price.providerName ?? recommendation.price.providerId ?? providerName}`
       : recommendation.price.method === "base-url"
-        ? t("models.catalogPriceBaseUrl", { provider: recommendation.price.providerName ?? recommendation.price.providerId ?? providerName })
-        : t("models.catalogPriceConsensus", {
-            support: recommendation.price.support,
-            total: recommendation.price.total,
-          });
+        ? `Price matched Base URL to ${recommendation.price.providerName ?? recommendation.price.providerId ?? providerName}`
+        : `Price agreed by ${recommendation.price.support}/${recommendation.price.total} records`;
     return `${applied} · ${price}`;
   })();
   const catalogStatusText = catalogState.phase === "error"
@@ -1004,14 +996,14 @@ function ModelDetail({
       ? "#d97706"
       : "var(--text-dim)";
   const costFields = [
-    { key: "input", label: t("models.costInput") },
-    { key: "output", label: t("models.costOutput") },
-    { key: "cacheRead", label: t("models.costCacheRead") },
-    { key: "cacheWrite", label: t("models.costCacheWrite") },
+    { key: "input", label: "Input" },
+    { key: "output", label: "Output" },
+    { key: "cacheRead", label: "Cache read" },
+    { key: "cacheWrite", label: "Cache write" },
   ] as const;
   const formatCost = (key: ModelCostKey): string => {
     const value = model.cost?.[key];
-    return value === undefined ? t("models.notProvided") : `$${String(value)}`;
+    return value === undefined ? "Not provided" : `$${String(value)}`;
   };
   const remainingCompatKeys = new Set(Object.keys(model.compat ?? {}));
   let compatibilityOverrideCount = 0;
@@ -1026,27 +1018,27 @@ function ModelDetail({
   }
   compatibilityOverrideCount += remainingCompatKeys.size;
   const advancedSummaryParts = [
-    model.baseUrl ? t("models.baseUrlOverride") : null,
+    model.baseUrl ? "Base URL override" : null,
     model.api ? `API: ${model.api}` : null,
     Object.keys(model.headers ?? {}).length
-      ? t("models.headersSummary", { count: Object.keys(model.headers ?? {}).length })
+      ? `Headers: ${Object.keys(model.headers ?? {}).length}`
       : null,
     compatibilityOverrideCount
-      ? t("models.compatSummary", { count: compatibilityOverrideCount })
+      ? `Compatibility: ${compatibilityOverrideCount}`
       : null,
     Object.keys(model.thinkingLevelMap ?? {}).length
-      ? t("models.thinkingSummary", { count: Object.keys(model.thinkingLevelMap ?? {}).length })
+      ? `Thinking levels: ${Object.keys(model.thinkingLevelMap ?? {}).length}`
       : null,
   ].filter((part): part is string => Boolean(part));
   const advancedSummary = advancedSummaryParts.length
     ? advancedSummaryParts.join(" · ")
-    : t("models.providerDefaults");
+    : "Using provider defaults";
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <ConfigDetailHeader>
         <ConfigDetailHeaderInfo>
-          <SectionTitle>{t("i18n.model")}</SectionTitle>
+          <SectionTitle>{"Model"}</SectionTitle>
         </ConfigDetailHeaderInfo>
         <ConfigDetailActions>
           {testSummary && (
@@ -1077,7 +1069,7 @@ function ModelDetail({
             variant={testState.phase === "success" ? "primary" : "secondary"}
             onClick={testState.phase === "success" ? () => setTestState({ phase: "idle" }) : handleTest}
             disabled={!model.id.trim() || testState.phase === "testing"}
-            title={t("i18n.testConnection")}
+            title={"Test model connection"}
             className={testState.phase === "success" ? "is-success" : undefined}
           >
             {testState.phase === "success" && (
@@ -1085,9 +1077,9 @@ function ModelDetail({
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}
-             {testState.phase === "testing" ? t("i18n.checking") : testState.phase === "success" ? t("common.ok") : t("i18n.test")}
+             {testState.phase === "testing" ? "Checking..." : testState.phase === "success" ? "OK" : "Test"}
           </ConfigButton>
-          <ConfigButton variant="danger" size="small" onClick={onDelete}>{t("i18n.remove")}</ConfigButton>
+          <ConfigButton variant="danger" size="small" onClick={onDelete}>{"Remove"}</ConfigButton>
         </ConfigDetailActions>
       </ConfigDetailHeader>
 
@@ -1109,7 +1101,7 @@ function ModelDetail({
               fontSize: 11,
             }}
           >
-            {catalogState.phase === "loading" ? t("models.catalogFilling") : t("models.catalogFill")}
+            {catalogState.phase === "loading" ? "Filling details…" : "Fill model details"}
           </button>
           <a
             href="https://github.com/anomalyco/models.dev"
@@ -1117,7 +1109,7 @@ function ModelDetail({
             rel="noreferrer"
             style={{ marginLeft: "auto", color: "var(--text-dim)", fontSize: 10, textDecoration: "none" }}
           >
-            {t("models.catalogSource")}
+            {"source: models.dev ↗"}
           </a>
         </div>
 
@@ -1140,7 +1132,7 @@ function ModelDetail({
                 onClick={undoCatalogFill}
                 style={{ flexShrink: 0, padding: "0 2px", border: "none", background: "none", color: "var(--accent)", cursor: "pointer", fontSize: 10 }}
               >
-                {t("models.catalogUndo")}
+                {"Undo"}
               </button>
             )}
           </div>
@@ -1148,33 +1140,33 @@ function ModelDetail({
       </div>
 
       <div>
-        <SectionTitle>{t("models.capabilities")}</SectionTitle>
+        <SectionTitle>{"Capabilities"}</SectionTitle>
         <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginTop: 8 }}>
-          <Check label={t("models.reasoning")} checked={model.reasoning ?? false} onChange={(v) => set("reasoning", v || undefined)} />
-          <Check label={t("models.imageInput")} checked={model.input?.includes("image") ?? false}
+          <Check label={"Reasoning / thinking"} checked={model.reasoning ?? false} onChange={(v) => set("reasoning", v || undefined)} />
+          <Check label={"Image input"} checked={model.input?.includes("image") ?? false}
             onChange={(v) => set("input", v ? ["text", "image"] : undefined)} />
         </div>
       </div>
 
       <section>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
-          <SectionTitle>{t("models.modelSpecs")}</SectionTitle>
+          <SectionTitle>{"Model specifications"}</SectionTitle>
           <button
             type="button"
             onClick={toggleCostEditing}
             aria-expanded={costEditing}
             style={{ padding: "2px 4px", border: "none", background: "transparent", color: "var(--accent)", cursor: "pointer", fontSize: 10 }}
           >
-            {costEditing ? t("models.finishEditingCosts") : t("models.editCosts")}
+            {costEditing ? "Done" : "Edit prices"}
           </button>
         </div>
 
         <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 10 }}>
-          <Field label={t("models.contextWindow")}>
+          <Field label={"Context window (tokens)"}>
             <NumInput value={model.contextWindow !== undefined ? String(model.contextWindow) : ""}
               onChange={(v) => set("contextWindow", v ? parseInt(v) : undefined)} placeholder="128000" />
           </Field>
-          <Field label={t("models.maxOutputTokens")}>
+          <Field label={"Max output tokens"}>
             <NumInput value={model.maxTokens !== undefined ? String(model.maxTokens) : ""}
               onChange={(v) => set("maxTokens", v ? parseInt(v) : undefined)} placeholder="16384" />
           </Field>
@@ -1182,7 +1174,7 @@ function ModelDetail({
 
         <div style={{ marginTop: 16 }}>
           <div style={{ fontSize: 10, color: "var(--text-dim)", fontWeight: 600, textTransform: "uppercase" }}>
-            {t("models.costPerMillion")}
+            {"Cost per million tokens"}
           </div>
           {costEditing ? (
             <div style={{ marginTop: 8, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 8 }}>
@@ -1193,7 +1185,7 @@ function ModelDetail({
               ))}
               {hasModelCostDraftValue(costDraft) && !parseCompleteModelCost(costDraft) && (
                 <div aria-live="polite" style={{ gridColumn: "1 / -1", color: "#d97706", fontSize: 10 }}>
-                  {t("models.costAllRequired")}
+                  {"Enter a valid non-negative price; blank fields are saved as 0."}
                 </div>
               )}
             </div>
@@ -1228,7 +1220,7 @@ function ModelDetail({
           }}
         >
           <span style={{ minWidth: 0 }}>
-            <span style={{ display: "block", fontSize: 11, fontWeight: 600 }}>{t("models.advancedSettings")}</span>
+            <span style={{ display: "block", fontSize: 11, fontWeight: 600 }}>{"Advanced settings"}</span>
             <span style={{ display: "block", marginTop: 3, color: "var(--text-dim)", fontSize: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
               {advancedSummary}
             </span>
@@ -1251,42 +1243,42 @@ function ModelDetail({
 
         {advancedOpen && (
           <div id="model-advanced-settings" style={{ display: "flex", flexDirection: "column", gap: 14, padding: "4px 0 16px" }}>
-            <Field label={t("models.baseUrlOverride")}>
+            <Field label={"Base URL override"}>
               <TextInput value={model.baseUrl ?? ""} onChange={(v) => set("baseUrl", v.trim() || undefined)}
-                placeholder={provider.baseUrl ?? t("models.providerDefaults")} mono />
+                placeholder={provider.baseUrl ?? "Using provider defaults"} mono />
             </Field>
 
-            <Field label={t("models.apiOverride")}>
+            <Field label={"API override"}>
               <Select value={model.api ?? ""} onChange={(v) => set("api", v || undefined)} options={API_OPTIONS} />
             </Field>
 
-            <Field label={t("models.headers")}>
+            <Field label={"Headers"}>
               <HeaderListEditor
                 headers={model.headers}
                 onChange={(headers) => set("headers", headers)}
               />
               <span style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>
-                {t("models.headersHelp")}
+                {"Overrides provider headers of the same name."}
               </span>
             </Field>
 
             {model.reasoning && (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <SectionTitle>{t("models.compatibility")}</SectionTitle>
+                <SectionTitle>{"Compatibility"}</SectionTitle>
                 <Check
-                  label={t("models.deepSeekThinkingCompat")}
+                  label={"DeepSeek thinking compatibility"}
                   checked={hasDeepseekCompat(model)}
                   onChange={(v) => onChange(setDeepseekCompat(model, v))}
                 />
                 <Check
-                  label={t("models.developerRole")}
+                  label={"Use the developer role for the system prompt"}
                   checked={effectiveCompat(provider, model)["supportsDeveloperRole"] !== false}
                   onChange={(v) => onChange(setCompatBool(model, "supportsDeveloperRole", v))}
                 />
                 {(model.api ?? provider.api) === "anthropic-messages" && (
                   <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
                     <Check
-                      label={t("models.adaptiveThinking")}
+                      label={"Claude adaptive thinking (effort levels)"}
                       checked={effectiveCompat(provider, model)["forceAdaptiveThinking"] === true}
                       onChange={(v) => onChange(setCompatFlag(model, "forceAdaptiveThinking", v, provider.compat?.["forceAdaptiveThinking"] === true))}
                     />
@@ -1297,14 +1289,14 @@ function ModelDetail({
                 )}
                 <div style={{ marginTop: 4 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 8 }}>
-                    <SectionTitle>{t("models.thinkingLevelMap")}</SectionTitle>
+                    <SectionTitle>{"Thinking level map"}</SectionTitle>
                     {model.thinkingLevelMap && (
                       <button
                         type="button"
                         onClick={() => set("thinkingLevelMap", undefined)}
                         style={{ fontSize: 10, padding: "2px 5px", background: "none", border: "none", color: "var(--text-dim)", cursor: "pointer" }}
                       >
-                        {t("models.clearAll")}
+                        {"Clear all"}
                       </button>
                     )}
                   </div>
@@ -1329,7 +1321,6 @@ function OAuthDetail({ provider, onRefresh, enabledModels, contextSettings }: {
   contextSettings: ModelContextSettings;
 }) {
   const [loginState, setLoginState] = useState<OAuthLoginState>({ phase: "idle" });
-  const { t } = useI18n();
   const [inputValue, setInputValue] = useState("");
   const eventSourceRef = useRef<EventSource | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -1455,13 +1446,13 @@ function OAuthDetail({ provider, onRefresh, enabledModels, contextSettings }: {
     <div style={{ display: "flex", flexDirection: "column", gap: provider.loggedIn && loginState.phase === "idle" ? 0 : 16 }}>
       <ConfigDetailHeader>
         <ConfigDetailHeaderInfo>
-          <SectionTitle>{t("i18n.subscription")}</SectionTitle>
+          <SectionTitle>{"Subscription"}</SectionTitle>
         </ConfigDetailHeaderInfo>
         <ConfigDetailActions>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: provider.loggedIn ? "#4ade80" : "var(--border)", display: "inline-block" }} />
             <span style={{ fontSize: 11, color: provider.loggedIn ? "#4ade80" : "var(--text-dim)" }}>
-               {provider.loggedIn ? t("i18n.connected") : t("i18n.notConnected")}
+               {provider.loggedIn ? "Connected" : "not connected"}
             </span>
           </div>
           {isWorking ? (
@@ -1469,7 +1460,7 @@ function OAuthDetail({ provider, onRefresh, enabledModels, contextSettings }: {
               size="small"
               onClick={() => { eventSourceRef.current?.close(); setLoginState({ phase: "idle" }); }}
             >
-              {t("i18n.cancel")}
+              {"Cancel"}
             </ConfigButton>
           ) : (
             <>
@@ -1478,7 +1469,7 @@ function OAuthDetail({ provider, onRefresh, enabledModels, contextSettings }: {
                 size="small"
                 onClick={handleLogin}
               >
-                 {provider.loggedIn ? t("i18n.relogin") : t("i18n.login")}
+                 {provider.loggedIn ? "Re-login" : "Login"}
               </ConfigButton>
               {provider.loggedIn && (
                 <ConfigButton
@@ -1486,7 +1477,7 @@ function OAuthDetail({ provider, onRefresh, enabledModels, contextSettings }: {
                   size="small"
                   onClick={handleLogout}
                 >
-                   {t("i18n.disconnect")}
+                   {"Disconnect"}
                 </ConfigButton>
               )}
             </>
@@ -1504,7 +1495,7 @@ function OAuthDetail({ provider, onRefresh, enabledModels, contextSettings }: {
           )
         )}
         {loginState.phase === "connecting" && (
-            <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>{t("i18n.openingBrowser")}</p>
+            <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>{"Opening browser…"}</p>
         )}
         {loginState.phase === "select" && (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -1540,7 +1531,7 @@ function OAuthDetail({ provider, onRefresh, enabledModels, contextSettings }: {
             ) : undefined}
             value={inputValue}
             placeholder={loginState.phase === "auth" ? "http://localhost:1455/auth/callback?code=…" : (loginState.placeholder ?? "Enter value…")}
-            submitLabel={t("i18n.submit")}
+            submitLabel={"Submit"}
             inputRef={inputRef}
             onValueChange={setInputValue}
             onSubmit={() => void submitCode(loginState.token, inputValue)}
@@ -1566,7 +1557,7 @@ function OAuthDetail({ provider, onRefresh, enabledModels, contextSettings }: {
           <p style={{ margin: 0, fontSize: 12, color: "var(--text-muted)" }}>{loginState.message}</p>
         )}
         {loginState.phase === "success" && (
-             <p style={{ margin: 0, fontSize: 12, color: "#4ade80" }}>{t("i18n.connectedSuccessfully")}</p>
+             <p style={{ margin: 0, fontSize: 12, color: "#4ade80" }}>{"Connected successfully."}</p>
         )}
         {loginState.phase === "error" && (
           <p style={{ margin: 0, fontSize: 12, color: "#f87171" }}>{loginState.message}</p>
@@ -1591,7 +1582,6 @@ function ApiKeyDetail({ provider, onRefresh, enabledModels, contextSettings }: {
   const [removing, setRemoving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedOk, setSavedOk] = useState(false);
-  const { t } = useI18n();
 
   // Reset state when provider changes
   useEffect(() => {
@@ -1652,7 +1642,7 @@ function ApiKeyDetail({ provider, onRefresh, enabledModels, contextSettings }: {
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 7, height: 7, borderRadius: "50%", background: provider.configured ? "#4ade80" : "var(--border)", display: "inline-block" }} />
             <span style={{ fontSize: 11, color: provider.configured ? "#4ade80" : "var(--text-dim)" }}>
-               {provider.configured ? t("i18n.configured") : t("i18n.notConfigured")}
+               {provider.configured ? "configured" : "not configured"}
             </span>
           </div>
           {provider.configured && (
@@ -1662,7 +1652,7 @@ function ApiKeyDetail({ provider, onRefresh, enabledModels, contextSettings }: {
               onClick={handleRemove}
               disabled={removing}
             >
-               {removing ? t("i18n.removing") : t("i18n.disconnect")}
+               {removing ? "Removing…" : "Disconnect"}
             </ConfigButton>
           )}
         </ConfigDetailActions>
@@ -1703,7 +1693,7 @@ function ApiKeyDetail({ provider, onRefresh, enabledModels, contextSettings }: {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           )}
-           {savedOk ? t("i18n.saved") : saving ? t("i18n.saving") : t("i18n.save")}
+           {savedOk ? "Saved" : saving ? "Saving…" : "Save"}
         </button>
       </div>
 
@@ -1732,7 +1722,6 @@ function AddProviderPicker({
   onSelectOAuth, onSelectApiKey, onAddCustom, onClose,
 }: AddProviderPickerProps) {
   const [search, setSearch] = useState("");
-  const { t } = useI18n();
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => { setTimeout(() => inputRef.current?.focus(), 30); }, []);
@@ -1782,7 +1771,7 @@ function AddProviderPicker({
             ref={inputRef}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-             placeholder={t("i18n.searchProviders")}
+             placeholder={"Search providers…"}
             style={{ flex: 1, background: "none", border: "none", outline: "none", color: "var(--text)", fontSize: 13, boxSizing: "border-box" }}
           />
         </div>
@@ -1790,11 +1779,11 @@ function AddProviderPicker({
         {/* Card grid */}
         <div style={{ flex: 1, overflowY: "auto", padding: 14 }}>
           {totalCount === 0 ? (
-            <div style={{ padding: "20px 0", fontSize: 12, color: "var(--text-dim)", textAlign: "center" }}>{t("i18n.noProviders")}</div>
+            <div style={{ padding: "20px 0", fontSize: 12, color: "var(--text-dim)", textAlign: "center" }}>{"No providers match"}</div>
           ) : (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(240px, 100%), 1fr))", gap: 8 }}>
               {showCustom && (
-                 <div style={{ gridColumn: "1 / -1", fontSize: 10, fontWeight: 600, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.07em" }}>{t("i18n.custom")}</div>
+                 <div style={{ gridColumn: "1 / -1", fontSize: 10, fontWeight: 600, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.07em" }}>{"Custom"}</div>
               )}
               {showCustom && (
                 <button
@@ -1805,7 +1794,7 @@ function AddProviderPicker({
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text)", lineHeight: 1.3, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>OpenAI / Anthropic compatible</div>
-                     <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>{t("i18n.customEndpoint")}</div>
+                     <div style={{ fontSize: 10, color: "var(--text-dim)", marginTop: 2 }}>{"Custom endpoint format"}</div>
                   </div>
                   <span style={{ width: 26, height: 26, borderRadius: 5, background: "var(--bg-hover)", border: "1px dashed var(--border)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: "var(--text-dim)" }}>
@@ -1816,7 +1805,7 @@ function AddProviderPicker({
               )}
 
               {availableOAuth.length > 0 && (
-                 <div style={{ gridColumn: "1 / -1", paddingTop: showCustom ? 6 : 0, fontSize: 10, fontWeight: 600, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.07em" }}>{t("i18n.subscriptions")}</div>
+                 <div style={{ gridColumn: "1 / -1", paddingTop: showCustom ? 6 : 0, fontSize: 10, fontWeight: 600, color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.07em" }}>{"Subscriptions"}</div>
               )}
               {availableOAuth.map((p) => (
                 <button key={p.id} onClick={() => { onSelectOAuth(p.id); onClose(); }}
@@ -1862,7 +1851,6 @@ function AddProviderPicker({
 export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
   onClose: () => void; embedded?: boolean; cwd?: string | null;
 }) {
-  const { t } = useI18n();
   // `enabledModels` lives in pi's settings, not models.json, so these switches
   // apply immediately instead of waiting for this panel's Save button.
   const enabledModels = useEnabledModels(cwd);
@@ -1995,8 +1983,8 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
 
   const renameProvider = useCallback((oldName: string, newName: string) => {
     if (applyProviderRename(config, oldName, newName)) setSaveError(null);
-    else setSaveError(t("models.providerNameTaken", { name: newName }));
-  }, [applyProviderRename, config, t]);
+    else setSaveError(`Another provider is already named "${newName}". Choose a different name.`);
+  }, [applyProviderRename, config]);
 
   const deleteProvider = useCallback((name: string) => {
     const next = deleteProviderEntry(config, {
@@ -2077,7 +2065,7 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
     if (providerNameDraft && pendingName && config.providers?.[providerNameDraft.provider]) {
       const renamed = applyProviderRename(config, providerNameDraft.provider, pendingName);
       if (!renamed) {
-        setSaveError(t("models.providerNameTaken", { name: pendingName }));
+        setSaveError(`Another provider is already named "${pendingName}". Choose a different name.`);
         setSaving(false);
         return;
       }
@@ -2106,11 +2094,17 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
         enabledModels.resync(renames, modelRenames);
       }
     } catch (e) {
-      setSaveError(e instanceof ContextWindowError ? t("models.contextInvalid", { model: e.model }) : String(e));
+      setSaveError(e instanceof ContextWindowError ? `Context window of ${e.model}: enter a positive whole number of tokens.` : String(e));
     } finally {
       setSaving(false);
     }
-  }, [applyProviderRename, config, enabledModels, loadError, providerNameDraft, t]);
+  }, [
+	applyProviderRename,
+	config,
+	enabledModels,
+	loadError,
+	providerNameDraft
+]);
 
   const providers = Object.entries(config.providers ?? {}).filter(([id, entry]) => {
     if (Object.keys(entry).length !== 1 || !entry.modelOverrides) return true;
@@ -2174,7 +2168,7 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
 
   return (
     <>
-    <ConfigPanelShell embedded={embedded} title={t("common.models")} subtitle="~/.pi/agent/models.json" closeLabel={t("i18n.close")} onClose={onClose}>
+    <ConfigPanelShell embedded={embedded} title={"Models"} subtitle="~/.pi/agent/models.json" closeLabel={"Close"} onClose={onClose}>
 
         <EnabledModelsBanner controller={enabledModels} />
 
@@ -2223,7 +2217,7 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
 
               {/* Custom providers */}
               {loading ? (
-                 <div style={{ padding: "10px 8px", fontSize: 12, color: "var(--text-muted)" }}>{t("i18n.loading")}</div>
+                 <div style={{ padding: "10px 8px", fontSize: 12, color: "var(--text-muted)" }}>{"Loading..."}</div>
               ) : providers.map(([pName, pData]) => {
                 const isProviderSelected = selection?.type === "provider" && selection.name === pName;
                 const models = pData.models ?? [];
@@ -2258,7 +2252,7 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
                           onClick={() => setSelection({ type: "model", providerName: pName, index: i })}
                         >
                           <ConfigSidebarText className="is-grow" style={{ color: m.id ? "var(--text-muted)" : "var(--text-dim)" }}>
-                             {m.id || t("i18n.newModel")}
+                             {m.id || "new model"}
                           </ConfigSidebarText>
                           {m.reasoning && (
                             <span style={{ fontSize: 9, padding: "1px 4px", background: "rgba(99,102,241,0.12)", color: "rgba(99,102,241,0.8)", borderRadius: 3, flexShrink: 0 }}>T</span>
@@ -2272,7 +2266,7 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
                       className="models-sidebar-indented-item models-sidebar-add-item"
                       onClick={(e) => { e.stopPropagation(); addModel(pName); }}
                     >
-                       <ConfigSidebarText>+ {t("i18n.model")}</ConfigSidebarText>
+                       <ConfigSidebarText>+ {"Model"}</ConfigSidebarText>
                     </ConfigSidebarItem>
                   </div>
                 );
@@ -2280,14 +2274,14 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
             </ConfigSidebarList>
 
             {/* Add provider */}
-            <ConfigListAction onClick={() => setPickerOpen(true)}>{t("i18n.addProvider")}</ConfigListAction>
+            <ConfigListAction onClick={() => setPickerOpen(true)}>{"Add provider"}</ConfigListAction>
           </ConfigSidebar>
 
           {/* Right: detail */}
           <ConfigDetail>
             <ConfigDetailStack className="is-fill">
               {loading ? null : detailContent ?? (
-                <ConfigEmptyState>{t("i18n.selectProviderModel")}</ConfigEmptyState>
+                <ConfigEmptyState>{"Select a provider or model"}</ConfigEmptyState>
               )}
             </ConfigDetailStack>
           </ConfigDetail>
@@ -2296,10 +2290,10 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
         {/* Footer */}
         <ConfigFooter status={(loadError || saveError) ? (
           <span style={{ color: "#f87171" }}>
-            {loadError ? t("models.configUnreadable", { error: loadError }) : saveError}
+            {loadError ? `Could not read models.json, so saving is disabled to avoid overwriting it. Fix the file, then reopen this panel. ${loadError}` : saveError}
           </span>
-        ) : t("models.applyHelp")}>
-          {!embedded && <ConfigButton onClick={onClose}>{t("i18n.cancel")}</ConfigButton>}
+        ) : "Open sessions: select the model again to apply."}>
+          {!embedded && <ConfigButton onClick={onClose}>{"Cancel"}</ConfigButton>}
           <ConfigButton
             variant="primary"
             onClick={handleSave}
@@ -2312,7 +2306,7 @@ export function ModelsConfig({ onClose, embedded = false, cwd = null }: {
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}
-             <span>{savedOk ? t("i18n.saved") : saving ? t("i18n.saving") : t("i18n.save")}</span>
+             <span>{savedOk ? "Saved" : saving ? "Saving…" : "Save"}</span>
           </ConfigButton>
         </ConfigFooter>
     </ConfigPanelShell>

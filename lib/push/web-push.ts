@@ -2,8 +2,7 @@ import { existsSync, mkdirSync, readFileSync } from "fs";
 import { dirname, join } from "path";
 import webpush from "web-push";
 import { writePrivateFileAtomicSync } from "../files/atomic-file";
-import { enLocale } from "../i18n/messages/en";
-import { zhCNLocale } from "../i18n/messages/zh-CN";
+import { t } from "../text";
 import { getAgentDir } from "../session/session-reader";
 
 export interface PushSubscriptionRecord {
@@ -97,17 +96,9 @@ function pushStatusCode(error: unknown): number | undefined {
   return typeof statusCode === "number" ? statusCode : undefined;
 }
 
-/**
- * Locale lookup for push payloads. The browser reports its UI locale when it
- * subscribes; unknown locales fall back to English.
- */
-export function localeText(locale: string, key: "sessionComplete" | "taskFinished"): string {
-  if (locale === "zh-CN") {
-    const message = zhCNLocale.messages[key === "sessionComplete" ? "i18n.sessionComplete" : "i18n.taskFinished"];
-    if (message) return message;
-  }
-  const message = enLocale.messages[key === "sessionComplete" ? "i18n.sessionComplete" : "i18n.taskFinished"];
-  return message ?? (key === "sessionComplete" ? "Session complete" : "Task finished.");
+/** The notification text. English only: subscriptions record a locale, but there is one language. */
+export function localeText(_locale: string, key: "sessionComplete" | "taskFinished"): string {
+  return t(key === "sessionComplete" ? "i18n.sessionComplete" : "i18n.taskFinished");
 }
 
 export function createWebPushNotifier(environment: WebPushEnvironment): WebPushNotifier {

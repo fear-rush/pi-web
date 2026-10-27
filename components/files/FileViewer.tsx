@@ -1,5 +1,6 @@
 "use client";
 
+import { t } from "@/lib/text";
 import { useEffect, useState, useRef, useCallback, useMemo, type CSSProperties, type MouseEvent } from "react";
 import type { SyntaxHighlighterProps } from "react-syntax-highlighter";
 import SyntaxHighlighter from "react-syntax-highlighter/dist/esm/prism-light";
@@ -30,7 +31,6 @@ import { isDelimitedTablePath } from "@/lib/files/delimited-table";
 import { FrontmatterCard } from "../chat/FrontmatterCard";
 import { diffGapLabel, parseUnifiedPatch, unifiedDiffLines, type SplitDiffGap, type UnifiedDiffLine } from "@/lib/session/patch";
 import type { GitFileDiffResponse } from "@/lib/files/git-types";
-import { useI18n } from "@/hooks/useI18n";
 import {
   resolveInitialFileDisplayMode,
   type FileViewerDisplayMode as DisplayMode,
@@ -265,13 +265,12 @@ function getFileApiUrl(
 }
 
 function DownloadLink({ filePath, sourceSessionId }: { filePath: string; sourceSessionId?: string | null }) {
-  const { t } = useI18n();
   return (
     <a
       href={getFileApiUrl(filePath, "download", sourceSessionId)}
       download={getFileName(filePath)}
-      title={t("i18n.downloadFile")}
-      aria-label={t("i18n.downloadFile")}
+      title={"Download file"}
+      aria-label={"Download file"}
       className="file-viewer-icon-button"
     >
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -302,7 +301,6 @@ function diffLines(patch: string): Array<DiffLine | DiffGap> {
 }
 
 function DiffView({ patch }: { patch: string }) {
-  const { t } = useI18n();
   const diff = diffLines(patch);
 
   const isChange = (l: DiffLine | DiffGap) => l.type === "added" || l.type === "removed";
@@ -310,7 +308,7 @@ function DiffView({ patch }: { patch: string }) {
   if (!hasChanges) {
     return (
       <div style={{ padding: "12px 16px", fontSize: 12, color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
-        {t("i18n.noChanges")}
+        {"No changes"}
       </div>
     );
   }
@@ -447,7 +445,6 @@ function DiffView({ patch }: { patch: string }) {
 }
 
 function ImageViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Props) {
-  const { t } = useI18n();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
@@ -561,7 +558,7 @@ function ImageViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Pr
         {naturalSize && <span>{naturalSize.w} × {naturalSize.h}</span>}
         {formatSizeStr && <span>{formatSizeStr}</span>}
         <span
-          title={watching ? t("i18n.liveSync") : t("i18n.notWatching")}
+          title={watching ? "Live sync active" : "Not watching"}
           style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
         >
           <span
@@ -627,7 +624,6 @@ function formatDuration(seconds: number): string {
 }
 
 function AudioViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Props) {
-  const { t } = useI18n();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
@@ -739,7 +735,7 @@ function AudioViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Pr
         {duration != null && <span>{formatDuration(duration)}</span>}
         {size != null && <span>{formatSize(size)}</span>}
         <span
-          title={watching ? t("i18n.liveSync") : t("i18n.notWatching")}
+          title={watching ? "Live sync active" : "Not watching"}
           style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
         >
           <span
@@ -788,7 +784,6 @@ function AudioViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Pr
 }
 
 function VideoViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Props) {
-  const { t } = useI18n();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
@@ -900,7 +895,7 @@ function VideoViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Pr
         {duration != null && <span>{formatDuration(duration)}</span>}
         {size != null && <span>{formatSize(size)}</span>}
         <span
-          title={watching ? t("i18n.liveSync") : t("i18n.notWatching")}
+          title={watching ? "Live sync active" : "Not watching"}
           style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)" }}
         >
           <span
@@ -951,7 +946,6 @@ function VideoViewer({ filePath, cwd, sourceSessionId, watchEnabled = true }: Pr
 }
 
 function DocumentViewer({ filePath, cwd, sourceSessionId, initialPage, watchEnabled = true }: Props) {
-  const { t } = useI18n();
   const [watching, setWatching] = useState(false);
   const [bust, setBust] = useState(0);
   const [size, setSize] = useState<number | null>(null);
@@ -1096,7 +1090,7 @@ function DocumentViewer({ filePath, cwd, sourceSessionId, initialPage, watchEnab
         {size != null && <span>{formatSize(size)}</span>}
         <DownloadLink filePath={filePath} sourceSessionId={sourceSessionId} />
         <span
-          title={watching ? t("i18n.liveSync") : t("i18n.notWatching")}
+          title={watching ? "Live sync active" : "Not watching"}
           style={{ display: "flex", alignItems: "center", gap: 4, color: watching ? "#4ade80" : "var(--text-dim)", flexShrink: 0 }}
         >
           <span
@@ -1122,7 +1116,7 @@ function DocumentViewer({ filePath, cwd, sourceSessionId, initialPage, watchEnab
             key={previewUrl}
             src={previewUrl}
             sandbox={isPdf ? undefined : "allow-same-origin"}
-            title={t("i18n.previewFile", { file: getFileName(filePath) })}
+            title={`Preview ${getFileName(filePath)}`}
             style={{ width: "100%", height: "100%", border: "none", background: isPdf ? "var(--bg)" : "#eef1f5" }}
           />
         )}
@@ -1193,7 +1187,6 @@ function TextFileViewer({
   watchEnabled = true,
 }: Props) {
   const { isDark } = useTheme();
-  const { t } = useI18n();
   const [data, setData] = useState<FileData | null>(null);
   const [gitDiff, setGitDiff] = useState<GitFileDiffResponse | null>(null);
   const [gitDiffLoading, setGitDiffLoading] = useState(false);
@@ -1641,7 +1634,7 @@ function TextFileViewer({
   if (loading || (requestedInitialDisplayMode === "diff" && gitDiffLoading && !data)) {
     return (
       <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: 13 }}>
-        {t("i18n.loading")}
+        {"Loading..."}
       </div>
     );
   }
@@ -1667,7 +1660,7 @@ function TextFileViewer({
         ...(hasGitDiff ? ["diff" as const] : []),
       ];
   const metadata = isDeletedDiff
-    ? t("files.deleted")
+    ? "Deleted"
     : `${language} · ${lines.length} lines · ${formatSize(data!.size)}`;
 
   return (
@@ -1693,8 +1686,8 @@ function TextFileViewer({
         <span className="file-viewer-meta" title={metadata}>{metadata}</span>
         {!isDeletedDiff && (
           <span
-            title={watching ? t("i18n.liveSync") : t("i18n.notWatching")}
-            aria-label={watching ? t("i18n.liveSync") : t("i18n.notWatching")}
+            title={watching ? "Live sync active" : "Not watching"}
+            aria-label={watching ? "Live sync active" : "Not watching"}
             className="file-viewer-live-indicator"
             style={{
               background: watching ? "#4ade80" : "var(--border)",
@@ -1705,7 +1698,7 @@ function TextFileViewer({
 
         <div className="file-viewer-controls">
           {displayModes.length > 1 && (
-            <div className="file-viewer-mode-switch" aria-label={t("i18n.fileViewMode")}>
+            <div className="file-viewer-mode-switch" aria-label={"File view mode"}>
               {displayModes.map((mode) => {
                 const active = effectiveDisplayMode === mode;
                 return (
@@ -1713,7 +1706,7 @@ function TextFileViewer({
                     key={mode}
                     type="button"
                     onClick={() => updateDisplayMode(mode)}
-                    title={mode === "diff" ? t("i18n.compareHead") : undefined}
+                    title={mode === "diff" ? "Compare working tree with HEAD" : undefined}
                     aria-pressed={active}
                     className="file-viewer-mode-button"
                     style={{
@@ -1745,10 +1738,10 @@ function TextFileViewer({
                 }}
                 title={
                   selectedLineRange && onMentionLines
-                    ? `${t("i18n.mentionSelectedLines")} (L${selectedLineRange.startLine}${selectedLineRange.startLine !== selectedLineRange.endLine ? `-L${selectedLineRange.endLine}` : ""})`
-                    : t("files.insertPath")
+                    ? `${"Mention selected lines"} (L${selectedLineRange.startLine}${selectedLineRange.startLine !== selectedLineRange.endLine ? `-L${selectedLineRange.endLine}` : ""})`
+                    : "Insert path into chat"
                 }
-                aria-label={t("files.mention")}
+                aria-label={"mention"}
                 disabled={!onAtMention && !onMentionLines}
                 className="file-viewer-icon-button"
               >
@@ -1760,8 +1753,8 @@ function TextFileViewer({
                 <button
                   type="button"
                   onClick={toggleWrapLines}
-                  title={wrapLines ? t("i18n.disableWrap") : t("i18n.enableWrap")}
-                  aria-label={wrapLines ? t("i18n.disableWrap") : t("i18n.enableWrap")}
+                  title={wrapLines ? "Disable word wrap" : "Enable word wrap"}
+                  aria-label={wrapLines ? "Disable word wrap" : "Enable word wrap"}
                   aria-pressed={wrapLines}
                   className="file-viewer-icon-button"
                   style={{
@@ -1809,7 +1802,7 @@ function TextFileViewer({
               void fetchContent(filePath, data.nextOffset).finally(() => setLoadingMore(false));
             }}
           >
-            {loadingMore ? t("i18n.loading") : t("i18n.loadMore")}
+            {loadingMore ? "Loading..." : "Load more"}
           </button>
         </div>
       )}
@@ -1828,14 +1821,14 @@ function TextFileViewer({
           <DiffView patch={gitDiff.patch!} />
         ) : isHtml && effectiveDisplayMode === "preview" && data?.truncated && !htmlFull?.text ? (
           <div style={{ padding: 24, color: "var(--text-dim)", fontSize: 12 }}>
-            {htmlFull?.error ?? t("i18n.loading")}
+            {htmlFull?.error ?? "Loading..."}
           </div>
         ) : isHtml && effectiveDisplayMode === "preview" ? (
           <iframe
             srcDoc={data?.truncated ? htmlFull?.text : content}
             sandbox="allow-scripts"
             style={{ width: "100%", height: "100%", border: "none", background: "var(--bg)" }}
-             title={t("i18n.htmlPreview")}
+             title={"HTML preview"}
           />
         ) : isMarkdown && effectiveDisplayMode === "preview" ? (
           <div

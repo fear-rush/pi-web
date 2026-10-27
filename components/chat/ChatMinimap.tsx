@@ -10,7 +10,7 @@ import {
 import { isMessageGroupAnchor, splitFinalAssistantBlocks } from "@/lib/session/message-display";
 import { loadMinimapPreviewLocked, saveMinimapPreviewLocked } from "@/lib/session/minimap-preview-lock";
 import type { AgentMessage, AssistantMessage, CustomMessage, TextContent, UserMessage } from "@/lib/types";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import styles from "./ChatMinimap.module.css";
 
 interface Props {
@@ -254,7 +254,6 @@ export const ChatMinimap = memo(function ChatMinimap({
   onRevealHistory,
   turnsBefore,
 }: Props) {
-  const { t } = useI18n();
   const [visible, setVisible] = useState(false);
   const [allNodes, setAllNodes] = useState<NodeInfo[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
@@ -730,7 +729,7 @@ export const ChatMinimap = memo(function ChatMinimap({
         data-minimap-lock={locked ? "on" : "off"}
         aria-pressed={locked}
         title={t(locked ? "chatMinimap.unlockPreview" : "chatMinimap.lockPreview")}
-        aria-label={t("chatMinimap.lockPreview")}
+        aria-label={"Lock: don't open the preview on hover"}
         onMouseDown={(event) => event.stopPropagation()}
         onClick={(event) => {
           event.stopPropagation();
@@ -774,7 +773,7 @@ export const ChatMinimap = memo(function ChatMinimap({
               // The chat's top sentinel pages the older history in.
               onClick={() => scrollContainer.current?.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              {t("chatMinimap.earlierTurns", { count: turnsBefore })}
+              {`Earlier turns not loaded: ${turnsBefore}. Click to load`}
             </button>
           )}
           {allNodes.map((node) => {
@@ -798,8 +797,8 @@ export const ChatMinimap = memo(function ChatMinimap({
                     <span
                       className={styles.toolBadge}
                       role="img"
-                      title={t("chatMinimap.toolCalls", { count: node.targetTurn.toolCount })}
-                      aria-label={t("chatMinimap.toolCalls", { count: node.targetTurn.toolCount })}
+                      title={`Tool calls this turn: ${node.targetTurn.toolCount}`}
+                      aria-label={`Tool calls this turn: ${node.targetTurn.toolCount}`}
                     >
                       {node.targetTurn.toolCount > 99 ? "99+" : node.targetTurn.toolCount}
                     </span>
@@ -829,8 +828,8 @@ export const ChatMinimap = memo(function ChatMinimap({
                         className={styles.assistantJump}
                         data-minimap-preview-assistant={`${node.index}-${assistantIndex}`}
                         onClick={() => scrollToAssistant(node, assistantIndex)}
-                        aria-label={t("chatMinimap.locateAssistant")}
-                        title={t("chatMinimap.locateAssistant")}
+                        aria-label={"Locate assistant message"}
+                        title={"Locate assistant message"}
                       >
                         A
                       </button>

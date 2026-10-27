@@ -3,13 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { ToolEntry } from "@/lib/tools/tool-presets";
 
-type Translate = (key: string, params?: Record<string, string | number>) => string;
 
 interface Props {
   loading: boolean;
   tools: ToolEntry[] | null;
-  translate: Translate;
-}
+  }
 
 interface ParameterField {
   name: string;
@@ -95,7 +93,7 @@ function EmptyState({ children }: { children: string }) {
   return <div className="tool-definitions-empty">{children}</div>;
 }
 
-export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
+export function ToolDefinitionsPanel({ loading, tools }: Props) {
   // What the model is sent: under codemode's "only" mode the active built-in tools are reached
   // from scripts, and codemode's description lists them.
   const declaredTools = useMemo(
@@ -119,7 +117,7 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
 
   return (
     <div className="tool-definitions-panel">
-      <nav className="tool-definitions-sidebar" aria-label={translate("tools.title")}>
+      <nav className="tool-definitions-sidebar" aria-label={"Tool definitions"}>
         <div className="tool-definitions-list">
           {declaredTools && declaredTools.length > 0 ? declaredTools.map((tool) => {
             const selected = tool.name === selectedTool?.name;
@@ -135,27 +133,27 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
               </button>
             );
           }) : declaredTools ? (
-            <EmptyState>{translate("tools.noTools")}</EmptyState>
+            <EmptyState>{"No active tools"}</EmptyState>
           ) : (
-            <EmptyState>{loading ? translate("tools.loading") : translate("tools.load")}</EmptyState>
+            <EmptyState>{loading ? "Loading tool definitions…" : "Tool definitions have not loaded yet"}</EmptyState>
           )}
         </div>
       </nav>
 
-      <section className="tool-definition-detail" aria-label={translate("tools.details")}>
+      <section className="tool-definition-detail" aria-label={"Tool definition details"}>
         {selectedTool ? (
           <div className="tool-definition-scroll">
             {selectedTool.description && (
               <section className="tool-definition-section">
-                <div className="tool-definition-section-label">{translate("tools.description")}</div>
+                <div className="tool-definition-section-label">{"Description"}</div>
                 <div className="tool-definition-description">{selectedTool.description}</div>
               </section>
             )}
 
             <section className="tool-definition-section">
               <div className="tool-definition-section-label">
-                <span>{translate("tools.parameters")}</span>
-                <span>{translate("tools.parameterCount", { count: fields.length })}</span>
+                <span>{"Parameters"}</span>
+                <span>{`${fields.length} parameters`}</span>
               </div>
               {fields.length > 0 ? (
                 <div className="tool-definition-fields">
@@ -164,7 +162,7 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
                       <div className="tool-definition-field-name">
                         <code>{field.name}</code>
                         <span className={field.required ? "required" : undefined}>
-                          {translate(field.required ? "tools.required" : "tools.optional")}
+                          {field.required ? "Required" : "Optional"}
                         </span>
                       </div>
                       <div className="tool-definition-field-value">
@@ -172,12 +170,12 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
                         {field.description && <div>{field.description}</div>}
                         {field.allowedValues && (
                           <div className="tool-definition-meta">
-                            {translate("tools.allowedValues")}: <code>{field.allowedValues}</code>
+                            {"Allowed"}: <code>{field.allowedValues}</code>
                           </div>
                         )}
                         {field.defaultValue !== undefined && (
                           <div className="tool-definition-meta">
-                            {translate("tools.defaultValue")}: <code>{field.defaultValue}</code>
+                            {"Default"}: <code>{field.defaultValue}</code>
                           </div>
                         )}
                       </div>
@@ -185,13 +183,13 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
                   ))}
                 </div>
               ) : (
-                <div className="tool-definition-no-parameters">{translate("tools.noParameters")}</div>
+                <div className="tool-definition-no-parameters">{"No parameters"}</div>
               )}
             </section>
 
             {selectedTool.promptGuidelines && selectedTool.promptGuidelines.length > 0 && (
               <section className="tool-definition-section">
-                <div className="tool-definition-section-label">{translate("tools.guidelines")}</div>
+                <div className="tool-definition-section-label">{"Prompt guidelines"}</div>
                 <ul className="tool-definition-guidelines">
                   {selectedTool.promptGuidelines.map((guideline, index) => (
                     <li key={`${selectedTool.name}:${index}`}>{guideline}</li>
@@ -203,10 +201,10 @@ export function ToolDefinitionsPanel({ loading, tools, translate }: Props) {
         ) : (
           <EmptyState>
             {declaredTools
-              ? translate("tools.noTools")
+              ? "No active tools"
               : loading
-                ? translate("tools.loading")
-                : translate("tools.load")}
+                ? "Loading tool definitions…"
+                : "Tool definitions have not loaded yet"}
           </EmptyState>
         )}
       </section>

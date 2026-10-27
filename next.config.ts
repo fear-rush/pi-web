@@ -14,7 +14,7 @@ try {
 // mdast-util-gfm-autolink-literal (remark-gfm) ships a RegExp lookbehind that
 // Safari parses only from 16.4, which blanked `/` on iOS 16.2 (#753). The loader
 // swaps it for an equivalent built at runtime; both bundlers must run it.
-const gfmAutolinkEmailLoader = join(configDir, "lib/gfm-autolink-email-loader.cjs");
+const gfmAutolinkEmailLoader = join(configDir, "lib/rendering/gfm-autolink-email-loader.cjs");
 
 const nextConfig: NextConfig = {
   outputFileTracingRoot: configDir,

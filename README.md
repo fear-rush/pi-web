@@ -180,7 +180,6 @@ Do not run `next build` or `npm run build` during normal development. It writes 
 
 Before starting on a feature, read [Contributing](./CONTRIBUTING.md) for what is in scope and the pull request checklist.
 
-Contributor guides: [Internationalization](./docs/i18n.md) and [Release process](./docs/release.md).
 
 ## Repository Layout
 

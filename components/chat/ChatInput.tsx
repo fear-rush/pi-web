@@ -29,7 +29,7 @@ import { ImagePreview } from "../files/ImagePreview";
 import { DismissButton } from "../shell/DismissButton";
 import { useIsMobile } from "@/hooks/layout/useIsMobile";
 import { useEnterSendMode } from "@/hooks/chat/useEnterSendMode";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { useChatAppearance } from "@/hooks/chat/useChatAppearance";
 import { useFontPreferences } from "@/hooks/layout/useFontPreferences";
 import type { ToolPreset } from "@/lib/tools/tool-presets";
@@ -630,9 +630,8 @@ function ModelNoticeBanner({ tone, title, body, onClose }: { tone: "error" | "wa
 }
 
 export function ModelErrorBanner({ error }: { error?: string | null }) {
-  const { t } = useI18n();
   if (!error) return null;
-  return <ModelNoticeBanner tone="error" title={t("chat.modelError")} body={error} />;
+  return <ModelNoticeBanner tone="error" title={"Model error"} body={error} />;
 }
 
 /** True when the selected model is known to accept image input (#584). Unknown modality info never blocks the user. */
@@ -648,12 +647,11 @@ export function modelSupportsImageInput(
 
 /** Surfaces `enabledModels` patterns that matched nothing, so a typo is visible (#307). */
 export function ModelScopeWarningBanner({ warnings }: { warnings?: string[] }) {
-  const { t } = useI18n();
   if (!warnings || warnings.length === 0) return null;
   return (
     <ModelNoticeBanner
       tone="warning"
-      title={warnings.length > 1 ? t("chat.modelScopeWarnings") : t("chat.modelScopeWarning")}
+      title={warnings.length > 1 ? "Model scope warnings" : "Model scope warning"}
       body={warnings.join("\n")}
     />
   );
@@ -677,7 +675,6 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
   onAttachFiles,
   compact = false,
 }: Props, ref) {
-  const { t } = useI18n();
   const { fontSize } = useChatAppearance();
   const { ui: uiFontFamily, uiWeight } = useFontPreferences();
   const isMobile = useIsMobile();
@@ -1674,7 +1671,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
     ? Math.max(0, compactResult.tokensBefore - compactResult.estimatedTokensAfter)
     : 0;
   const compactResultText = compactResult
-    ? `${compactResult.reason && compactResult.reason !== "manual" ? `${compactResult.reason[0].toUpperCase()}${compactResult.reason.slice(1)} ` : t("chat.compacted")} ${formatTokenCount(compactResult.tokensBefore)} -> ${formatTokenCount(compactResult.estimatedTokensAfter)} tokens (${t("chat.tokensSaved", { saved: formatTokenCount(compactSavedTokens) })})`
+    ? `${compactResult.reason && compactResult.reason !== "manual" ? `${compactResult.reason[0].toUpperCase()}${compactResult.reason.slice(1)} ` : "Compacted"} ${formatTokenCount(compactResult.tokensBefore)} -> ${formatTokenCount(compactResult.estimatedTokensAfter)} tokens (${`${formatTokenCount(compactSavedTokens)} saved`})`
     : null;
   const resolvedThinkingLevel = thinkingLevel && thinkingLevel !== "auto" ? thinkingLevel : null;
   const thinkingDisplayLabel = (() => {
@@ -1683,7 +1680,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
     return thinkingLevelMap[lvl] ?? lvl;
   })();
   const rawToolPresetLabel = Object.entries(TOOL_PRESET_MAP).find(([, v]) => v === (toolPreset ?? "configured"))?.[0] ?? "configured";
-  const toolPresetLabel = rawToolPresetLabel === "chat-only" ? t("chat.chatOnly") : rawToolPresetLabel;
+  const toolPresetLabel = rawToolPresetLabel === "chat-only" ? "Chat only" : rawToolPresetLabel;
 
   // Close dropdowns on outside click
   useEffect(() => {
@@ -1758,8 +1755,8 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
           return (
             <ModelNoticeBanner
               tone="warning"
-              title={t("chat.imageNotSupportedTitle")}
-              body={t("chat.imageNotSupportedBody", { model: entry?.name || model?.modelId || "" })}
+              title={"Images may not be sent"}
+              body={`The selected model (${entry?.name || model?.modelId || ""}) does not support image input. The attached images will likely be ignored.`}
               onClose={() => setImageWarningDismissed(true)}
             />
           );
@@ -1787,12 +1784,12 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                 textTransform: "uppercase",
                 letterSpacing: 0.4,
               }}>
-                {t("chat.queued", { count: (queuedMessages?.steering.length ?? 0) + (queuedMessages?.followUp.length ?? 0) })}
+                {`Queued · ${(queuedMessages?.steering.length ?? 0) + (queuedMessages?.followUp.length ?? 0)}`}
               </span>
               {onRecallQueue && (
                 <button
                   onClick={onRecallQueue}
-                   title={t("chat.recallTitle")}
+                   title={"Remove all queued messages and put them back into the input box for editing"}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -1820,7 +1817,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                     <polyline points="9 14 4 9 9 4" />
                     <path d="M20 20v-7a4 4 0 0 0-4-4H4" />
                   </svg>
-                   {t("chat.recall")}
+                   {"Recall to input"}
                 </button>
               )}
             </div>
@@ -1844,7 +1841,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
               <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
               <path d="M3 3v5h5" />
             </svg>
-             {t("chat.retrying", { attempt: retryInfo.attempt, max: retryInfo.maxAttempts })}{retryInfo.errorMessage && <span style={{ opacity: 0.7, marginLeft: 4 }}>— {retryInfo.errorMessage}</span>}
+             {`Retrying (${retryInfo.attempt}/${retryInfo.maxAttempts})…`}{retryInfo.errorMessage && <span style={{ opacity: 0.7, marginLeft: 4 }}>— {retryInfo.errorMessage}</span>}
           </div>
         )}
         {compactResultText && (
@@ -1879,7 +1876,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
             }}
           >
             <span style={{ minWidth: 0, flex: 1, padding: onDismissCompactError ? "4px 0" : 0, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{compactError}</span>
-            {onDismissCompactError && <DismissButton onClick={onDismissCompactError} title={t("chat.dismissCompactError")} />}
+            {onDismissCompactError && <DismissButton onClick={onDismissCompactError} title={"Dismiss compaction error"} />}
           </div>
         )}
         {/* Image previews */}
@@ -1935,7 +1932,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
               }}
             >
               <div
-                title={t("chat.inputHistory")}
+                title={"Input history"}
                 style={{
                   height: 30,
                   padding: "0 10px",
@@ -2039,13 +2036,13 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                   flexShrink: 0,
                 }}
               >
-                 <span>{slashCommandsLoading ? t("chat.loadingCommands") : t("chat.slashCommands", { label: slashCommandCountLabel })}</span>
-                 <span style={{ fontFamily: "var(--font-mono)" }}>{t("chat.tabEnter")}</span>
+                 <span>{slashCommandsLoading ? "Loading commands..." : `Slash commands · ${slashCommandCountLabel}`}</span>
+                 <span style={{ fontFamily: "var(--font-mono)" }}>{"Tab / Enter"}</span>
               </div>
               <div style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", padding: 10 }}>
                 {!slashCommandsLoading && filteredSlashCommands.length === 0 ? (
                   <div style={{ padding: "2px 2px 4px", fontSize: 12, color: "var(--text-dim)" }}>
-                     {t("chat.noCommands")}
+                     {"No extension, prompt, or skill commands found"}
                   </div>
                 ) : (
                   groupedSlashCommands.map((group) => (
@@ -2128,7 +2125,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                                     color: "var(--text-dim)",
                                     whiteSpace: "nowrap",
                                   }}>
-                                    {t("chat.dormant")}
+                                    {"dormant"}
                                   </span>
                                 )}
                               </span>
@@ -2157,11 +2154,11 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
           )}
           {atMenuOpen && atQuery !== null && (() => {
             const indexLoading = fileIndexLoading && (!fileIndex || fileIndex.cwd !== cwd);
-             const matchCountLabel = atMatches.length === 1 ? t("chat.match") : t("chat.matches", { count: atMatches.length });
+             const matchCountLabel = atMatches.length === 1 ? "1 match" : `${atMatches.length} matches`;
             // With a truncated index, local results are provisional — the
             // debounced server search over the full listing replaces them.
             const truncatedHint = fileIndex?.truncated && !serverResultInUse
-               ? (atQuery.query ? t("chat.searchingAll") : t("chat.indexTruncated"))
+               ? (atQuery.query ? " · searching all files…" : " · index truncated")
               : "";
             return (
               <div
@@ -2200,15 +2197,15 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                 >
                   <span>
                     {indexLoading
-                       ? t("chat.loadingFiles")
-                       : t("chat.files", { label: matchCountLabel, hint: truncatedHint })}
+                       ? "Loading files..."
+                       : `Files · ${matchCountLabel}${truncatedHint}`}
                   </span>
-                   <span style={{ fontFamily: "var(--font-mono)" }}>{t("chat.tabEnter")}</span>
+                   <span style={{ fontFamily: "var(--font-mono)" }}>{"Tab / Enter"}</span>
                 </div>
                 <div style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", padding: 4 }}>
                   {!indexLoading && atMatches.length === 0 ? (
                     <div style={{ padding: "6px 8px", fontSize: 12, color: "var(--text-dim)" }}>
-                       {needsServerSearch && !serverResultInUse ? t("chat.searching") : t("chat.noMatchingFiles")}
+                       {needsServerSearch && !serverResultInUse ? "Searching…" : "No matching files"}
                     </div>
                   ) : (
                     atMatches.map((entry, index) => {
@@ -2279,7 +2276,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
           <textarea
             ref={textareaRef}
             className="chat-input-textarea"
-            aria-label={compact ? t("chat.quoteQuestion") : undefined}
+            aria-label={compact ? "My question:" : undefined}
             value={value}
             onChange={(e) => {
               valueRef.current = e.target.value;
@@ -2305,9 +2302,9 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
             onPaste={handlePaste}
             placeholder={
               isStreaming && (onSteer || onFollowUp)
-                ? t("chat.steerPlaceholder")
-                : isStreaming ? t("chat.agentPlaceholder")
-                : t("chat.messagePlaceholder")
+                ? "Steer now / queue follow-up..."
+                : isStreaming ? "Agent is running…"
+                : "Message… Type / for commands, @ for files"
             }
             rows={1}
             style={{
@@ -2334,7 +2331,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                 <button
                   onClick={() => sendQueued("steer")}
                   disabled={!canQueueStreamingMessage}
-                  title={t("chat.steerHint")}
+                  title={"Deliver after the current response and its tool calls finish (Stop interrupts them)"}
                   style={{
                     display: "flex", alignItems: "center", gap: 5,
                     padding: "7px 12px",
@@ -2350,14 +2347,14 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                   <svg width="12" height="12" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M5 1 L9 5 L5 9" /><line x1="1" y1="5" x2="9" y2="5" />
                   </svg>
-                  {t("chat.steer")}
+                  {"Steer"}
                 </button>
               )}
               {onFollowUp && (
                 <button
                   onClick={() => sendQueued("followup")}
                   disabled={!canQueueStreamingMessage}
-                  title={`${t("chat.followUpHint")} (${isMobile ? "Ctrl/Cmd+" : ""}Alt/Option+Enter)`}
+                  title={`${"Queue this message after the agent finishes"} (${isMobile ? "Ctrl/Cmd+" : ""}Alt/Option+Enter)`}
                   aria-keyshortcuts={isMobile ? "Control+Alt+Enter Meta+Alt+Enter" : "Alt+Enter"}
                   style={{
                     display: "flex", alignItems: "center", gap: 5,
@@ -2375,7 +2372,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                     <line x1="5" y1="1" x2="5" y2="6" /><polyline points="2.5 3.5 5 1 7.5 3.5" />
                     <line x1="2" y1="9" x2="8" y2="9" />
                   </svg>
-                  {t("chat.followUp")}
+                  {"Follow-up"}
                 </button>
               )}
             </div>
@@ -2383,8 +2380,8 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
             <button
               onClick={handleSend}
               disabled={!value.trim() && !attachedImages.length}
-              title={t("chat.send")}
-              aria-label={t("chat.send")}
+              title={"Send"}
+              aria-label={"Send"}
               style={{
                 flexShrink: 0,
                 alignSelf: "flex-end",
@@ -2407,7 +2404,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                 <line x1="2" y1="7" x2="11" y2="7" />
                 <polyline points="7.5 3 12 7 7.5 11" />
               </svg>
-              {!isMobile && t("chat.send")}
+              {!isMobile && "Send"}
             </button>
           )}
           </div>
@@ -2416,7 +2413,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
         {/* Bash mode status label */}
         {bashMode && (
           <div className="text-xs px-2 py-1" style={{ color: bashExcluded ? "var(--text-muted)" : "var(--accent)", marginTop: 4 }}>
-             {t("chat.shell")} · {bashExcluded ? t("chat.outputLocal") : t("chat.outputModel")}
+             {"Shell"} · {bashExcluded ? "output stays local" : "output sent to model"}
           </div>
         )}
 
@@ -2433,7 +2430,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
           <div style={{ flex: isMobile ? "1 1 auto" : "0 0 auto", minWidth: 0, display: "flex", alignItems: "center", gap: 2 }}>
             <button
               onClick={() => fileInputRef.current?.click()}
-             title={t("chat.attachFiles")}
+             title={"Attach files"}
               style={{
                 flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center",
                 width: 32, height: 32, padding: 0,
@@ -2490,8 +2487,8 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
             {isMobile && (
               <button
                 type="button"
-                 title={controlsMenuOpen ? undefined : t("chat.moreControls")}
-                 aria-label={t("chat.moreControls")}
+                 title={controlsMenuOpen ? undefined : "More controls"}
+                 aria-label={"More controls"}
                 aria-expanded={controlsMenuOpen}
                 aria-hidden={controlsMenuOpen || undefined}
                 tabIndex={controlsMenuOpen ? -1 : undefined}
@@ -2527,7 +2524,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                   e.currentTarget.style.color = "var(--text-muted)";
                 }}
               >
-                {t("chat.moreControls")}
+                {"More controls"}
               </button>
             )}
             <div style={{
@@ -2556,9 +2553,9 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                 <button
                   onClick={() => setThinkingDropdownOpen((v) => !v)}
                   title={isStreaming
-                    ? t("chat.currentReasoning", { level: thinkingDisplayLabel })
-                    : t("chat.changeReasoning", { level: thinkingDisplayLabel })}
-                  aria-label={t("chat.changeReasoningLabel")}
+                    ? `Reasoning level for this turn: ${thinkingDisplayLabel}`
+                    : `Change reasoning level: ${thinkingDisplayLabel}`}
+                  aria-label={"Change reasoning level"}
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
                     padding: isMobile ? "0 6px" : "8px 12px",
@@ -2624,8 +2621,8 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                           star={onSetDefaultThinkingLevel && lvl !== "auto"
                             ? {
                                 isDefault: savedDefaultThinkingLevel === lvl,
-                                saveLabel: t("chat.saveDefaultThinking"),
-                                defaultLabel: t("chat.defaultThinking"),
+                                saveLabel: "Use and save as default reasoning level",
+                                defaultLabel: "Default reasoning level for new chats",
                                 onSave: () => {
                                   setThinkingDropdownOpen(false);
                                   onSetDefaultThinkingLevel(lvl);
@@ -2650,8 +2647,8 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                 <button
                   onClick={(e) => { if (!isStreaming && !isStrayClick(e)) setToolDropdownOpen((v) => !v); }}
                   disabled={isStreaming}
-                  title={t("chat.changeToolPreset") + `: ${toolPresetLabel}`}
-                  aria-label={t("chat.changeToolPreset")}
+                  title={"Change tool preset" + `: ${toolPresetLabel}`}
+                  aria-label={"Change tool preset"}
                   style={{
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
                     padding: isMobile ? "0 6px" : "8px 12px",
@@ -2695,11 +2692,11 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                       const preset = TOOL_PRESET_MAP[lvl];
                       const isActive = (toolPreset ?? "configured") === preset;
                       let desc: string;
-                      if (lvl === "configured") desc = t("chat.configuredTools");
-                      else if (lvl === "chat-only") desc = t("chat.chatOnly");
-                      else if (lvl === "read-only") desc = t("chat.readOnlyTools", { count: 4 });
-                      else if (lvl === "default") desc = t("chat.builtInTools", { count: 4 });
-                      else desc = t("chat.allBuiltInTools");
+                      if (lvl === "configured") desc = "From settings.json defaultTools";
+                      else if (lvl === "chat-only") desc = "Chat only";
+                      else if (lvl === "read-only") desc = `${4} read-only built-in tools`;
+                      else if (lvl === "default") desc = `${4} built-in tools`;
+                      else desc = "All built-in tools";
                       return (
                         <button
                           key={lvl}
@@ -2755,16 +2752,16 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                     e.currentTarget.style.background = isCompacting ? "rgba(239,68,68,0.08)" : "none";
                     e.currentTarget.style.color = isCompacting ? "#ef4444" : "var(--text-muted)";
                   }}
-                   title={isCompacting ? t("chat.stopCompaction") : t("chat.compactContext")}
-                   aria-label={isCompacting ? t("chat.stopCompaction") : t("chat.compactContext")}
+                   title={isCompacting ? "Stop compaction" : "Compact context"}
+                   aria-label={isCompacting ? "Stop compaction" : "Compact context"}
                 >
                   {isCompacting ? (
-                    <><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><rect x="2" y="2" width="6" height="6" rx="1" fill="currentColor" /></svg>{(!isMobile || controlsMenuOpen) && <span style={{ whiteSpace: "nowrap" }}>{t("chat.compacting")}</span>}</>
+                    <><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><rect x="2" y="2" width="6" height="6" rx="1" fill="currentColor" /></svg>{(!isMobile || controlsMenuOpen) && <span style={{ whiteSpace: "nowrap" }}>{"Compacting…"}</span>}</>
                   ) : (
                     <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="4 14 10 14 10 20" /><polyline points="20 10 14 10 14 4" />
                       <line x1="10" y1="14" x2="3" y2="21" /><line x1="21" y1="3" x2="14" y2="10" />
-                    </svg>{(!isMobile || controlsMenuOpen) && <span style={{ whiteSpace: "nowrap" }}>{t("chat.compact")}</span>}</>
+                    </svg>{(!isMobile || controlsMenuOpen) && <span style={{ whiteSpace: "nowrap" }}>{"Compact"}</span>}</>
                   )}
                 </button>
               </div>
@@ -2773,7 +2770,7 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
             {isStreaming && (
               <button
                 onClick={onAbort}
-                 title={t("chat.stopAgent")}
+                 title={"Stop agent"}
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
                   padding: "8px 14px",
@@ -2793,15 +2790,15 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                   <rect x="1.5" y="1.5" width="7" height="7" rx="1.5" fill="currentColor" />
                 </svg>
-                 {t("chat.stop")}
+                 {"Stop"}
               </button>
             )}
 
             {onSoundToggle !== undefined && (
               <button
                 onClick={onSoundToggle}
-                 title={soundEnabled ? t("chat.disableSound") : t("chat.enableSound")}
-                 aria-label={soundEnabled ? t("chat.disableSound") : t("chat.enableSound")}
+                 title={soundEnabled ? "Disable completion sound" : "Enable completion sound"}
+                 aria-label={soundEnabled ? "Disable completion sound" : "Enable completion sound"}
                 style={{
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 5,
                   width: isMobile ? 32 : 32,
@@ -2844,8 +2841,8 @@ export const ChatInput = memo(forwardRef<ChatInputHandle, Props>(function ChatIn
             {isMobile && controlsMenuOpen && (
               <button
                 type="button"
-                 title={t("chat.collapseControls")}
-                 aria-label={t("chat.collapseControls")}
+                 title={"Collapse controls"}
+                 aria-label={"Collapse controls"}
                 aria-expanded={true}
                 onClick={() => {
                   setToolDropdownOpen(false);

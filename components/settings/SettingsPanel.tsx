@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { useTheme } from "@/hooks/layout/useTheme";
 import { THEME_OPTIONS } from "@/lib/settings/theme";
 import {
@@ -75,7 +75,7 @@ export function SettingsSectionIcon({ section, size = 16, strokeWidth = 1.8 }: {
 }
 
 function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, onQuoteSelectionChange }: Pick<Props, "sessionId" | "onSessionReloaded" | "quoteSelectionEnabled" | "onQuoteSelectionChange">) {
-  const { locale, setLocale, supportedLocales, t } = useI18n();
+  const locale = "en-US";
   const { preference, setThemePreference } = useTheme();
   const { width: chatContentWidth, setWidth: setChatContentWidth, fontSize, setFontSize } = useChatAppearance();
   const enterSendMode = useEnterSendMode();
@@ -109,7 +109,7 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       window.location.replace("/login");
     } catch {
-      setLogoutError(t("auth.logoutFailed"));
+      setLogoutError("Could not log out. Try again.");
     } finally {
       setLoggingOut(false);
     }
@@ -201,9 +201,9 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
       if (permission !== "granted") throw new Error("unsupported or not permitted");
       const ok = await setupPushSubscription(locale);
       if (!ok) throw new Error("unsupported or not permitted");
-      setPushStatus({ kind: "ok", message: t("settings.pushRegistered") });
+      setPushStatus({ kind: "ok", message: "✅ Push registered — background notifications are ready." });
     } catch (cause) {
-      setPushStatus({ kind: "error", message: `${t("settings.pushRegisterFailed")} ${cause instanceof Error ? cause.message : String(cause)}` });
+      setPushStatus({ kind: "error", message: `${"❌ Registration failed:"} ${cause instanceof Error ? cause.message : String(cause)}` });
     } finally {
       setPushRegistering(false);
     }
@@ -212,8 +212,8 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
   return (
     <div className="settings-general">
       <section className="settings-general-section">
-        <h3 className="settings-general-heading">{t("settings.appearance")}</h3>
-        <div role="radiogroup" aria-label={t("settings.appearance")} className="settings-theme-options">
+        <h3 className="settings-general-heading">{"Appearance"}</h3>
+        <div role="radiogroup" aria-label={"Appearance"} className="settings-theme-options">
           {THEME_OPTIONS.map((option) => {
             const selected = preference === option.id;
             return (
@@ -254,20 +254,20 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
       </section>
 
       <section className="settings-general-section">
-        <h3 className="settings-general-heading">{t("settings.typography")}</h3>
-        <p id="settings-typography-description" className="settings-general-description">{t("settings.fontDescription")}</p>
+        <h3 className="settings-general-heading">{"Fonts & layout"}</h3>
+        <p id="settings-typography-description" className="settings-general-description">{"Names of fonts installed on this device, comma-separated; leave blank for the default. The monospace font is used for code and the terminal. Saved in this browser only."}</p>
         <div className="settings-chat-options">
           <FontSettings />
           <div className="settings-chat-option settings-chat-range-option">
             <div className="settings-chat-range-header">
-              <label htmlFor="settings-chat-content-font-size">{t("settings.chatContentFontSize")}</label>
+              <label htmlFor="settings-chat-content-font-size">{"Chat & terminal font size"}</label>
               <output htmlFor="settings-chat-content-font-size">{fontSize}px</output>
               <ConfigButton
                 variant="ghost"
                 size="small"
                 className="settings-chat-reset"
-                title={t("settings.resetChatContentFontSize")}
-                aria-label={t("settings.resetChatContentFontSize")}
+                title={"Reset chat & terminal font size"}
+                aria-label={"Reset chat & terminal font size"}
                 disabled={fontSize === CHAT_CONTENT_FONT_SIZE_DEFAULT}
                 onClick={() => setFontSize(CHAT_CONTENT_FONT_SIZE_DEFAULT)}
               >
@@ -288,14 +288,14 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
           </div>
           <div className="settings-chat-option settings-chat-range-option">
             <div className="settings-chat-range-header">
-              <label htmlFor="settings-chat-content-width">{t("settings.chatContentWidth")}</label>
+              <label htmlFor="settings-chat-content-width">{"Chat content width"}</label>
               <output htmlFor="settings-chat-content-width">{chatContentWidth}px</output>
               <ConfigButton
                 variant="ghost"
                 size="small"
                 className="settings-chat-reset"
-                title={t("settings.resetChatContentWidth")}
-                aria-label={t("settings.resetChatContentWidth")}
+                title={"Reset chat content width"}
+                aria-label={"Reset chat content width"}
                 disabled={chatContentWidth === CHAT_CONTENT_WIDTH_DEFAULT}
                 onClick={() => setChatContentWidth(CHAT_CONTENT_WIDTH_DEFAULT)}
               >
@@ -318,13 +318,13 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
       </section>
 
       <section className="settings-general-section">
-        <h3 className="settings-general-heading">{t("settings.chat")}</h3>
+        <h3 className="settings-general-heading">{"Chat"}</h3>
         <div className="settings-chat-options">
           <div className="settings-chat-option settings-chat-switch-option">
-            <span>{t("settings.thinkingExpandedDefault")}</span>
+            <span>{"Expand thinking blocks by default"}</span>
             <ConfigSwitch
               checked={thinkingExpanded}
-              label={t("settings.thinkingExpandedDefault")}
+              label={"Expand thinking blocks by default"}
               onChange={(enabled) => {
                 setThinkingExpandedByDefault(enabled);
                 setThinkingExpanded(enabled);
@@ -332,15 +332,15 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
             />
           </div>
           <div className="settings-chat-option settings-chat-switch-option">
-            <span>{t("settings.quoteSelection")}</span>
+            <span>{"Show actions for selected text"}</span>
             <ConfigSwitch
               checked={quoteSelectionEnabled}
-              label={t("settings.quoteSelection")}
+              label={"Show actions for selected text"}
               onChange={onQuoteSelectionChange}
             />
           </div>
-          <div className="settings-chat-option settings-chat-switch-option" role="radiogroup" aria-label={t("settings.enterSendMode")}>
-            <span>{t("settings.enterSendMode")}</span>
+          <div className="settings-chat-option settings-chat-switch-option" role="radiogroup" aria-label={"Send key"}>
+            <span>{"Send key"}</span>
             <div className="settings-send-mode-options">
               <label className="settings-send-mode-option">
                 <input
@@ -351,7 +351,7 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
                   onChange={() => setEnterSendMode("enter")}
                   className="sr-only"
                 />
-                <span className="settings-send-mode-label">{t("settings.enterSendModeEnter")}</span>
+                <span className="settings-send-mode-label">{"Enter"}</span>
               </label>
               <label className="settings-send-mode-option">
                 <input
@@ -362,35 +362,35 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
                   onChange={() => setEnterSendMode("ctrlEnter")}
                   className="sr-only"
                 />
-                <span className="settings-send-mode-label">{t("settings.enterSendModeCtrlEnter")}</span>
+                <span className="settings-send-mode-label">{"Ctrl/Cmd+Enter"}</span>
               </label>
             </div>
           </div>
           <div className="settings-chat-option settings-chat-switch-option">
-            <span>{t("settings.cacheMissNotices")}</span>
+            <span>{"Show cache and cost notices"}</span>
             <ConfigSwitch
               checked={cacheMissNotices === true}
               loading={(cacheMissNotices === null && !cacheMissNoticesError) || cacheMissNoticesSaving}
-              label={t("settings.cacheMissNotices")}
+              label={"Show cache and cost notices"}
               describedBy="settings-cache-miss-notices-description"
               onChange={(enabled) => void toggleCacheMissNotices(enabled)}
             />
           </div>
         </div>
-        <p id="settings-cache-miss-notices-description" className="settings-general-description">{t("settings.cacheMissNoticesDescription")}</p>
+        <p id="settings-cache-miss-notices-description" className="settings-general-description">{"pi's showCacheMissNotices: cache misses, cache warming, compaction cost and Anthropic dropping thinking blocks, in the chat. Saved to the global settings.json; a project's .pi/settings.json can override it."}</p>
         {cacheMissNoticesError && <p role="alert" className="settings-general-error">{cacheMissNoticesError}</p>}
       </section>
 
       <section className="settings-general-section">
-        <h3 className="settings-general-heading">{t("settings.sidebar")}</h3>
+        <h3 className="settings-general-heading">{"Sidebar"}</h3>
         <div className="settings-chat-options">
           <div
             className="settings-chat-option settings-chat-switch-option"
             role="radiogroup"
-            aria-label={t("settings.filesPlacement")}
+            aria-label={"File browser"}
             aria-describedby="settings-files-placement-description"
           >
-            <span>{t("settings.filesPlacement")}</span>
+            <span>{"File browser"}</span>
             <div className="settings-send-mode-options">
               <label className="settings-send-mode-option">
                 <input
@@ -401,7 +401,7 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
                   onChange={() => setFilesPlacement("below")}
                   className="sr-only"
                 />
-                <span className="settings-send-mode-label">{t("settings.filesPlacementBelow")}</span>
+                <span className="settings-send-mode-label">{"Below sessions"}</span>
               </label>
               <label className="settings-send-mode-option">
                 <input
@@ -412,24 +412,24 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
                   onChange={() => setFilesPlacement("tab")}
                   className="sr-only"
                 />
-                <span className="settings-send-mode-label">{t("settings.filesPlacementTab")}</span>
+                <span className="settings-send-mode-label">{"Separate tab"}</span>
               </label>
             </div>
           </div>
         </div>
-        <p id="settings-files-placement-description" className="settings-general-description">{t("settings.filesPlacementDescription")}</p>
+        <p id="settings-files-placement-description" className="settings-general-description">{"Phones always use tabs."}</p>
       </section>
 
       {shellSettings?.isWindows && (
         <section className="settings-general-section">
-          <h3 className="settings-general-heading">{t("settings.shellTool")}</h3>
-          <p className="settings-general-description">{t("settings.shellToolDescription")}</p>
+          <h3 className="settings-general-heading">{"Shell tool"}</h3>
+          <p className="settings-general-description">{"Choose which shell the model uses for commands. Direct ! and !! commands still use Bash."}</p>
           <div className="settings-shell-option">
-            <span>{t("settings.usePowerShell")}</span>
+            <span>{"Use PowerShell instead of Bash"}</span>
             <ConfigSwitch
               checked={shellSettings.powerShellEnabled}
               loading={shellSaving}
-              label={t("settings.usePowerShell")}
+              label={"Use PowerShell instead of Bash"}
               onChange={(enabled) => void togglePowerShell(enabled)}
             />
           </div>
@@ -438,17 +438,17 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
       )}
 
       <section className="settings-general-section">
-        <h3 className="settings-general-heading">{t("settings.pushPermission")}</h3>
-        <p className="settings-general-description">{t("settings.pushPermissionDescription")}</p>
+        <h3 className="settings-general-heading">{"Background push (iOS home-screen app)"}</h3>
+        <p className="settings-general-description">{"After adding this site to your home screen (iOS 16.4+), a system notification is shown on the lock screen when a session finishes while no window is visible. If notifications stop arriving, re-register here. Registration needs a user gesture, so it is never triggered automatically."}</p>
         <div className="settings-shell-option">
-          <span>{t("settings.pushPermission")}</span>
+          <span>{"Background push (iOS home-screen app)"}</span>
           <button
             type="button"
             className="config-button config-button-small config-button-secondary"
             disabled={pushRegistering}
             onClick={() => void registerPush()}
           >
-            {pushRegistering ? t("settings.pushRegisterLoading") : t("settings.pushRegister")}
+            {pushRegistering ? "Registering…" : "Register push"}
           </button>
         </div>
         {pushStatus && (
@@ -462,38 +462,13 @@ function GeneralSettings({ sessionId, onSessionReloaded, quoteSelectionEnabled, 
         )}
       </section>
 
-      <section className="settings-general-section">
-        <h3 className="settings-general-heading">{t("common.language")}</h3>
-        <div role="radiogroup" aria-label={t("common.language")} className="settings-language-options">
-          {supportedLocales.map((plugin) => {
-            const selected = locale === plugin.id;
-            return (
-              <button
-                key={plugin.id}
-                type="button"
-                role="radio"
-                aria-checked={selected}
-                onClick={() => setLocale(plugin.id as typeof locale)}
-                className="settings-language-option"
-              >
-                <span className="settings-language-radio">
-                  {selected && <span className="settings-language-radio-dot" />}
-                </span>
-                <span className="settings-language-label">{plugin.label}</span>
-                <span className="settings-language-code">{plugin.id}</span>
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
       {webAuthEnabled && (
         <section className="settings-general-section">
           <ConfigButton variant="secondary" disabled={loggingOut} onClick={() => void logOut()}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M10 17l5-5-5-5M15 12H3M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
             </svg>
-            {loggingOut ? t("auth.loggingOut") : t("auth.logOut")}
+            {loggingOut ? "Logging out..." : "Log out"}
           </ConfigButton>
           {logoutError && <p role="alert" className="settings-general-error">{logoutError}</p>}
         </section>
@@ -514,19 +489,18 @@ export function SettingsPanel({
   onOpenTrustDialog,
   onProjectTrustChanged,
 }: Props) {
-  const { t } = useI18n();
   const [section, setSection] = useState<SettingsSection>(initialSection);
   const [mountedSections, setMountedSections] = useState<ReadonlySet<SettingsSection>>(
     () => new Set([section]),
   );
   // Which sections need a project is decided once, in lib/settings-navigation.ts.
   const sections: { id: SettingsSection; label: string; requiresProject: boolean }[] = ([
-    { id: "general", label: t("settings.general") },
-    { id: "models", label: t("common.models") },
-    { id: "skills", label: t("common.skills") },
-    { id: "agents", label: t("common.agents") },
-    { id: "plugins", label: t("common.plugins") },
-    { id: "mcp", label: t("settings.mcp") },
+    { id: "general", label: "General" },
+    { id: "models", label: "Models" },
+    { id: "skills", label: "Skills" },
+    { id: "agents", label: "Sub-agents" },
+    { id: "plugins", label: "Plugins" },
+    { id: "mcp", label: "MCP" },
   ] as const).map((item) => ({ ...item, requiresProject: settingsSectionRequiresProject(item.id) }));
   const sectionRequiresProject = settingsSectionRequiresProject(section);
 
@@ -574,16 +548,16 @@ export function SettingsPanel({
       ref={dialogRef}
       role="dialog"
       aria-modal="true"
-      aria-label={t("settings.title")}
+      aria-label={"Settings"}
       tabIndex={-1}
       onClick={(event) => { if (event.target === event.currentTarget) onClose(); }}
       className="settings-dialog-backdrop"
     >
       <div className="settings-dialog-surface">
         <div className="settings-dialog-header">
-          <strong className="settings-dialog-title">{t("settings.title")}</strong>
+          <strong className="settings-dialog-title">{"Settings"}</strong>
           <select
-            aria-label={t("settings.title")}
+            aria-label={"Settings"}
             value={section}
             onChange={(event) => activateSection(event.target.value as SettingsSection)}
             className="settings-mobile-section-picker"
@@ -594,7 +568,7 @@ export function SettingsPanel({
               </option>
             ))}
           </select>
-          <nav aria-label={t("settings.title")} className="settings-section-tabs">
+          <nav aria-label={"Settings"} className="settings-section-tabs">
             {sections.map((item) => {
               const selected = section === item.id;
               const disabled = item.requiresProject && !cwd;
@@ -604,7 +578,7 @@ export function SettingsPanel({
                   type="button"
                   className="settings-section-tab"
                   disabled={disabled}
-                  title={disabled ? t("settings.projectRequired") : item.label}
+                  title={disabled ? "Open a project to configure this section" : item.label}
                   aria-current={selected ? "page" : undefined}
                   onClick={() => activateSection(item.id)}
                 >
@@ -614,7 +588,7 @@ export function SettingsPanel({
               );
             })}
           </nav>
-          <button type="button" onClick={onClose} title={t("i18n.close")} aria-label={t("i18n.close")} className="config-close-button settings-dialog-close">×</button>
+          <button type="button" onClick={onClose} title={"Close"} aria-label={"Close"} className="config-close-button settings-dialog-close">×</button>
         </div>
 
         <main className="settings-dialog-main">

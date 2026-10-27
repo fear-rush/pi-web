@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
 
 interface ImagePreviewProps {
   src: string;
@@ -12,8 +11,7 @@ interface ImagePreviewProps {
 }
 
 export function ImagePreview({ src, alt = "", children, className, style }: ImagePreviewProps) {
-  const { t } = useI18n();
-  const previewLabel = t("chat.previewImage");
+  const previewLabel = "Preview image";
   const triggerLabel = alt.trim() ? `${previewLabel}: ${alt}` : previewLabel;
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -72,7 +70,7 @@ export function ImagePreview({ src, alt = "", children, className, style }: Imag
         <dialog
           ref={dialogRef}
           className="image-preview-dialog"
-          aria-label={t("chat.previewImage")}
+          aria-label={"Preview image"}
           onCancel={(event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -95,8 +93,8 @@ export function ImagePreview({ src, alt = "", children, className, style }: Imag
             type="button"
             className="image-preview-close"
             onClick={closePreview}
-            aria-label={t("chat.close")}
-            title={t("chat.close")}
+            aria-label={"Close"}
+            title={"Close"}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
               <path d="M6 6l12 12M18 6 6 18" />

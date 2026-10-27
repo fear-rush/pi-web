@@ -1,5 +1,7 @@
+
 "use client";
 
+import { t as translate } from "@/lib/text";
 import { useState, useCallback, useRef, useEffect, useLayoutEffect, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useGlobalKeyboardShortcuts } from "@/hooks/agent/useKeyboardShortcuts";
@@ -21,7 +23,6 @@ import { TerminalPanel } from "../terminal/TerminalPanel";
 import { newTerminalTab, restoreTerminalTabs, TERMINAL_TABS_KEY, type TerminalTab } from "../terminal/terminal-tab-state";
 import { useTheme } from "@/hooks/layout/useTheme";
 import { useFontPreferences } from "@/hooks/layout/useFontPreferences";
-import { useI18n } from "@/hooks/useI18n";
 import { useIsMobile, useIsNarrowMobile } from "@/hooks/layout/useIsMobile";
 import { useViewportHeight } from "@/hooks/layout/useViewportHeight";
 import { useResizablePanel } from "@/hooks/agent/useResizablePanel";
@@ -107,7 +108,7 @@ export function AppShell() {
   useTheme();
   // Restore fonts even when Settings and the chat composer have not been opened.
   useFontPreferences();
-  const { locale, t: translate } = useI18n();
+  const locale = "en-US";
   const isMobile = useIsMobile();
   const isNarrowMobile = useIsNarrowMobile();
   useViewportHeight();
@@ -182,8 +183,8 @@ export function AppShell() {
   }, []);
   const agentsBadge = activeSessionFamily ? getAgentsBadge(activeSessionFamily.subagents, runningSessionIds) : null;
   const agentsButtonLabel = agentsBadge?.running
-    ? translate("agentSwitcher.titleRunning", { count: agentsBadge.count })
-    : translate("agentSwitcher.title");
+    ? `Agents: ${agentsBadge.count} running`
+    : "Agents";
   // The temporary id distinguishes consecutive fresh composers in one cwd.
   const [newSessionCwd, setNewSessionCwd] = useState<string | null>(null);
   const [newSessionDraftId, setNewSessionDraftId] = useState("initial");
@@ -269,7 +270,7 @@ export function AppShell() {
     [sidebarOpen],
   );
   const sidebarResizer = useResizablePanel({
-    ariaLabel: translate("layout.resizeSidebar"),
+    ariaLabel: "Resize sidebar",
     cssVariable: "--sidebar-width",
     defaultWidth: SIDEBAR_DEFAULT_WIDTH,
     getMaxWidth: getResponsiveSidebarMaxWidth,
@@ -280,7 +281,7 @@ export function AppShell() {
     widthRef: sidebarWidthRef,
   });
   const rightPanelResizer = useResizablePanel({
-    ariaLabel: translate("layout.resizeFilePanel"),
+    ariaLabel: "Resize file panel",
     cssVariable: "--right-panel-width",
     defaultWidth: RIGHT_PANEL_FALLBACK_WIDTH,
     getDefaultWidth: getResponsiveRightPanelWidth,
@@ -1040,11 +1041,11 @@ export function AppShell() {
     const targetSession = selectedSession;
     deliverSessionNotification({
       targetSession,
-      title: targetSession?.name ?? translate("i18n.sessionComplete"),
-      body: translate("i18n.taskFinished"),
+      title: targetSession?.name ?? "Session complete",
+      body: "Task finished.",
       tag: targetSession ? `pi-session-complete:${targetSession.id}` : "pi-session-complete",
     });
-  }, [deliverSessionNotification, selectedSession, translate]);
+  }, [deliverSessionNotification, selectedSession]);
 
   const handleAttentionNeeded = useCallback((request: BlockingExtensionUiRequest) => {
     if (selectedSession?.relation?.kind === "subagent") return;
@@ -1053,13 +1054,13 @@ export function AppShell() {
 
     deliverSessionNotification({
       targetSession: selectedSession,
-      title: translate("i18n.attentionNeeded"),
+      title: "Pi needs your attention",
       body: request.method === "custom"
-        ? translate("i18n.extensionInputNeeded")
+        ? "An extension is waiting for your input."
         : request.title,
       tag: `pi-extension-ui:${request.id}`,
     });
-  }, [deliverSessionNotification, selectedSession, translate]);
+  }, [deliverSessionNotification, selectedSession]);
 
   const handleAutoName = useCallback(async () => {
     const sessionId = selectedSession?.id;
@@ -1139,10 +1140,10 @@ export function AppShell() {
       type: "fork_branch",
       entryId: sourceEntryId,
     });
-    if (!result?.newSessionId) throw new Error(translate("chat.quoteForkFailed"));
+    if (!result?.newSessionId) throw new Error("Unable to create a branch from this message.");
     setPendingQuotePrompt({ sessionId: result.newSessionId, text: prompt });
     handleSessionForked(result.newSessionId);
-  }, [handleSessionForked, translate]);
+  }, [handleSessionForked]);
 
   // The sidebar calls this when the initial session is not in its list.
   const handleInitialRestoreDone = useCallback(() => {
@@ -1456,8 +1457,8 @@ export function AppShell() {
       />
       <div style={{ padding: "8px", flexShrink: 0, display: "flex", justifyContent: "space-between", gap: 4 }}>
         {([
-          ["models", translate("common.models")],
-          ["skills", translate("common.skills")],
+          ["models", "Models"],
+          ["skills", "Skills"],
         ] as const).map(([section, label]) => {
           const disabled = settingsSectionRequiresProject(section) && !projectTrustCwd;
           return (
@@ -1466,7 +1467,7 @@ export function AppShell() {
               type="button"
               onClick={() => setSettingsSection(section)}
               disabled={disabled}
-              title={disabled ? translate("settings.projectRequired") : label}
+              title={disabled ? "Open a project to configure this section" : label}
               aria-label={label}
               style={{
                 flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
@@ -1486,8 +1487,8 @@ export function AppShell() {
         <button
           type="button"
           onClick={() => setSettingsSection(getLastSettingsSection(projectTrustCwd))}
-          title={translate("common.settings")}
-          aria-label={translate("common.settings")}
+          title={"Settings"}
+          aria-label={"Settings"}
           style={{
             flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
             height: 32, padding: 0, background: "none", border: "none",
@@ -1498,7 +1499,7 @@ export function AppShell() {
           onMouseLeave={(event) => { event.currentTarget.style.background = "none"; event.currentTarget.style.color = "var(--text-muted)"; }}
         >
           <SettingsSectionIcon section="general" size={14} strokeWidth={2} />
-          <span>{translate("common.settings")}</span>
+          <span>{"Settings"}</span>
         </button>
       </div>
     </>
@@ -1510,8 +1511,8 @@ export function AppShell() {
       <button
         type="button"
         onClick={openProjectTrustDialog}
-        title={translate("trust.resourcesNotLoaded")}
-        aria-label={translate("trust.resourcesNotLoaded")}
+        title={"Restricted mode"}
+        aria-label={"Restricted mode"}
         style={{
           display: "flex",
           alignItems: "center",
@@ -1550,7 +1551,7 @@ export function AppShell() {
           <path d="M12 8v4" />
           <path d="M12 16h.01" />
         </svg>
-        <span>{translate("trust.resourcesNotLoaded")}</span>
+        <span>{"Restricted mode"}</span>
       </button>
     );
   };
@@ -1566,8 +1567,8 @@ export function AppShell() {
             if (mobile && isNarrowMobile) setMobileToolbarMoreOpen(true);
           }}
           disabled={!selectedSession}
-          title={selectedSession ? translate("history.full") : translate("history.unsaved")}
-          aria-label={translate("history.full")}
+          title={selectedSession ? "Full history" : "Full history is available after the session is saved"}
+          aria-label={"Full history"}
           style={{
             display: "flex",
             alignItems: "center",
@@ -1618,7 +1619,7 @@ export function AppShell() {
             <path d="M3 3v5h5" />
             <path d="M12 7v5l3 2" />
           </svg>
-          {!mobile && <span>{translate("history.label")}</span>}
+          {!mobile && <span>{"Full history"}</span>}
         </button>
         {(() => {
           // 上下文压缩后当前消息可能不再包含 user 消息，需同时参考会话文件的消息总数。
@@ -1630,19 +1631,19 @@ export function AppShell() {
           const isSuccess = autoNameStatus.kind === "success";
           const isError = autoNameStatus.kind === "error";
           const label = autoNameStatus.kind === "naming"
-            ? translate("title.generating")
+            ? "Generating..."
             : isSuccess
-              ? translate("title.updated")
+              ? "Title updated"
               : isError
-                ? translate("title.failed")
-                : translate("title.generate");
+                ? "Generation failed"
+                : "Generate title";
           const title = !selectedSession || selectedSession.transient
-            ? translate("title.unsaved")
+            ? "Title generation is available after the session is saved"
             : !hasMessages
-              ? translate("title.noMessages")
+              ? "Send a message before naming this session"
               : isError
                 ? autoNameStatus.message
-                : translate("title.generateSession");
+                : "Generate a session title";
 
           return (
             <button
@@ -1723,7 +1724,7 @@ export function AppShell() {
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <rect x="5" y="7" width="14" height="11" rx="2" /><path d="M9 11h.01M15 11h.01M9 15h6M12 7V4M10 4h4" />
             </svg>
-            {!mobile && <span>{translate("agentSwitcher.title")}</span>}
+            {!mobile && <span>{"Agents"}</span>}
             {/* While subagents run: their count, ringed by a spinner; otherwise all of them. */}
             <span
               aria-hidden="true"
@@ -1756,8 +1757,8 @@ export function AppShell() {
           <button
             type="button"
             onClick={() => toggleTopPanel("branches", true)}
-            title={translate("i18n.branches")}
-            aria-label={translate("i18n.branches")}
+            title={"Branches"}
+            aria-label={"Branches"}
             aria-pressed={activeTopPanel === "branches"}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
@@ -1796,8 +1797,8 @@ export function AppShell() {
           type="button"
           onClick={() => handleSystemInfoToggle("system", mobile)}
           disabled={mobile && !showChat}
-          title={translate("system.prompt")}
-          aria-label={translate("system.prompt")}
+          title={"System prompt"}
+          aria-label={"System prompt"}
           aria-pressed={activeTopPanel === "system"}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
@@ -1827,14 +1828,14 @@ export function AppShell() {
             <line x1="8" y1="13" x2="16" y2="13" />
             <line x1="8" y1="17" x2="13" y2="17" />
           </svg>
-          {!mobile && <span>{translate("system.label")}</span>}
+          {!mobile && <span>{"System"}</span>}
         </button>
         <button
           type="button"
           onClick={() => handleSystemInfoToggle("tools", mobile)}
           disabled={mobile && !showChat}
-          title={translate("tools.title")}
-          aria-label={translate("tools.title")}
+          title={"Tool definitions"}
+          aria-label={"Tool definitions"}
           aria-pressed={activeTopPanel === "tools"}
           style={{
             display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
@@ -1861,7 +1862,7 @@ export function AppShell() {
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: systemTools?.some((tool) => tool.active) ? "var(--accent)" : "var(--text-dim)", flexShrink: 0 }} aria-hidden="true">
             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.8-3.8a6 6 0 0 1-7.9 7.9l-6.9 6.9a2.1 2.1 0 0 1-3-3l6.9-6.9a6 6 0 0 1 7.9-7.9z" />
           </svg>
-          {!mobile && <span>{translate("tools.label")}</span>}
+          {!mobile && <span>{"Tools"}</span>}
         </button>
       </div>
     );
@@ -1914,8 +1915,8 @@ export function AppShell() {
         onClick={() => toggleTopPanel("session")}
         disabled={!showChat || covered}
         tabIndex={covered ? -1 : undefined}
-        title={tooltip || translate("session.title")}
-        aria-label={translate("session.title")}
+        title={tooltip || "Session info"}
+        aria-label={"Session info"}
         aria-pressed={activeTopPanel === "session"}
         aria-hidden={covered ? true : undefined}
         className={mobile ? "mobile-session-stats" : undefined}
@@ -1977,7 +1978,7 @@ export function AppShell() {
             )}
             {!hasMobileValues && showChat && (
               <span style={{ overflow: "hidden", textOverflow: "ellipsis", color: "var(--text-dim)" }}>
-                {translate("session.title")}
+                {"Session info"}
               </span>
             )}
           </>
@@ -2037,8 +2038,8 @@ export function AppShell() {
         aria-controls="file-panel"
         aria-expanded={rightPanelOpen}
         aria-hidden={covered ? true : undefined}
-        title={rightPanelOpen ? translate("files.hidePanel") : translate("files.showPanel")}
-        aria-label={rightPanelOpen ? translate("files.hidePanel") : translate("files.showPanel")}
+        title={rightPanelOpen ? "Hide file panel" : "Show file panel"}
+        aria-label={rightPanelOpen ? "Hide file panel" : "Show file panel"}
         data-mobile-toolbar-file={mobile ? "true" : undefined}
         style={{
           marginLeft: !mobile && !sessionStats && !contextUsage ? "auto" : 0,
@@ -2198,7 +2199,7 @@ export function AppShell() {
           aria-controls="session-sidebar"
           className={`panel-resize-handle sidebar-resize-handle${sidebarResizer.isResizing ? " is-resizing" : ""}`}
           data-resize-handle="sidebar"
-          title={`${translate("layout.resizeSidebar")}: ${translate("layout.resizeHint")}`}
+          title={`${"Resize sidebar"}: ${"Drag to resize. Double-click or press Enter to reset."}`}
         />
       )}
 
@@ -2209,8 +2210,8 @@ export function AppShell() {
         <div style={{ display: "flex", alignItems: "center", position: "relative", borderBottom: "1px solid var(--border)", height: "calc(36px + env(safe-area-inset-top))", paddingTop: "env(safe-area-inset-top)" }}>
           <button
             onClick={handleSidebarToggle}
-             title={sidebarOpen ? translate("sidebar.hide") : translate("sidebar.show")}
-             aria-label={sidebarOpen ? translate("sidebar.hide") : translate("sidebar.show")}
+             title={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
+             aria-label={sidebarOpen ? "Hide sidebar" : "Show sidebar"}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: TOP_BAR_ICON_BUTTON_SIZE, height: TOP_BAR_ICON_BUTTON_SIZE, padding: 0,
@@ -2247,8 +2248,8 @@ export function AppShell() {
                 <button
                   type="button"
                   onClick={handleMobileToolbarMoreToggle}
-                  title={mobileToolbarMoreOpen ? translate("chat.close") : translate("chat.moreControls")}
-                  aria-label={mobileToolbarMoreOpen ? translate("chat.close") : translate("chat.moreControls")}
+                  title={mobileToolbarMoreOpen ? "Close" : "More controls"}
+                  aria-label={mobileToolbarMoreOpen ? "Close" : "More controls"}
                   aria-controls="mobile-toolbar-actions"
                   aria-expanded={mobileToolbarMoreOpen}
                   data-mobile-toolbar-more="true"
@@ -2281,7 +2282,7 @@ export function AppShell() {
                 <div
                   id="mobile-toolbar-actions"
                   role="toolbar"
-                  aria-label={translate("chat.moreControls")}
+                  aria-label={"More controls"}
                   data-mobile-toolbar-actions="true"
                   style={{
                     position: "absolute",
@@ -2351,14 +2352,12 @@ export function AppShell() {
                 <SystemPromptPanel
                   loading={systemInfoLoading}
                   prompt={systemPrompt}
-                  translate={translate}
                 />
               )}
               {activeTopPanel === "tools" && (
                 <ToolDefinitionsPanel
                   loading={systemInfoLoading}
                   tools={systemTools}
-                  translate={translate}
                 />
               )}
               {activeTopPanel === "session" && (
@@ -2372,37 +2371,37 @@ export function AppShell() {
                     const totalActiveMs = sessionStats.totalActiveMs ?? 0;
                     const ws = selectedSession;
                     const sessionRows = [
-                       ...(sessionStats.sessionName ? [{ label: translate("session.name"), value: sessionStats.sessionName, copyField: null }] : []),
-                       { label: translate("session.file"), value: sessionStats.sessionFile ?? translate("session.inMemory"), copyField: "file" as const },
-                       { label: translate("session.id"), value: sessionStats.sessionId, copyField: "id" as const },
-                       ...(totalActiveMs > 0 ? [{ label: translate("session.totalActive"), value: formatActiveDuration(totalActiveMs), copyField: null }] : []),
+                       ...(sessionStats.sessionName ? [{ label: "Name", value: sessionStats.sessionName, copyField: null }] : []),
+                       { label: "Session File", value: sessionStats.sessionFile ?? "In-memory", copyField: "file" as const },
+                       { label: "ID", value: sessionStats.sessionId, copyField: "id" as const },
+                       ...(totalActiveMs > 0 ? [{ label: "Active Time", value: formatActiveDuration(totalActiveMs), copyField: null }] : []),
                     ];
                     const projectRows = [
-                      ...(ws ? [{ label: translate("session.projectDir"), value: ws.projectRoot ?? ws.cwd, copyField: "projectDir" as const }] : []),
-                      ...(ws?.branch ? [{ label: translate("session.gitBranch"), value: ws.branch, copyField: "gitBranch" as const }] : []),
-                      ...(ws?.isWorktree ? [{ label: translate("session.gitWorktree"), value: ws.cwd, copyField: "gitWorktree" as const }] : []),
+                      ...(ws ? [{ label: "Project Dir", value: ws.projectRoot ?? ws.cwd, copyField: "projectDir" as const }] : []),
+                      ...(ws?.branch ? [{ label: "Git Branch", value: ws.branch, copyField: "gitBranch" as const }] : []),
+                      ...(ws?.isWorktree ? [{ label: "Worktree", value: ws.cwd, copyField: "gitWorktree" as const }] : []),
                     ];
                     const messageRows = [
-                       [translate("session.user"), sessionStats.userMessages.toLocaleString(locale)],
-                       [translate("session.assistant"), sessionStats.assistantMessages.toLocaleString(locale)],
-                       [translate("session.toolCalls"), sessionStats.toolCalls.toLocaleString(locale)],
-                       [translate("session.toolResults"), sessionStats.toolResults.toLocaleString(locale)],
-                       [translate("session.total"), sessionStats.totalMessages.toLocaleString(locale)],
+                       ["User", sessionStats.userMessages.toLocaleString(locale)],
+                       ["Assistant", sessionStats.assistantMessages.toLocaleString(locale)],
+                       ["Tool Calls", sessionStats.toolCalls.toLocaleString(locale)],
+                       ["Tool Results", sessionStats.toolResults.toLocaleString(locale)],
+                       ["Total", sessionStats.totalMessages.toLocaleString(locale)],
                     ];
                     const tokenRows = [
-                       [translate("session.input"), sessionStats.tokens.input.toLocaleString(locale)],
-                       [translate("session.output"), sessionStats.tokens.output.toLocaleString(locale)],
-                       ...(sessionStats.tokens.cacheRead > 0 ? [[translate("session.cacheRead"), sessionStats.tokens.cacheRead.toLocaleString(locale)]] : []),
-                       ...(sessionStats.tokens.cacheWrite > 0 ? [[translate("session.cacheWrite"), sessionStats.tokens.cacheWrite.toLocaleString(locale)]] : []),
-                       [translate("session.total"), sessionStats.tokens.total.toLocaleString(locale)],
+                       ["Input", sessionStats.tokens.input.toLocaleString(locale)],
+                       ["Output", sessionStats.tokens.output.toLocaleString(locale)],
+                       ...(sessionStats.tokens.cacheRead > 0 ? [["Cache Read", sessionStats.tokens.cacheRead.toLocaleString(locale)]] : []),
+                       ...(sessionStats.tokens.cacheWrite > 0 ? [["Cache Write", sessionStats.tokens.cacheWrite.toLocaleString(locale)]] : []),
+                       ["Total", sessionStats.tokens.total.toLocaleString(locale)],
                     ];
                     const ctx = contextUsage ?? sessionStats.contextUsage;
                     const extraTokenRows = [
-                       ...(sessionStats.cost > 0 ? [[translate("session.cost"), `$${sessionStats.cost.toFixed(4)}`]] : []),
-                       ...(ctx?.contextWindow ? [[translate("session.context"), `${ctx.percent !== null ? `${ctx.percent.toFixed(1)}%` : "?"} / ${formatCompactCount(ctx.contextWindow)}`]] : []),
+                       ...(sessionStats.cost > 0 ? [["Cost", `$${sessionStats.cost.toFixed(4)}`]] : []),
+                       ...(ctx?.contextWindow ? [["Context", `${ctx.percent !== null ? `${ctx.percent.toFixed(1)}%` : "?"} / ${formatCompactCount(ctx.contextWindow)}`]] : []),
                        // Cache hit rate = cache reads / (input + cache writes + cache reads) — the denominator covers all input-class tokens.
                        ...(sessionStats.tokens.cacheRead + sessionStats.tokens.cacheWrite > 0 && sessionStats.tokens.cacheRead + sessionStats.tokens.cacheWrite + sessionStats.tokens.input > 0
-                         ? [[translate("session.cacheHitRate"), `${(sessionStats.tokens.cacheRead / (sessionStats.tokens.cacheRead + sessionStats.tokens.cacheWrite + sessionStats.tokens.input) * 100).toFixed(1)}%`]]
+                         ? [["Avg cache hit rate", `${(sessionStats.tokens.cacheRead / (sessionStats.tokens.cacheRead + sessionStats.tokens.cacheWrite + sessionStats.tokens.input) * 100).toFixed(1)}%`]]
                          : []),
                     ];
                     const section = (
@@ -2447,7 +2446,7 @@ export function AppShell() {
                       return (
                         <button
                           type="button"
-                          title={copied ? translate("session.copied") : translate(copyTitleKey[field])}
+                          title={copied ? "Copied" : translate(copyTitleKey[field])}
                           onClick={() => handleCopySessionField(field, value)}
                           style={{
                             alignSelf: "start",
@@ -2491,7 +2490,7 @@ export function AppShell() {
                     };
                     const sessionInfoSection = (
                       <div style={{ minWidth: 0 }}>
-                         <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{translate("session.infoSection")}</div>
+                         <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{"Session Info"}</div>
                         <div style={{ display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto", columnGap: 12, rowGap: 8, alignItems: "start" }}>
                           {sessionRows.map((row) => (
                             <div key={`session-info:${row.label}`} style={{ display: "contents" }}>
@@ -2511,7 +2510,7 @@ export function AppShell() {
                     );
                     const projectInfoSection = projectRows.length > 0 ? (
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{translate("session.projectSection")}</div>
+                        <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text)", marginBottom: 6 }}>{"Project Info"}</div>
                         <div style={{ display: "grid", gridTemplateColumns: "auto minmax(0, 1fr) auto", columnGap: 12, rowGap: 8, alignItems: "start" }}>
                           {projectRows.map((row) => (
                             <div key={`project-info:${row.label}`} style={{ display: "contents" }}>
@@ -2545,13 +2544,13 @@ export function AppShell() {
                           {sessionInfoSection}
                           {projectInfoSection}
                         </div>
-                         {section(translate("session.messages"), messageRows)}
-                         {section(translate("session.tokens"), [...tokenRows, ...extraTokenRows], "right", true)}
+                         {section("Messages", messageRows)}
+                         {section("Tokens", [...tokenRows, ...extraTokenRows], "right", true)}
                       </div>
                     );
                   })() : (
                     <div style={{ fontSize: 12, color: "var(--text-muted)", fontStyle: "italic" }}>
-                       {translate("session.load")}
+                       {"Send a message or run /session to load session info"}
                     </div>
                   )}
                 </div>
@@ -2612,7 +2611,7 @@ export function AppShell() {
               role="status"
               style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: 24, color: "var(--text-muted)", textAlign: "center" }}
             >
-               <div style={{ fontSize: 14, color: "var(--text)" }}>{translate("workspace.opening")}</div>
+               <div style={{ fontSize: 14, color: "var(--text)" }}>{"Opening workspace..."}</div>
               <div style={{ maxWidth: "min(720px, 100%)", overflowWrap: "anywhere", fontFamily: "var(--font-mono)", fontSize: 12 }}>
                 {initialNavigation.requestedCwd}
               </div>
@@ -2622,7 +2621,7 @@ export function AppShell() {
               role="alert"
               style={{ height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, padding: 24, color: "var(--text-muted)", textAlign: "center" }}
             >
-               <div style={{ fontSize: 14, color: "#dc2626" }}>{translate("workspace.unable")}</div>
+               <div style={{ fontSize: 14, color: "#dc2626" }}>{"Unable to open workspace"}</div>
               <div style={{ maxWidth: "min(720px, 100%)", overflowWrap: "anywhere", fontFamily: "var(--font-mono)", fontSize: 12 }}>
                 {initialNavigation.requestedCwd}
               </div>
@@ -2631,7 +2630,7 @@ export function AppShell() {
           ) : showPlaceholder ? (
             activeCwd ? (
               <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)", fontSize: 15 }}>
-                 {translate("workspace.selectSession")}
+                 {"Select a session from the sidebar"}
               </div>
             ) : (
               <div style={{ position: "absolute", top: 12, left: 12, display: "flex", alignItems: "flex-start", gap: 8, userSelect: "none", pointerEvents: "none" }}>
@@ -2639,10 +2638,10 @@ export function AppShell() {
                   <line x1="20" y1="12" x2="4" y2="12" /><polyline points="10 6 4 12 10 18" />
                 </svg>
                 <div>
-                   <div style={{ fontSize: 18, fontWeight: 600, color: "var(--text)", marginBottom: 8 }}>{translate("workspace.getStarted")}</div>
+                   <div style={{ fontSize: 18, fontWeight: 600, color: "var(--text)", marginBottom: 8 }}>{"Get Started"}</div>
                   <div style={{ fontSize: 12, color: "var(--text-muted)", lineHeight: 1.8 }}>
-                     <span style={{ color: "var(--text-dim)", marginRight: 6 }}>1.</span>{translate("workspace.selectProject")}<br />
-                     <span style={{ color: "var(--text-dim)", marginRight: 6 }}>2.</span>{translate("workspace.addModels")}
+                     <span style={{ color: "var(--text-dim)", marginRight: 6 }}>1.</span>{"Select a project directory from the sidebar"}<br />
+                     <span style={{ color: "var(--text-dim)", marginRight: 6 }}>2.</span>{"Open Settings at the bottom, then choose Models"}
                   </div>
                 </div>
               </div>
@@ -2663,7 +2662,7 @@ export function AppShell() {
           aria-controls="file-panel"
           className={`panel-resize-handle right-panel-resize-handle${rightPanelResizer.isResizing ? " is-resizing" : ""}`}
           data-resize-handle="right-panel"
-          title={`${translate("layout.resizeFilePanel")}: ${translate("layout.resizeHint")}`}
+          title={`${"Resize file panel"}: ${"Drag to resize. Double-click or press Enter to reset."}`}
         />
       )}
 
@@ -2718,8 +2717,8 @@ export function AppShell() {
             onClick={() => setRightPanelOpen(false)}
             aria-controls="file-panel"
             aria-expanded={rightPanelOpen}
-            title={translate("files.hidePanel")}
-            aria-label={translate("files.hidePanel")}
+            title={"Hide file panel"}
+            aria-label={"Hide file panel"}
             style={{
               display: "flex", alignItems: "center", justifyContent: "center",
               width: TOP_BAR_ICON_BUTTON_SIZE, height: TOP_BAR_ICON_BUTTON_SIZE, padding: 0,
@@ -2764,7 +2763,7 @@ export function AppShell() {
             />
           ) : !terminalTabs.some((tab) => tab.id === activeFileTabId) && !activeAgentTab ? (
             <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-dim)", fontSize: 12 }}>
-               {translate("files.noneOpen")}
+               {"No file open"}
             </div>
           ) : null}
           {terminalTabs.map((tab) => (

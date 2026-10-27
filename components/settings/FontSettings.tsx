@@ -1,6 +1,6 @@
 "use client";
 
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { useFontPreferences } from "@/hooks/layout/useFontPreferences";
 import { FONT_FAMILY_MAX_LENGTH, FONT_WEIGHT_DEFAULT, FONT_WEIGHT_OPTIONS } from "@/lib/settings/font-preferences";
 import { ConfigButton } from "./SettingsUi";
@@ -16,7 +16,6 @@ const FONT_FIELDS = [
  * The name field is drawn in the font it names, so it doubles as the preview.
  */
 export function FontSettings() {
-  const { t } = useI18n();
   const fonts = useFontPreferences();
 
   // One grid for both rows, so the name fields start at the same x whatever the labels' widths.

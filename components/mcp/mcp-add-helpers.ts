@@ -192,7 +192,7 @@ export function mcpImportNoteText(note: McpImportNote, t: Translate, fields: rea
     params.transport = t(`mcp.transport.${raw.transport}`);
   }
   const text = t(mcpImportNoteKey(note), params);
-  return typeof params.server === "string" ? t("mcp.importNote.forServer", { server: params.server, note: text }) : text;
+  return typeof params.server === "string" ? `${params.server}: ${text}` : text;
 }
 
 /**
@@ -735,7 +735,7 @@ export function mcpAddProjectBlockText(block: McpAddProjectBlock, t: Translate, 
     case "secret":
       return t(block.fixed ? "mcp.add.projectBlocked.secretFixed" : "mcp.add.projectBlocked.secret", { fields: block.fields.join(", ") });
     case "file-problem":
-      return t("mcp.add.projectBlocked.file-problem", { path: displayPath(block.path), reason: t(`mcp.fileProblem.${block.reason}`) });
+      return `${displayPath(block.path)} cannot be written: ${t(`mcp.fileProblem.${block.reason}`)}`;
     default:
       return t(MCP_ADD_PROJECT_BLOCK_KEYS[block.kind]);
   }

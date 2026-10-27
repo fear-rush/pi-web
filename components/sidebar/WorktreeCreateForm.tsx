@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
 
 /**
  * A worktree menu's "New worktree…" body (components/ProjectWorktreePicker.tsx,
@@ -24,7 +23,6 @@ export function WorktreeCreateForm({
   onCreate: (branch: string) => void;
   onCancel: () => void;
 }) {
-  const { t } = useI18n();
   const [branch, setBranch] = useState("");
   const trimmed = branch.trim();
   const submit = () => {
@@ -38,8 +36,8 @@ export function WorktreeCreateForm({
         data-sidebar-menu-autofocus=""
         value={branch}
         readOnly={busy}
-        placeholder={t("sidebar.branchName")}
-        aria-label={t("sidebar.branchName")}
+        placeholder={"branch name"}
+        aria-label={"branch name"}
         onChange={(event) => setBranch(event.target.value)}
         onKeyDown={(event) => {
           if (event.key !== "Enter" || event.nativeEvent.isComposing || event.keyCode === 229) return;
@@ -49,11 +47,11 @@ export function WorktreeCreateForm({
       />
       <div className="sidebar-worktree-form-buttons">
         <button type="button" className="sidebar-worktree-create" disabled={busy || !trimmed} onClick={submit}>
-          {busy ? t("sidebar.creating") : t("sidebar.create")}
+          {busy ? "Creating…" : "Create"}
         </button>
         {showCancel && (
           <button type="button" className="sidebar-worktree-cancel" onClick={onCancel}>
-            {t("sidebar.cancel")}
+            {"Cancel"}
           </button>
         )}
       </div>

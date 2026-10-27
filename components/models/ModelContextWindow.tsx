@@ -1,6 +1,5 @@
 "use client";
 
-import { useI18n } from "@/hooks/useI18n";
 import { parseContextWindow } from "@/lib/models/model-context";
 
 export interface ModelContextSettings {
@@ -21,7 +20,6 @@ export function ModelContextWindow({ modelName, effective, value, onChange, disa
   disabled?: boolean;
   describedBy?: string;
 }) {
-  const { t } = useI18n();
   const invalid = value !== undefined && parseContextWindow(value) === undefined;
   return (
     <input
@@ -30,8 +28,8 @@ export function ModelContextWindow({ modelName, effective, value, onChange, disa
       className="model-context-input"
       value={value === undefined ? "" : String(value)}
       placeholder={effective === undefined ? undefined : String(effective)}
-      title={t("models.contextWindow")}
-      aria-label={t("models.contextForModel", { model: modelName })}
+      title={"Context window (tokens)"}
+      aria-label={`Context window for ${modelName}`}
       aria-invalid={invalid || undefined}
       aria-describedby={describedBy}
       disabled={disabled}

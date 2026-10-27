@@ -1,8 +1,7 @@
 "use client";
 
+import { t, formatUpdatedTime } from "@/lib/text";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
-import { formatUpdatedTime } from "@/lib/i18n/format";
 import { isProviderUsageId } from "@/lib/models/provider-usage-ids";
 
 type UsageBucket = {
@@ -36,7 +35,7 @@ function ProviderUsageContent({ providerId, enabled }: { providerId: string; ena
   const [error, setError] = useState<string | null>(null);
   const [refreshDone, setRefreshDone] = useState(false);
   const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const { locale, t } = useI18n();
+  const locale = "en-US";
 
   useEffect(() => {
     if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
@@ -77,20 +76,20 @@ function ProviderUsageContent({ providerId, enabled }: { providerId: string; ena
         if (refreshTimerRef.current) clearTimeout(refreshTimerRef.current);
         refreshTimerRef.current = setTimeout(() => setRefreshDone(false), 2000);
       } else {
-        setError(result.message ?? t("providerUsage.queryFailed"));
+        setError(result.message ?? "Usage query failed.");
       }
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : t("providerUsage.queryFailed"));
+      setError(caught instanceof Error ? caught.message : "Usage query failed.");
     } finally {
       setQuerying(false);
     }
-  }, [providerId, t]);
+  }, [providerId]);
 
   const report = snapshot?.status === "ready" ? snapshot.report : undefined;
   return (
     <section style={{ paddingTop: 10, display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-        <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 600, lineHeight: 1.35 }}>{t("providerUsage.usage")}</span>
+        <span style={{ fontSize: 13, color: "var(--text)", fontWeight: 600, lineHeight: 1.35 }}>{"Usage"}</span>
         <button
           type="button"
           onClick={query}
@@ -112,19 +111,19 @@ function ProviderUsageContent({ providerId, enabled }: { providerId: string; ena
         </button>
         {report && (
           <span title={new Date(report.capturedAt).toLocaleString(locale)} style={{ fontSize: 11, color: "var(--text-dim)", whiteSpace: "nowrap" }}>
-            {t("providerUsage.updated", { time: formatUpdatedTime(report.capturedAt, locale) })}
+            {`Updated ${formatUpdatedTime(report.capturedAt, locale)}`}
           </span>
         )}
       </div>
 
-      {!report && !error && <span style={{ fontSize: 12, color: "var(--text-dim)" }}>{t("providerUsage.notQueried")}</span>}
+      {!report && !error && <span style={{ fontSize: 12, color: "var(--text-dim)" }}>{"Not queried"}</span>}
       {error && <span style={{ fontSize: 12, color: "#f87171" }}>{error}</span>}
       {report && (
         <div style={{ display: "grid", gridTemplateColumns: "180px minmax(0, 1fr)", columnGap: 14, rowGap: 8, alignItems: "baseline", minWidth: 0, width: "min(100%, 420px)", maxWidth: "100%", fontSize: 12 }}>
           {report.buckets.map((bucket) => (
             <div key={bucket.id} style={{ display: "contents" }}>
               <span style={{ color: "var(--text-muted)", fontFamily: "var(--font-mono)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{bucket.groupLabel ? `${bucket.groupLabel} / ${bucket.label}` : bucket.label}</span>
-              <span style={{ color: "var(--text)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{formatBucket(bucket, t("providerUsage.available"))}</span>
+              <span style={{ color: "var(--text)", fontFamily: "var(--font-mono)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{formatBucket(bucket, "Available")}</span>
             </div>
           ))}
           {report.metrics.map((metric) => (

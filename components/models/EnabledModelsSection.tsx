@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import type { EnabledModelsView } from "@/lib/models/enabled-models";
 import {
   enabledModelsBulkActions,
@@ -184,7 +184,6 @@ export function useEnabledModels(cwd?: string | null): EnabledModelsController {
 
 /** Panel-wide note shown while `enabledModels` narrows the selector. */
 export function EnabledModelsBanner({ controller }: { controller: EnabledModelsController }) {
-  const { t } = useI18n();
   const { view, pending } = controller;
   if (!view) return null;
   const scoped = !view.allEnabled;
@@ -195,7 +194,7 @@ export function EnabledModelsBanner({ controller }: { controller: EnabledModelsC
     <div className="enabled-models-banner">
       <span
         className="enabled-models-banner-text"
-        {...(stale > 0 ? { title: t("models.enabledStaleHint") } : {})}
+        {...(stale > 0 ? { title: "A model is available when its provider has a usable credential. An entry matches nothing when that credential is missing, when the model was renamed or deleted, or when the entry was written for another machine." } : {})}
       >
         {/* Name the setting and the file that holds it: the count alone left
             the user guessing where the panel wrote, and both read the same in
@@ -205,7 +204,7 @@ export function EnabledModelsBanner({ controller }: { controller: EnabledModelsC
         </code>
         <code className="enabled-models-banner-facts">
           {`· enabledModels ${view.enabledTotal}/${view.availableTotal}`}
-          {stale > 0 && ` · ${t("models.enabledStale", { count: stale })}`}
+          {stale > 0 && ` · ${`${stale} unmatched`}`}
         </code>
       </span>
       {view.editable && stale > 0 && (
@@ -213,9 +212,9 @@ export function EnabledModelsBanner({ controller }: { controller: EnabledModelsC
           size="small"
           onClick={controller.pruneStale}
           disabled={pending !== null}
-          title={t("models.enabledPruneHint")}
+          title={"Delete the configured entries that match no available model. Everything else stays as it is."}
         >
-          {t("models.enabledPrune")}
+          {"Remove unmatched entries"}
         </ConfigButton>
       )}
       {view.editable && scoped && (
@@ -223,9 +222,9 @@ export function EnabledModelsBanner({ controller }: { controller: EnabledModelsC
           size="small"
           onClick={controller.clearScope}
           disabled={pending !== null}
-          title={t("models.enabledClearHint")}
+          title={"Remove the model filter for every provider."}
         >
-          {t("models.enabledClear")}
+          {"Enable all models"}
         </ConfigButton>
       )}
     </div>
@@ -252,7 +251,6 @@ export function EnabledModelsProviderSwitch({
   /** The id `EnabledModelsProviderSwitchNote` renders under the header. */
   noteId: string;
 }) {
-  const { t } = useI18n();
   const { view, loading, pending, failure } = controller;
   const provider = findProviderView(view, providerId);
   const message = failure ? (failure.messageKey ? t(failure.messageKey) : failure.message) : null;
@@ -264,7 +262,7 @@ export function EnabledModelsProviderSwitch({
       <ConfigSwitch
         checked={false}
         disabled
-        label={t("models.enabledProviderToggle", { provider: providerId })}
+        label={`Enable all ${providerId} models`}
         describedBy={describedBy}
         onChange={() => {}}
       />
@@ -279,7 +277,7 @@ export function EnabledModelsProviderSwitch({
         checked={toggle.checked}
         loading={pending === `provider:${provider.id}`}
         disabled={pending !== null || toggle.blocked}
-        label={t("models.enabledProviderToggle", { provider: provider.name })}
+        label={`Enable all ${provider.name} models`}
         describedBy={describedBy}
         onChange={(checked) => controller.setProvider(provider.id, checked)}
       />
@@ -309,7 +307,6 @@ export function EnabledModelsProviderSwitchNote({
   controller: EnabledModelsController;
   id: string;
 }) {
-  const { t } = useI18n();
   const key = providerSwitchBlockKey(controller, providerId);
   return key ? <div id={id} className="config-detail-heading-note">{t(key)}</div> : null;
 }
@@ -368,7 +365,6 @@ export function EnabledModelsSection({
   controller: EnabledModelsController;
   contextSettings?: ModelContextSettings;
 }) {
-  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const { view, loading, pending, failure } = controller;
   const provider = findProviderView(view, providerId);
@@ -378,12 +374,12 @@ export function EnabledModelsSection({
   useEffect(() => setQuery(""), [providerId]);
 
   if (loading && !view) {
-    return <div className="enabled-models-empty">{t("agents.modelsLoading")}</div>;
+    return <div className="enabled-models-empty">{"Loading models..."}</div>;
   }
   if (!provider) {
     return failure?.message
       ? <div className="enabled-models-error">{failure.message}</div>
-      : <div className="enabled-models-empty">{t("models.enabledUnavailable")}</div>;
+      : <div className="enabled-models-empty">{"Sign in to this provider to choose its models."}</div>;
   }
 
   const shown = filterEnabledModels(provider.models, query);
@@ -408,9 +404,9 @@ export function EnabledModelsSection({
   return (
     <div className="enabled-models-section">
       <div className="enabled-models-header">
-        <span className="enabled-models-title">{t("models.enabledSection")}</span>
+        <span className="enabled-models-title">{"Available models"}</span>
         <span className="enabled-models-count">
-          {t("models.enabledCount", { enabled: provider.enabledCount, total: provider.models.length })}
+          {`${provider.enabledCount}/${provider.models.length} enabled`}
         </span>
         <ConfigButton
           size="small"
@@ -418,7 +414,7 @@ export function EnabledModelsSection({
           aria-describedby={editable ? undefined : scopeNoteId}
           onClick={() => runBulk(true, bulk.enableRefs)}
         >
-          {filtered ? t("models.enableShown") : t("models.enableAll")}
+          {filtered ? "Enable shown" : "Enable all"}
         </ConfigButton>
         <ConfigButton
           size="small"
@@ -426,22 +422,22 @@ export function EnabledModelsSection({
           aria-describedby={!editable ? scopeNoteId : disableBlockedByLastModel ? lastModelNoteId : undefined}
           onClick={() => runBulk(false, bulk.disableRefs)}
         >
-          {filtered ? t("models.disableShown") : t("models.disableAll")}
+          {filtered ? "Disable shown" : "Disable all"}
         </ConfigButton>
         <ConfigButton
           size="small"
           disabled={busy || catalog.refreshing}
-          title={t("models.refreshCatalogHint")}
+          title={"Fetch the model list this provider publishes now. pi's built-in list is fixed at the pi version pi-web ships with, so a newly released model only shows up after a refresh."}
           onClick={catalog.refresh}
         >
-          {catalog.refreshing ? t("models.refreshingCatalog") : t("models.refreshCatalog")}
+          {catalog.refreshing ? "Refreshing…" : "Refresh catalog"}
         </ConfigButton>
       </div>
 
       {catalog.note && <div className="enabled-models-note">{t(catalog.note)}</div>}
 
-      {!editable && <div id={scopeNoteId} className="enabled-models-note">{t("models.enabledProjectScope")}</div>}
-      {showLastModelNote && <div id={lastModelNoteId} className="enabled-models-note">{t("models.enabledLastModel")}</div>}
+      {!editable && <div id={scopeNoteId} className="enabled-models-note">{"This project's .pi/settings.json sets enabledModels and overrides the global value, so these switches are read-only. Edit that file to change the list."}</div>}
+      {showLastModelNote && <div id={lastModelNoteId} className="enabled-models-note">{"At least one model has to stay enabled."}</div>}
       {failure && (
         <div className="enabled-models-error">
           {failure.messageKey ? t(failure.messageKey) : failure.message}
@@ -452,15 +448,15 @@ export function EnabledModelsSection({
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder={t("models.enabledFilterPlaceholder", { count: provider.models.length })}
-          aria-label={t("models.enabledFilter")}
+          placeholder={`Filter ${provider.models.length} models…`}
+          aria-label={"Filter available models"}
           className="enabled-models-filter"
         />
       )}
-      {contextSettings && <div id={contextNoteId} className="enabled-models-note">{t("models.contextOverrideHelp")}</div>}
+      {contextSettings && <div id={contextNoteId} className="enabled-models-note">{"Context window in tokens; blank uses the default."}</div>}
       <div className="enabled-models-list">
         {shown.length === 0 ? (
-          <div className="enabled-models-empty">{t("models.enabledNoMatches")}</div>
+          <div className="enabled-models-empty">{"No matching models."}</div>
         ) : shown.map((model) => {
           const lastOne = isLastEnabledModel(view, model);
           const override = contextSettings?.overrides?.[model.id];
@@ -473,7 +469,7 @@ export function EnabledModelsSection({
                 <code className="enabled-models-row-id">{model.id}</code>
               </span>
               {model.thinkingPin && (
-                <span className="enabled-models-pin" title={t("models.enabledPinHint")}>
+                <span className="enabled-models-pin" title={"Thinking level pinned by enabledModels. Edit settings.json to change it."}>
                   {model.thinkingPin}
                 </span>
               )}
@@ -491,7 +487,7 @@ export function EnabledModelsSection({
                 checked={model.enabled}
                 loading={pending === model.ref}
                 disabled={busy || !view?.editable || lastOne}
-                label={t("models.enabledToggle", { model: model.name })}
+                label={`Show ${model.name} in the model selector`}
                 describedBy={!editable ? scopeNoteId : lastOne ? lastModelNoteId : undefined}
                 onChange={(checked) => controller.setModels(model.ref, [model.ref], checked)}
               />

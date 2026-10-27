@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useLayoutEffect, useRef } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import type {
   SkillContentResponse,
   SkillInfo as Skill,
@@ -49,7 +49,7 @@ import { itemsToSwitch, projectTrustReloadKey } from "./settings-ui-helpers";
 import { MarkdownBody } from "../chat/MarkdownBody";
 
 type SkillScope = "global" | "project" | "path";
-type Translate = ReturnType<typeof useI18n>["t"];
+type Translate = typeof t;
 
 function sourceLabel(skill: Skill): SkillScope {
   const src = skill.sourceInfo?.source;
@@ -59,10 +59,10 @@ function sourceLabel(skill: Skill): SkillScope {
   return "path";
 }
 
-function scopeLabel(scope: SkillScope, t: Translate): string {
-  if (scope === "project") return t("skills.scope.project");
-  if (scope === "global") return t("skills.scope.global");
-  return t("skills.scope.path");
+function scopeLabel(scope: SkillScope, _t: Translate): string {
+  if (scope === "project") return "project";
+  if (scope === "global") return "global";
+  return "path";
 }
 
 export function orderSkillsByDormancy<
@@ -152,7 +152,6 @@ function SkillDetail({
   onCheckUpdate: () => void;
   onUpdate: () => void;
 }) {
-  const { t } = useI18n();
   const label = sourceLabel(skill);
   const enabled = !skill.disableModelInvocation;
   const [instructions, setInstructions] = useState<string | null>(null);
@@ -222,7 +221,7 @@ function SkillDetail({
             <ConfigSwitch
               checked={enabled}
               loading={toggling}
-              label={enabled ? t("i18n.visibleInPrompt") : t("i18n.hiddenFromPrompt")}
+              label={enabled ? "Visible in model prompt — click to disable" : "Hidden from model prompt — click to enable"}
               onChange={() => onToggle(skill)}
             />
           </ConfigDetailActions>
@@ -230,7 +229,7 @@ function SkillDetail({
         <div className="skill-detail-status-row">
           {!enabled && (
             <span style={{ fontSize: 11, color: "var(--text-dim)" }}>
-              {t("i18n.hiddenButInvocable")}
+              {"Hidden from model, still manually invocable"}
             </span>
           )}
           {saveError && (
@@ -242,7 +241,7 @@ function SkillDetail({
       </div>
 
       {skill.install?.skillsShUrl && (
-        <ConfigField label={t("config.source")}>
+        <ConfigField label={"Source"}>
           <a
             href={skill.install.skillsShUrl}
             target="_blank"
@@ -258,10 +257,10 @@ function SkillDetail({
       )}
 
       {skill.install && (
-        <ConfigField label={t("i18n.version")}>
+        <ConfigField label={"Version"}>
           <div className="skill-version-row">
             <span className="skill-version-value">
-              {shortVersion(updateStatus?.currentVersion ?? skill.install.versionHash, t("i18n.unknown"))}
+              {shortVersion(updateStatus?.currentVersion ?? skill.install.versionHash, "Unknown")}
             </span>
             {skill.install.canCheckForUpdates && (
               <ConfigButton
@@ -269,12 +268,12 @@ function SkillDetail({
                 onClick={onCheckUpdate}
                 disabled={checkingUpdate || updating}
               >
-                 {t("i18n.check")}
+                 {"Check"}
               </ConfigButton>
             )}
             {updateStatus?.state === "update-available" && (
               <span className="skill-version-value is-update">
-                {shortVersion(updateStatus.latestVersion, t("i18n.unknown"))}
+                {shortVersion(updateStatus.latestVersion, "Unknown")}
               </span>
             )}
             {(checkingUpdate ||
@@ -289,12 +288,12 @@ function SkillDetail({
                       : "is-muted"}`}
               >
                 {checkingUpdate
-                   ? t("i18n.checking")
+                   ? "Checking..."
                   : updateStatus?.state === "up-to-date"
-                     ? t("i18n.upToDate")
+                     ? "Up to date"
                     : updateStatus?.state === "unsupported"
-                         ? t("i18n.automaticChecksUnavailable")
-                         : updateStatus?.message || t("i18n.checkFailed")}
+                         ? "Automatic checks unavailable"
+                         : updateStatus?.message || "Check failed"}
               </span>
             )}
             {updateStatus?.state === "update-available" && (
@@ -304,7 +303,7 @@ function SkillDetail({
                 onClick={onUpdate}
                 disabled={updating || checkingUpdate}
               >
-                 {updating ? t("i18n.updating") : t("i18n.update")}
+                 {updating ? "Updating..." : "Update"}
               </ConfigButton>
             )}
           </div>
@@ -314,24 +313,24 @@ function SkillDetail({
         </ConfigField>
       )}
 
-      <ConfigField label={t("config.name")}>
+      <ConfigField label={"Name"}>
         <span className="skill-name-value">
           {skill.name}
         </span>
       </ConfigField>
 
-      <ConfigField label={t("i18n.description")}>
+      <ConfigField label={"Description"}>
         <span className="skill-description">
           {skill.description}
         </span>
       </ConfigField>
 
-      <ConfigField label={t("skills.instructions")} ref={instructionsRef}>
+      <ConfigField label={"Instructions"} ref={instructionsRef}>
         {documents.length > 0 && (
           <ConfigDetailHeader>
             <ConfigDetailHeaderInfo>
               <ConfigButton size="small" onClick={() => { pendingAnchor.current = ""; setDocuments((open) => open.slice(0, -1)); }}>
-                {t("skills.documentBack")}
+                {"Back"}
               </ConfigButton>
               <span className="config-detail-path" title={documentPath}>{documentPath}</span>
             </ConfigDetailHeaderInfo>
@@ -340,13 +339,13 @@ function SkillDetail({
         {instructionsError ? (
           <span role="alert" className="skill-instructions-status is-error">{instructionsError}</span>
         ) : instructions === null ? (
-          <span role="status" className="skill-instructions-status">{t("i18n.loading")}</span>
+          <span role="status" className="skill-instructions-status">{"Loading..."}</span>
         ) : instructions ? (
           <MarkdownBody className="skill-instructions" cwd={[skill.baseDir, ...documentPath.split("/").slice(0, -1)].join("/")} onNavigateLink={openLink}>
             {instructions}
           </MarkdownBody>
         ) : (
-          <span className="skill-instructions-status">{t("skills.noInstructions")}</span>
+          <span className="skill-instructions-status">{"This skill has no instructions."}</span>
         )}
       </ConfigField>
     </ConfigDetailStack>
@@ -364,7 +363,6 @@ function AddSkillPanel({
   projectResourcesLoaded: boolean;
   onInstalled: () => void;
 }) {
-  const { t } = useI18n();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SkillSearchResult[]>([]);
   const [searching, setSearching] = useState(false);
@@ -401,13 +399,13 @@ function AddSkillPanel({
         return;
       }
       setResults(d.results ?? []);
-      if ((d.results ?? []).length === 0) setSearchError(t("i18n.noSkills"));
+      if ((d.results ?? []).length === 0) setSearchError("No skills found");
     } catch (e) {
       setSearchError(String(e));
     } finally {
       setSearching(false);
     }
-  }, [t]);
+  }, []);
 
   const install = useCallback(
     async (pkg: string) => {
@@ -454,18 +452,18 @@ function AddSkillPanel({
         }}
       >
         <ConfigAddSourceHeading
-          title={t("i18n.addSkill")}
+          title={"Add skill"}
           catalogs={[{ href: "https://skills.sh", label: "skills.sh" }]}
           target={
             <ConfigSaveTarget
               value={scope}
-              label={t("config.saveTo")}
+              label={"Save to"}
               options={[
                 { value: "global", label: scopeLabel("global", t) },
                 { value: "project", label: scopeLabel("project", t), disabled: !projectResourcesLoaded },
               ]}
               path={installPath}
-              disabledReason={t("trust.projectScopeUnavailable")}
+              disabledReason={"Project installs are unavailable while project resources are not loaded."}
               onChange={setScope}
             />
           }
@@ -480,7 +478,7 @@ function AddSkillPanel({
             onKeyDown={(e) => {
               if (e.key === "Enter") search(query);
             }}
-             placeholder={t("i18n.skillSearchPlaceholder")}
+             placeholder={"e.g. react, testing, deploy"}
             style={{
               flex: 1,
               padding: "7px 10px",
@@ -497,7 +495,7 @@ function AddSkillPanel({
             onClick={() => search(query)}
             disabled={searching || !query.trim()}
           >
-             {searching ? t("i18n.searching") : t("i18n.search")}
+             {searching ? "Searching…" : "Search"}
           </ConfigButton>
         </div>
 
@@ -609,10 +607,10 @@ function AddSkillPanel({
                   }}
                 >
                   {isInstalled
-                     ? `✓ ${t("i18n.installed")}`
+                     ? `✓ ${"Installed"}`
                     : isInstalling
-                       ? t("i18n.installing")
-                       : t("i18n.install")}
+                       ? "Installing..."
+                       : "Install"}
                 </ConfigButton>
               </div>
             );
@@ -635,7 +633,6 @@ export function SkillsConfig({
   /** The page's trust status for `cwd`; a new decision loads the list again. */
   trust?: ProjectTrustStatus | null;
 }) {
-  const { t } = useI18n();
   const [skills, setSkills] = useState<Skill[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -852,7 +849,7 @@ export function SkillsConfig({
         setGroupStatus({
           group,
           error: [
-            t("skills.bulkFailed", { count: failures.length, total: results.length }),
+            `Could not change ${failures.length} of ${results.length} skills:`,
             ...failures.map((failure) => `${names.get(failure.filePath) ?? failure.filePath}: ${failure.error}`),
           ].join("\n"),
         });
@@ -867,15 +864,15 @@ export function SkillsConfig({
         return next;
       });
     }
-  }, [t]);
+  }, []);
 
   const selectedSkill = skills.find((s) => s.filePath === selected) ?? null;
   const bulkBusy = loading || toggling.size > 0 || updatingSkill !== null;
 
   return (
-    <ConfigPanelShell embedded={embedded} title={t("common.skills")} subtitle={shortenPath(cwd)} closeLabel={t("i18n.close")} onClose={onClose}>
+    <ConfigPanelShell embedded={embedded} title={"Skills"} subtitle={shortenPath(cwd)} closeLabel={"Close"} onClose={onClose}>
 
-        {!projectResourcesLoaded && <ConfigTrustNotice message={t("trust.skillsNotLoaded")} />}
+        {!projectResourcesLoaded && <ConfigTrustNotice message={"Project skills are not loaded because this project is not trusted."} />}
 
         {/* Body */}
         <ConfigSplitView>
@@ -884,7 +881,7 @@ export function SkillsConfig({
             <ConfigSidebarList>
               {loading ? (
                 <div className="config-sidebar-message">
-                   {t("i18n.loading")}
+                   {"Loading..."}
                 </div>
               ) : error ? (
                 <div className="config-sidebar-message is-error">
@@ -892,15 +889,15 @@ export function SkillsConfig({
                 </div>
               ) : skills.length === 0 ? (
                 <div className="config-sidebar-message is-empty">
-                   {t("i18n.noSkills")}
+                   {"No skills found"}
                 </div>
               ) : (
                 (() => {
                   const groups: { label: string; skills: typeof skills }[] = [];
                   const scopeLabels = {
-                    project: t("skills.scope.project"),
-                    global: t("skills.scope.global"),
-                    path: t("skills.scope.path"),
+                    project: "project",
+                    global: "global",
+                    path: "path",
                   };
                   const groupDefinitions = [
                     {
@@ -959,7 +956,7 @@ export function SkillsConfig({
                           const status = key ? updateStatuses[key] : undefined;
                           if (status?.state !== "update-available") return null;
                           return (
-                            <span title={t("i18n.updateAvailable")} className="skill-update-indicator">
+                            <span title={"Update available"} className="skill-update-indicator">
                               ↑
                             </span>
                           );
@@ -1001,7 +998,7 @@ export function SkillsConfig({
                 onClick={() => setAddMode(true)}
                 active={addMode}
               >
-                 {t("i18n.addSkill")}
+                 {"Add skill"}
             </ConfigListAction>
           </ConfigSidebar>
 
@@ -1052,7 +1049,7 @@ export function SkillsConfig({
                 onUpdate={() => void updateInstalledSkill(selectedSkill)}
               />
               ) : (
-                <ConfigEmptyState>{t("i18n.selectSkill")}</ConfigEmptyState>
+                <ConfigEmptyState>{"Select a skill"}</ConfigEmptyState>
               )}
             </ConfigDetailStack>
           </ConfigDetail>
@@ -1072,15 +1069,15 @@ export function SkillsConfig({
                 {Object.values(updateStatuses).filter(
                   (status) => status.state === "update-available",
                 ).length === 1
-                   ? t("i18n.update")
-                   : t("i18n.updates")}
+                   ? "Update"
+                   : "updates"}
               </span>
             )}
         >
-          {!embedded && <ConfigButton onClick={onClose}>{t("i18n.close")}</ConfigButton>}
+          {!embedded && <ConfigButton onClick={onClose}>{"Close"}</ConfigButton>}
           {skills.some((skill) => Boolean(skill.install)) && (
             <ConfigButton variant="secondary" onClick={() => void checkForUpdates()} disabled={checkingAll || updatingSkill !== null}>
-              {checkingAll ? t("i18n.checking") : t("i18n.checkUpdates")}
+              {checkingAll ? "Checking..." : "Check updates"}
             </ConfigButton>
           )}
         </ConfigFooter>

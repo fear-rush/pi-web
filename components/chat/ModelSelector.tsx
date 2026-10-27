@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { useI18n } from "@/hooks/useI18n";
 import { useIsMobile } from "@/hooks/layout/useIsMobile";
 import { SelectorRow } from "./SelectorRow";
 
@@ -62,7 +61,6 @@ export function ModelSelector({
   defaultValue,
   onSetDefault,
 }: ModelSelectorProps) {
-  const { t } = useI18n();
   const isMobile = useIsMobile();
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -296,8 +294,8 @@ export function ModelSelector({
                 <input
                   value={filter}
                   onChange={(event) => setFilter(event.target.value)}
-                  placeholder={t("chat.filterModels")}
-                  aria-label={t("chat.filterModels")}
+                  placeholder={"Filter models…"}
+                  aria-label={"Filter models…"}
                   // On phones, focusing the filter opens the on-screen keyboard,
                   // which shrinks the viewport and pushes the list off-screen
                   // before the user has decided to filter. Tap to filter instead.
@@ -332,7 +330,7 @@ export function ModelSelector({
               )}
               {modelsByProvider.length === 0 ? (
                 <div style={{ padding: "8px 12px", color: "var(--text-dim)", fontSize: 12, whiteSpace: "nowrap" }}>
-                  {filter.trim() ? t("chat.noMatchingModels") : "No available models"}
+                  {filter.trim() ? "No matching models" : "No available models"}
                 </div>
               ) : modelsByProvider.map((group, index) => (
                 <div key={group.provider}>
@@ -349,8 +347,8 @@ export function ModelSelector({
                         onSelect={() => choose(option)}
                         star={onSetDefault ? {
                           isDefault: option.modelId === defaultValue?.modelId && option.provider === defaultValue?.provider,
-                          saveLabel: t("chat.saveDefaultModel"),
-                          defaultLabel: t("chat.defaultModel"),
+                          saveLabel: "Use and save as default for new chats",
+                          defaultLabel: "Default model for new chats",
                           onSave: () => saveDefault(option),
                         } : undefined}
                       >

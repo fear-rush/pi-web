@@ -1,7 +1,7 @@
 "use client";
 
 import { memo } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import {
   formatCacheWarmCost,
   formatNoticeCost,
@@ -17,7 +17,7 @@ type Translate = (key: string, params?: Record<string, string | number>) => stri
 
 function costSuffix(t: Translate, cost: number): string {
   const formatted = formatNoticeCost(cost);
-  return formatted ? t("transcriptNotice.costSuffix", { cost: formatted }) : "";
+  return formatted ? ` (~${formatted})` : "";
 }
 
 export function transcriptNoticeText(t: Translate, notice: TranscriptNotice): string {
@@ -29,10 +29,7 @@ export function transcriptNoticeText(t: Translate, notice: TranscriptNotice): st
       return t("transcriptNotice.cacheMiss", params);
     }
     case "cache_warm":
-      return t("transcriptNotice.cacheWarmed", {
-        note: notice.note ? t("transcriptNotice.cacheWarmedNote", { note: notice.note }) : "",
-        cost: formatCacheWarmCost(notice.cost),
-      });
+      return `Cache warmed${notice.note ? t("transcriptNotice.cacheWarmedNote", { note: notice.note }) : ""}: ${formatCacheWarmCost(notice.cost)}`;
     case "summary_cost":
       return t(notice.source === "compaction" ? "transcriptNotice.compactionCost" : "transcriptNotice.branchSummaryCost", {
         tokens: formatNoticeTokens(notice.tokens),
@@ -55,7 +52,6 @@ export function cacheMissSummaryText(t: Translate, summary: CacheMissSummary): s
 
 /** One line per notice, under the message they follow. A compaction's cost is drawn in its card. */
 export const TranscriptNoticeLines = memo(function TranscriptNoticeLines({ notices }: { notices: readonly TranscriptNotice[] }) {
-  const { t } = useI18n();
   const shown = notices.filter((notice) => !(notice.kind === "summary_cost" && notice.source === "compaction"));
   if (shown.length === 0) return null;
   return (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { useIsMobile } from "@/hooks/layout/useIsMobile";
 import type { ProjectTrustStatus, SubagentProfilesResponse, SubagentSettingsResponse } from "@/lib/api-types";
 import { sendAgentCommand } from "@/lib/agent/agent-client";
@@ -177,7 +177,6 @@ export function AgentsConfig({
   trust?: ProjectTrustStatus | null;
 }) {
   const isMobile = useIsMobile();
-  const { t } = useI18n();
   const [profiles, setProfiles] = useState<SubagentProfile[]>([]);
   const [modelOptions, setModelOptions] = useState<ModelsData["modelList"]>([]);
   const [modelsLoading, setModelsLoading] = useState(true);
@@ -324,7 +323,7 @@ export function AgentsConfig({
     setDraft({
       ...editableProfile(selected),
       name,
-      displayName: t("agents.copyName", { name: selected.displayName }),
+      displayName: `${selected.displayName} copy`,
     });
     setMode("create");
     setTargetScope(isWritableScope(selected.scope) ? selected.scope : "global");
@@ -355,7 +354,7 @@ export function AgentsConfig({
 
   const remove = async () => {
     if (!selected || !isWritableScope(selected.scope)) return;
-    if (!window.confirm(t("agents.deleteConfirm", { name: selected.displayName }))) return;
+    if (!window.confirm(`Delete ${selected.displayName}?`)) return;
     setSaving(true);
     setError(null);
     try {
@@ -383,7 +382,7 @@ export function AgentsConfig({
       ? `~/.pi/agent/agents/${draft.name || "..."}.md`
       : `./.pi/agents/${draft.name || "..."}.md`
     : selected
-      ? displayProfilePath(selected, cwd) ?? t("agents.builtinPath")
+      ? displayProfilePath(selected, cwd) ?? "Built-in profile"
       : "";
   const fullPath = creating ? displayedPath : selected?.filePath ?? displayedPath;
   const isListedModel = (reference: string) => modelOptions.some((model) => `${model.provider}/${model.id}` === reference);
@@ -487,23 +486,23 @@ export function AgentsConfig({
   };
 
   return (
-    <ConfigPanelShell embedded={embedded} title={t("common.agents")} subtitle={shortenPath(cwd)} closeLabel={t("agents.close")} onClose={onClose}>
+    <ConfigPanelShell embedded={embedded} title={"Sub-agents"} subtitle={shortenPath(cwd)} closeLabel={"Close"} onClose={onClose}>
       <div className="agents-feature-setting">
         <div className="agents-feature-copy">
-          <strong>{t("agents.builtInTitle")}</strong>
-          <span>{t("agents.builtInDescription")}</span>
-          {reloadNeeded && <span role="status" className="agents-feature-reload-notice">{t("agents.reloadRequired")}</span>}
+          <strong>{"Enable Pi Web built-in sub-agents"}</strong>
+          <span>{"Provides Pi Web's integrated Agent tools and disables a conflicting pi-subagents extension."}</span>
+          {reloadNeeded && <span role="status" className="agents-feature-reload-notice">{"Reload the current session to apply this change."}</span>}
         </div>
         <div className="agents-feature-actions">
           {reloadNeeded && sessionId && (
             <ConfigButton size="small" onClick={() => void reloadSession()} disabled={reloading || settingsSaving}>
-              {reloading ? t("agents.reloading") : t("agents.reloadSession")}
+              {reloading ? "Reloading..." : "Reload session"}
             </ConfigButton>
           )}
-          <label className="agents-concurrency-control" title={t("agents.maxConcurrentDescription")}>
-            <span>{t("agents.maxConcurrent")}</span>
+          <label className="agents-concurrency-control" title={"Maximum prompts running at once per parent session."}>
+            <span>{"Concurrent sub-agents"}</span>
             <input
-              aria-label={t("agents.maxConcurrent")}
+              aria-label={"Concurrent sub-agents"}
               type="number"
               min={1}
               max={32}
@@ -517,7 +516,7 @@ export function AgentsConfig({
             checked={builtInEnabled}
             disabled={settingsLoading || reloading}
             loading={settingsSaving}
-            label={t("agents.builtInTitle")}
+            label={"Enable Pi Web built-in sub-agents"}
             onChange={(enabled) => void toggleBuiltInSubagents(enabled)}
           />
         </div>
@@ -526,7 +525,7 @@ export function AgentsConfig({
         <ConfigSidebar>
           <ConfigSidebarList>
               {loading ? (
-                <div style={{ padding: 10, color: "var(--text-dim)", fontSize: 12 }}>{t("agents.loading")}</div>
+                <div style={{ padding: 10, color: "var(--text-dim)", fontSize: 12 }}>{"Loading sub-agents..."}</div>
               ) : (["project", "global", "workspace", "builtin"] as const).map((scope) => {
                 const scopedProfiles = profiles.filter((profile) => profile.scope === scope);
                 if (scopedProfiles.length === 0) return null;
@@ -543,7 +542,7 @@ export function AgentsConfig({
                         >
                           <ConfigStatusDot active={profile.enabled} />
                           <ConfigSidebarText className={`is-grow${profile.enabled ? "" : " is-muted"}`}>{profile.displayName}</ConfigSidebarText>
-                          {overridden && <span className="agents-overridden-label">{t("agents.overridden")}</span>}
+                          {overridden && <span className="agents-overridden-label">{"Overridden"}</span>}
                         </ConfigSidebarItem>
                       );
                     })}
@@ -555,14 +554,14 @@ export function AgentsConfig({
                 active={creating}
                 onClick={beginCreate}
               >
-                {t("agents.new")}
+                {"New sub-agent"}
           </ConfigListAction>
         </ConfigSidebar>
 
         <ConfigDetail>
           <ConfigDetailStack className="is-fill">
               {!selected && !creating ? (
-                <ConfigEmptyState>{t("agents.empty")}</ConfigEmptyState>
+                <ConfigEmptyState>{"Select or create a sub-agent profile"}</ConfigEmptyState>
               ) : (
                 <ConfigDetailStack>
                   <ConfigDetailHeader>
@@ -571,7 +570,7 @@ export function AgentsConfig({
                       {creating ? (
                         <ConfigSaveTarget
                           value={targetScope}
-                          label={t("config.saveTo")}
+                          label={"Save to"}
                           options={(["global", "project"] as const).map((scope) => ({
                             value: scope,
                             label: t(`agents.scope.${scope}`),
@@ -592,34 +591,34 @@ export function AgentsConfig({
                       )}
                     </ConfigDetailHeaderInfo>
                     <ConfigDetailActions>
-                      {selected && (mode === "view" || mode === "edit") && <ConfigButton size="small" onClick={beginDuplicate} disabled={saving || toggling}>{t("agents.duplicate")}</ConfigButton>}
-                      {selected && isWritableScope(selected.scope) && mode === "edit" && <ConfigButton variant="danger" size="small" onClick={() => void remove()} disabled={saving || toggling}>{t("agents.delete")}</ConfigButton>}
-                      <ConfigSwitch checked={draft.enabled} disabled={switchDisabled} label={draft.enabled ? t("agents.disable") : t("agents.enable")} onChange={(checked) => void toggleEnabled(checked)} />
+                      {selected && (mode === "view" || mode === "edit") && <ConfigButton size="small" onClick={beginDuplicate} disabled={saving || toggling}>{"Duplicate"}</ConfigButton>}
+                      {selected && isWritableScope(selected.scope) && mode === "edit" && <ConfigButton variant="danger" size="small" onClick={() => void remove()} disabled={saving || toggling}>{"Delete"}</ConfigButton>}
+                      <ConfigSwitch checked={draft.enabled} disabled={switchDisabled} label={draft.enabled ? "Disable sub-agent" : "Enable sub-agent"} onChange={(checked) => void toggleEnabled(checked)} />
                     </ConfigDetailActions>
                   </ConfigDetailHeader>
 
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1fr) minmax(0, 1fr)", gap: 12 }}>
-                    <Field label={t("agents.name")}>
+                    <Field label={"Sub-agent ID"}>
                       {creating ? (
-                        <input aria-label={t("agents.name")} value={draft.name} disabled={disabled} onChange={(event) => update("name", event.target.value)} style={inputStyle} />
+                        <input aria-label={"Sub-agent ID"} value={draft.name} disabled={disabled} onChange={(event) => update("name", event.target.value)} style={inputStyle} />
                       ) : (
                         <code style={{ minHeight: 34, display: "flex", alignItems: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text)", fontSize: 12 }}>
                           {draft.name}
                         </code>
                       )}
                     </Field>
-                    <Field label={t("agents.displayName")}>
-                      <input aria-label={t("agents.displayName")} value={draft.displayName} disabled={disabled} onChange={(event) => update("displayName", event.target.value)} style={controlStyle} />
+                    <Field label={"Display name"}>
+                      <input aria-label={"Display name"} value={draft.displayName} disabled={disabled} onChange={(event) => update("displayName", event.target.value)} style={controlStyle} />
                     </Field>
                   </div>
-                  <Field label={t("agents.description")}>
-                    <input aria-label={t("agents.description")} value={draft.description} disabled={disabled} onChange={(event) => update("description", event.target.value)} style={controlStyle} />
+                  <Field label={"Description"}>
+                    <input aria-label={"Description"} value={draft.description} disabled={disabled} onChange={(event) => update("description", event.target.value)} style={controlStyle} />
                   </Field>
-                  <Field label={t("agents.prompt")}>
-                    <textarea className="agents-system-prompt" aria-label={t("agents.prompt")} value={draft.systemPrompt} disabled={disabled} onChange={(event) => update("systemPrompt", event.target.value)} style={{ ...controlStyle, height: 195, minHeight: 195, maxHeight: "60vh", padding: 9, overflow: "auto", resize: disabled ? "none" : "vertical", lineHeight: 1.5 }} />
+                  <Field label={"System instructions"}>
+                    <textarea className="agents-system-prompt" aria-label={"System instructions"} value={draft.systemPrompt} disabled={disabled} onChange={(event) => update("systemPrompt", event.target.value)} style={{ ...controlStyle, height: 195, minHeight: 195, maxHeight: "60vh", padding: 9, overflow: "auto", resize: disabled ? "none" : "vertical", lineHeight: 1.5 }} />
                   </Field>
 
-                  <Field label={t("agents.tools")}>
+                  <Field label={"Tools"}>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 16px" }}>
                       {TOOL_OPTIONS.map((tool) => (
                         <Toggle key={tool} label={tool} disabled={disabled} checked={draft.tools.includes(tool)} onChange={(checked) => update("tools", checked ? [...draft.tools, tool] : draft.tools.filter((item) => item !== tool))} />
@@ -627,91 +626,91 @@ export function AgentsConfig({
                     </div>
                   </Field>
 
-                  <Field label={t("agents.resources")}>
+                  <Field label={"Resources"}>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: "8px 20px" }}>
-                      <Toggle label={t("agents.loadSkills")} disabled={disabled} checked={draft.loadSkills} onChange={(checked) => update("loadSkills", checked)} />
-                      <Toggle label={t("agents.loadExtensions")} disabled={disabled} checked={draft.loadExtensions} onChange={(checked) => update("loadExtensions", checked)} />
+                      <Toggle label={"Load skills"} disabled={disabled} checked={draft.loadSkills} onChange={(checked) => update("loadSkills", checked)} />
+                      <Toggle label={"Load extensions"} disabled={disabled} checked={draft.loadExtensions} onChange={(checked) => update("loadExtensions", checked)} />
                       {/* A chat-only child cannot start with MCP on; the switch still turns it off. */}
-                      <Toggle label={t("agents.mcp")} disabled={disabled || (chatOnlyDraft && draft.mcp !== "on")} checked={draft.mcp === "on"} onChange={(checked) => update("mcp", checked ? "on" : "off")} />
+                      <Toggle label={"Connect MCP servers"} disabled={disabled || (chatOnlyDraft && draft.mcp !== "on")} checked={draft.mcp === "on"} onChange={(checked) => update("mcp", checked ? "on" : "off")} />
                     </div>
                     {/* `skills:` and `extensions:` lists are edited in the profile file; show what they load. */}
                     {draft.loadSkills && draft.skills !== undefined && (
                       <span style={{ color: "var(--text-dim)", fontSize: 11, lineHeight: 1.4, overflowWrap: "anywhere" }}>
                         {draft.skills.length > 0
-                          ? t("agents.skillsOnly", { skills: draft.skills.join(", ") })
-                          : t("agents.skillsNone")}
+                          ? `Loads only these skills: ${draft.skills.join(", ")}`
+                          : "Loads no skills: the skills list in the profile file is empty"}
                       </span>
                     )}
                     {draft.loadExtensions && draft.extensions !== undefined && (
                       <span style={{ color: "var(--text-dim)", fontSize: 11, lineHeight: 1.4, overflowWrap: "anywhere" }}>
                         {draft.extensions.length > 0
-                          ? t("agents.extensionsOnly", { extensions: draft.extensions.join(", ") })
-                          : t("agents.extensionsNone")}
+                          ? `Loads only these extensions: ${draft.extensions.join(", ")}`
+                          : "Loads no extensions: the extensions list in the profile file is empty"}
                       </span>
                     )}
                     {!disabled && chatOnlyDraft ? (
                       <span style={{ color: "var(--text-dim)", fontSize: 11, lineHeight: 1.4 }}>
-                        {t("agents.mcpChatOnly")}
+                        {"MCP needs at least one tool, skills, or extensions: a chat-only subagent cannot use it."}
                       </span>
                     ) : draft.mcp === "on" && (
                       <span style={{ color: "var(--text-dim)", fontSize: 11, lineHeight: 1.4 }}>
-                        {t("agents.mcpHint")}
+                        {"Subagents connect the MCP servers in mcp.json. With read-only tools, only MCP tools their server marks read-only run. Changes apply to subagents started afterwards."}
                       </span>
                     )}
                   </Field>
 
-                  <Field label={t("agents.codemode")}>
+                  <Field label={"Code mode"}>
                     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                       <select
-                        aria-label={t("agents.codemode")}
+                        aria-label={"Code mode"}
                         value={draft.codemode ?? "off"}
                         disabled={disabled}
                         onChange={(event) => update("codemode", event.target.value as EditableProfile["codemode"])}
                         style={{ ...controlStyle, width: "auto", minWidth: 180, alignSelf: "flex-start" }}
                       >
-                        <option value="inherit">{t("agents.codemode.inherit")}</option>
-                        <option value="on">{t("agents.codemode.on")}</option>
-                        <option value="off">{t("agents.codemode.off")}</option>
+                        <option value="inherit">{"Follow parent session"}</option>
+                        <option value="on">{"Enabled"}</option>
+                        <option value="off">{"Disabled"}</option>
                       </select>
                       <span style={{ color: "var(--text-dim)", fontSize: 11, lineHeight: 1.4 }}>
-                        {t("agents.codemodeHint")}
+                        {"\"Follow parent session\" matches the code mode the parent session is currently using. Tool permissions inside code mode still come from this profile's tool list. Changes apply to subagents started afterwards."}
                       </span>
                     </div>
                   </Field>
 
                   <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0, 1.5fr) minmax(120px, 0.75fr) minmax(100px, 0.5fr)", gap: 12 }}>
-                    <Field label={t("agents.model")}>
+                    <Field label={"Model override"}>
                       <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
                         <ModelSelector
                           options={modelSelectorOptions}
                           value={selectedModel}
                           onChange={(provider, modelId) => update("model", `${provider}/${modelId}`)}
                           onClear={() => update("model", undefined)}
-                          emptyLabel={modelsLoading ? t("agents.modelsLoading") : t("agents.inherit")}
+                          emptyLabel={modelsLoading ? "Loading models..." : "Parent default"}
                           selectedLabel={draft.model && !selectedModelAvailable
-                            ? t("agents.modelUnavailable", { model: draft.model })
+                            ? `${draft.model} (unavailable)`
                             : draft.model !== draftModelBase ? draft.model : undefined}
                           disabled={disabled || modelsLoading || (modelOptions.length === 0 && !draft.model)}
-                          ariaLabel={t("agents.model")}
+                          ariaLabel={"Model override"}
                           variant="field"
                           placement="auto"
                         />
                         {modelsError && <span style={{ color: "#ef4444", fontSize: 10 }}>{modelsError}</span>}
                       </div>
                     </Field>
-                    <Field label={t("agents.thinking")}>
-                      <select aria-label={t("agents.thinking")} value={draft.thinking ?? ""} disabled={disabled} onChange={(event) => update("thinking", (event.target.value || undefined) as EditableProfile["thinking"])} style={controlStyle}>
-                        {THINKING_OPTIONS.map((value) => <option key={value || "default"} value={value}>{value || t("agents.inherit")}</option>)}
+                    <Field label={"Thinking"}>
+                      <select aria-label={"Thinking"} value={draft.thinking ?? ""} disabled={disabled} onChange={(event) => update("thinking", (event.target.value || undefined) as EditableProfile["thinking"])} style={controlStyle}>
+                        {THINKING_OPTIONS.map((value) => <option key={value || "default"} value={value}>{value || "Parent default"}</option>)}
                       </select>
                     </Field>
-                    <Field label={t("agents.maxTurns")}>
-                      <input aria-label={t("agents.maxTurns")} type="number" min={1} value={draft.maxTurns ?? ""} disabled={disabled} onChange={(event) => update("maxTurns", event.target.value ? Number(event.target.value) : undefined)} style={controlStyle} />
+                    <Field label={"Max turns"}>
+                      <input aria-label={"Max turns"} type="number" min={1} value={draft.maxTurns ?? ""} disabled={disabled} onChange={(event) => update("maxTurns", event.target.value ? Number(event.target.value) : undefined)} style={controlStyle} />
                     </Field>
                   </div>
 
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "10px 20px" }}>
-                    <Toggle label={t("agents.inheritContext")} disabled={disabled} checked={draft.inheritContext} onChange={(checked) => update("inheritContext", checked)} />
-                    <Toggle label={t("agents.background")} disabled={disabled} checked={draft.runInBackground} onChange={(checked) => update("runInBackground", checked)} />
+                    <Toggle label={"Inherit parent context"} disabled={disabled} checked={draft.inheritContext} onChange={(checked) => update("inheritContext", checked)} />
+                    <Toggle label={"Run in background by default"} disabled={disabled} checked={draft.runInBackground} onChange={(checked) => update("runInBackground", checked)} />
                   </div>
                 </ConfigDetailStack>
               )}
@@ -731,7 +730,7 @@ export function AgentsConfig({
                 <polyline points="20 6 9 17 4 12" />
               </svg>
             )}
-            <span>{savedOk ? t("i18n.saved") : saving ? t("agents.saving") : t("agents.save")}</span>
+            <span>{savedOk ? "Saved" : saving ? "Saving..." : "Save"}</span>
           </ConfigButton>
         )}
       </ConfigFooter>

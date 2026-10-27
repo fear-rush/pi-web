@@ -6,7 +6,7 @@ import { MarkdownBody } from "./MarkdownBody";
 import { ImagePreview } from "../files/ImagePreview";
 import { ThinkingIcon } from "./ThinkingIcon";
 import { copyText } from "@/lib/clipboard";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { useIsMobile } from "@/hooks/layout/useIsMobile";
 import { parseCompactionSummary } from "@/lib/session/compaction-summary";
 import { getAssistantErrorMessage, getThinkingPreview, hasAssistantAnswer, isAssistantTruncated, isEmptyThinkingBlock, splitThinkingPieces } from "@/lib/session/message-display";
@@ -111,7 +111,6 @@ function formatMessageBytes(n: number): string {
  * click-to-reveal plain-text <pre> instead of running the markdown pipeline.
  */
 function SafeMarkdownBody({ children, className, ...props }: React.ComponentProps<typeof MarkdownBody>) {
-  const { t } = useI18n();
   const [showRaw, setShowRaw] = useState(false);
 
   if (children.length <= MAX_MARKDOWN_CHARS) {
@@ -135,7 +134,7 @@ function SafeMarkdownBody({ children, className, ...props }: React.ComponentProp
           textAlign: "left",
         }}
       >
-        ⚠ {t("i18n.largeMessageReveal", { size: formatMessageBytes(children.length) })}
+        ⚠ {`Message content is very large (${formatMessageBytes(children.length)}). Click to view as plain text — markdown rendering is disabled to keep the page responsive.`}
       </button>
     );
   }
@@ -344,7 +343,6 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
   onCancelEdit?: () => void;
   isEditing?: boolean;
 }) {
-  const { t } = useI18n();
   const [hovered, setHovered] = useState(false);
   const [copied, setCopied] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -446,7 +444,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
               <div style={{ display: "flex", alignItems: "flex-start", gap: 8, flexWrap: "wrap" }}>
                 <button
                   onClick={() => setExpanded((prev) => !prev)}
-                  title={expanded ? t("i18n.collapse") : t("i18n.expand")}
+                  title={expanded ? "Collapse" : "Expand"}
                   aria-expanded={expanded}
                   style={{
                     display: "flex",
@@ -523,7 +521,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
           }}>
             <button
               onClick={copyContent}
-               title={t("i18n.copyMessage")}
+               title={"Copy message"}
               style={{
                 display: "flex", alignItems: "center", gap: 4,
                 padding: "3px 8px", height: 22,
@@ -548,7 +546,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
               )}
-               {copied ? t("i18n.copied") : t("i18n.copy")}
+               {copied ? "Copied" : "Copy"}
             </button>
           </div>
           {(canFork || canEdit || canCancelEdit) && (
@@ -561,7 +559,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
               {canEdit && !canCancelEdit && (
                 <button
                   onClick={() => onEditContent!(editTarget, entryId!)}
-                   title={t("i18n.editFromHereTitle")}
+                   title={"Edit from here — branches within this session"}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
                     padding: "3px 8px", height: 22,
@@ -580,15 +578,15 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
                     <polyline points="15 10 20 15 15 20" />
                     <path d="M4 4v7a4 4 0 0 0 4 4h12" />
                   </svg>
-                   {t("i18n.editFromHere")}
+                   {"Edit from here"}
                 </button>
               )}
               {canCancelEdit && (
                 <button
                   type="button"
                   onClick={onCancelEdit}
-                  title={t("i18n.cancel")}
-                  aria-label={t("i18n.cancel")}
+                  title={"Cancel"}
+                  aria-label={"Cancel"}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
                     padding: "3px 8px", height: 22,
@@ -603,14 +601,14 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                     <path d="M6 6l12 12M18 6L6 18" />
                   </svg>
-                  {t("i18n.cancel")}
+                  {"Cancel"}
                 </button>
               )}
               {canFork && (
                 <button
                   onClick={() => { onFork!(entryId!); }}
                   disabled={forking}
-                   title={forking ? t("i18n.creatingSession") : t("i18n.newSessionTitle")}
+                   title={forking ? "Creating new session…" : "New session — creates an independent copy from here"}
                   style={{
                     display: "flex", alignItems: "center", gap: 4,
                     padding: "3px 8px", height: 22,
@@ -631,7 +629,7 @@ function UserMessageView({ message, cwd, onOpenFile, entryId, onFork, forking, o
                     <circle cx="6" cy="18" r="3" />
                     <path d="M18 9a9 9 0 0 1-9 9" />
                   </svg>
-                   {forking ? t("i18n.creating") : t("i18n.newSession")}
+                   {forking ? "Creating…" : "New session"}
                 </button>
               )}
             </div>
@@ -680,7 +678,6 @@ function AssistantMessageView({
   isCompacting?: boolean;
   compactError?: string | null;
 }) {
-  const { t } = useI18n();
   const time = showTimestamp ? formatTime(message.timestamp) : null;
   const blockItems = useMemo(() => (message.content ?? [])
     .map((block, originalIndex) => ({ block, originalIndex }))
@@ -841,7 +838,7 @@ function AssistantMessageView({
             <>
 
               {est > 0 && (
-                <span style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text)" }} title={t("i18n.estimatedTokens")}>
+                <span style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text)" }} title={"Estimated token count while streaming"}>
                   <span style={{ display: "flex", alignItems: "center", gap: 2, fontSize: 11, fontWeight: 400 }}>
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                       <line x1="5" y1="1.5" x2="5" y2="8.5" /><polyline points="2 6 5 8.5 8 6" />
@@ -947,14 +944,14 @@ function AssistantMessageView({
           <div style={{ fontSize: 11, color: "var(--text-dim)" }}>
             {[
               message.usage ? formatUsage(message.usage) : null,
-              turnDurationMs !== undefined ? t("chat.turnDuration", { time: formatTurnDuration(turnDurationMs) }) : null,
+              turnDurationMs !== undefined ? `took ${formatTurnDuration(turnDurationMs)}` : null,
             ].filter(Boolean).join(" \u00b7 ")}
           </div>
         )}
         {textContent && !isStreaming && (
           <button
             onClick={copyContent}
-             title={t("i18n.copyMessage")}
+             title={"Copy message"}
             style={{
               display: "flex", alignItems: "center", gap: 4,
               padding: "3px 8px", height: 22,
@@ -981,7 +978,7 @@ function AssistantMessageView({
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
               </svg>
             )}
-             {copied ? t("i18n.copied") : t("i18n.copy")}
+             {copied ? "Copied" : "Copy"}
           </button>
         )}
         {time && !isStreaming && (
@@ -1032,7 +1029,6 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
   entryId?: string;
   blockIndex: number;
 }) {
-  const { t } = useI18n();
   const [expanded, setExpanded] = useState(isThinkingExpandedByDefault);
   const [content, setContent] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -1103,8 +1099,8 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
       <button
         type="button"
         aria-expanded={expanded}
-        aria-label={`${t("i18n.thinking")}${preview ? `: ${preview}` : ""}`}
-        title={t("i18n.thinking")}
+        aria-label={`${"Thinking"}${preview ? `: ${preview}` : ""}`}
+        title={"Thinking"}
         onClick={() => setExpanded((v) => !v)}
         style={{
           display: "inline-flex",
@@ -1140,7 +1136,7 @@ export function ThinkingBlock({ block, duration, sessionId, entryId, blockIndex 
             overflowWrap: "anywhere",
           }}
         >
-           {loading ? t("i18n.loadingThinking") : error ?? <ThinkingText text={(block.deferred ? content : block.thinking) ?? ""} />}
+           {loading ? "Loading thinking..." : error ?? <ThinkingText text={(block.deferred ? content : block.thinking) ?? ""} />}
         </div>
       )}
       {duration !== undefined && (
@@ -1176,7 +1172,6 @@ export function formatToolDuration(ms: number): string {
 }
 
 function ToolCallBlock({ block, result, duration, onOpenSubagent }: { block: ToolCallContent; result?: ToolResultMessage; duration?: number; onOpenSubagent?: (sessionId: string, label: string) => void }) {
-  const { t } = useI18n();
   const [expanded, setExpanded] = useState(() => isToolCallExpanded(block.toolCallId));
   const toggleExpanded = () => {
     const next = !expanded;
@@ -1264,12 +1259,12 @@ function ToolCallBlock({ block, result, duration, onOpenSubagent }: { block: Too
           </span>
           <span style={{ color: "var(--text-dim)", fontFamily: "var(--font-mono)", fontSize: 11, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, minWidth: 0 }}>
             {isStreamingInput
-              ? t("chat.generatingToolInput")
+              ? "Generating parameters..."
               : (patchLabel ?? (codemode ? codemodeScriptPreview(codemode.code) : getToolPreview(block)))}
           </span>
           {codemodeCallCount > 0 && (
             <span style={{ fontSize: 11, color: "var(--text-dim)", flexShrink: 0, fontVariantNumeric: "tabular-nums" }}>
-              {codemodeCallCount === 1 ? t("codemode.callCountOne") : t("codemode.callCount", { count: codemodeCallCount })}
+              {codemodeCallCount === 1 ? "1 call" : `${codemodeCallCount} calls`}
             </span>
           )}
           {duration !== undefined && (
@@ -1283,8 +1278,8 @@ function ToolCallBlock({ block, result, duration, onOpenSubagent }: { block: Too
           <button
             type="button"
             onClick={() => onOpenSubagent(subagent.sessionId, subagent.description || subagent.profile)}
-            title={t("subagent.openTab")}
-            aria-label={t("subagent.openTab")}
+            title={"View sub-agent work in side panel"}
+            aria-label={"View sub-agent work in side panel"}
             style={{ width: 32, display: "grid", placeItems: "center", border: "none", borderLeft: "1px solid var(--border)", background: "none", color: "var(--text-muted)", cursor: "pointer", flexShrink: 0 }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="5" y="7" width="14" height="11" rx="2" /><path d="M9 11h.01M15 11h.01M9 15h6M12 7V4M10 4h4" /></svg>
@@ -1404,7 +1399,6 @@ function SplitFilesView({ files }: { files: SplitDiffFile[] }) {
 }
 
 export function PatchDiffFiles({ files, layout }: { files: SplitDiffFile[]; layout: PatchDiffLayout }) {
-  const { t } = useI18n();
   const showFileHeaders = files.length > 1;
 
   return (
@@ -1433,8 +1427,8 @@ export function PatchDiffFiles({ files, layout }: { files: SplitDiffFile[]; layo
                 borderBottom: "1px solid var(--border)",
               }}
             >
-               <SplitDiffHeader title={file.oldPath || t("i18n.before")} side="left" />
-               <SplitDiffHeader title={file.newPath || t("i18n.after")} side="right" />
+               <SplitDiffHeader title={file.oldPath || "Before"} side="left" />
+               <SplitDiffHeader title={file.newPath || "After"} side="right" />
             </div>
           )}
 
@@ -1491,7 +1485,6 @@ export function PatchDiffFiles({ files, layout }: { files: SplitDiffFile[]; layo
 
 /** Unchanged lines the patch leaves out between two hunks, across the whole width. */
 function DiffGapRow({ gap }: { gap: SplitDiffGap }) {
-  const { t } = useI18n();
   return (
     <div
       style={{
@@ -1768,7 +1761,6 @@ function PairedResult({ text, isEmpty, isError }: {
   isEmpty: boolean;
   isError: boolean;
 }) {
-  const { t } = useI18n();
   return (
     <div
       style={{
@@ -1792,14 +1784,13 @@ function PairedResult({ text, isEmpty, isError }: {
           opacity: isEmpty ? 0.6 : 1,
         }}
       >
-        {isEmpty ? t("i18n.noOutput") : text}
+        {isEmpty ? "(no output)" : text}
       </pre>
     </div>
   );
 }
 
 function CompactionMessageView({ message }: { message: CustomMessage }) {
-  const { t } = useI18n();
   // Collapsed by default, as in pi's TUI: a summary can run to pages.
   const [expanded, setExpanded] = useState(false);
   const summary = getMessageText(message.content);
@@ -1839,7 +1830,7 @@ function CompactionMessageView({ message }: { message: CustomMessage }) {
           <button
             type="button"
             aria-expanded={expanded}
-            title={expanded ? t("i18n.collapse") : t("i18n.expand")}
+            title={expanded ? "Collapse" : "Expand"}
             onClick={() => setExpanded((v) => !v)}
             style={{
               display: "flex",
@@ -1860,11 +1851,11 @@ function CompactionMessageView({ message }: { message: CustomMessage }) {
             </svg>
             <span style={{ minWidth: 0 }}>
               <span style={{ display: "block", fontSize: "calc(15px + var(--chat-font-size-offset, 0px))", fontWeight: 700, lineHeight: 1.35 }}>
-                {t("i18n.conversationCompacted")}
+                {"Conversation compacted"}
               </span>
               {typeof tokensBefore === "number" && Number.isFinite(tokensBefore) && (
                 <span style={{ display: "block", marginTop: 3, color: "var(--text-muted)", fontSize: "calc(13px + var(--chat-font-size-offset, 0px))", lineHeight: 1.5 }}>
-                  {t("i18n.compactedFromTokens", { tokens: tokensBefore.toLocaleString() })}
+                  {`Compacted from ${tokensBefore.toLocaleString()} tokens`}
                 </span>
               )}
               {costNotice && (
@@ -1882,18 +1873,17 @@ function CompactionMessageView({ message }: { message: CustomMessage }) {
 }
 
 export function CompactionSummaryDetails({ summary }: { summary: string }) {
-  const { t } = useI18n();
   const parsedSummary = useMemo(() => parseCompactionSummary(summary), [summary]);
 
   return (
     <div style={{ marginTop: 10 }}>
       <div style={{ marginBottom: 10, color: "var(--text)", fontSize: "calc(14px + var(--chat-font-size-offset, 0px))", lineHeight: 1.5 }}>
-         {t("i18n.compactionDescription")}
+         {"The conversation history before this point was compacted into the following summary:"}
       </div>
       {parsedSummary.body ? (
         <MarkdownBody className="markdown-compaction-message">{parsedSummary.body}</MarkdownBody>
       ) : (
-         <span style={{ color: "var(--text-dim)", fontSize: 12 }}>{t("i18n.noSummary")}</span>
+         <span style={{ color: "var(--text-dim)", fontSize: 12 }}>{"(no summary)"}</span>
       )}
       <CompactionFileMetadata readFiles={parsedSummary.readFiles} modifiedFiles={parsedSummary.modifiedFiles} />
     </div>
@@ -1901,7 +1891,6 @@ export function CompactionSummaryDetails({ summary }: { summary: string }) {
 }
 
 function CompactionFileMetadata({ readFiles, modifiedFiles }: { readFiles: string[]; modifiedFiles: string[] }) {
-  const { t } = useI18n();
   const total = readFiles.length + modifiedFiles.length;
   if (total === 0) return null;
 
@@ -1911,9 +1900,9 @@ function CompactionFileMetadata({ readFiles, modifiedFiles }: { readFiles: strin
 
   return (
     <details className="compaction-file-details">
-       <summary>{t("i18n.fileContext", { details: parts.join(", ") })}</summary>
-       {modifiedFiles.length > 0 && <CompactionFileList title={t("i18n.modifiedFiles")} files={modifiedFiles} />}
-       {readFiles.length > 0 && <CompactionFileList title={t("i18n.readFiles")} files={readFiles} />}
+       <summary>{`File context: ${parts.join(", ")}`}</summary>
+       {modifiedFiles.length > 0 && <CompactionFileList title={"Modified files"} files={modifiedFiles} />}
+       {readFiles.length > 0 && <CompactionFileList title={"Read files"} files={readFiles} />}
     </details>
   );
 }
@@ -1932,7 +1921,6 @@ function CompactionFileList({ title, files }: { title: string; files: string[] }
 }
 
 function CustomMessageView({ message, cwd, onOpenFile }: { message: CustomMessage; cwd?: string; onOpenFile?: (filePath: string, page?: number) => void }) {
-  const { t } = useI18n();
   // Expanded by default: pi's TUI always draws a displayed custom message in full.
   const [contentExpanded, setContentExpanded] = useState(true);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -1977,7 +1965,7 @@ function CustomMessageView({ message, cwd, onOpenFile }: { message: CustomMessag
             type="button"
             onClick={() => setContentExpanded((v) => !v)}
             aria-expanded={contentExpanded}
-            title={contentExpanded ? t("i18n.collapse") : t("i18n.expand")}
+            title={contentExpanded ? "Collapse" : "Expand"}
             style={{
               display: "flex",
               alignItems: "center",
@@ -2029,7 +2017,7 @@ function CustomMessageView({ message, cwd, onOpenFile }: { message: CustomMessag
                   })}
                 </div>
               )}
-              {text ? <MarkdownBody className="markdown-custom-message" cwd={cwd} onOpenFile={onOpenFile}>{text}</MarkdownBody> : <span style={{ color: "var(--text-dim)", fontSize: 12 }}>{t("i18n.noMessage")}</span>}
+              {text ? <MarkdownBody className="markdown-custom-message" cwd={cwd} onOpenFile={onOpenFile}>{text}</MarkdownBody> : <span style={{ color: "var(--text-dim)", fontSize: 12 }}>{"(no message)"}</span>}
             </div>
 
             <div
@@ -2054,7 +2042,7 @@ function CustomMessageView({ message, cwd, onOpenFile }: { message: CustomMessag
                     fontSize: 11,
                   }}
                 >
-                   {copied ? t("i18n.copied") : t("i18n.copy")}
+                   {copied ? "Copied" : "Copy"}
                 </button>
               ) : null}
               {hasDetails && (
@@ -2070,7 +2058,7 @@ function CustomMessageView({ message, cwd, onOpenFile }: { message: CustomMessag
                     fontSize: 11,
                   }}
                 >
-                  {detailsExpanded ? t("i18n.hideDetails") : t("i18n.showDetails")}
+                  {detailsExpanded ? "Hide details" : "Show details"}
                 </button>
               )}
             </div>

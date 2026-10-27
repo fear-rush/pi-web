@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { AnsiText } from "@/components/chat/AnsiText";
 import type { ExtensionWidgetItem } from "@/lib/types";
 
@@ -51,7 +51,6 @@ export function getNextExpandedWidgetKey(
  * scrolls sideways together; the expanded panel stays above it, out of the scroll.
  */
 export function ExtensionWidgets({ widgets, children }: { widgets: ExtensionWidgetItem[]; children?: ReactNode }) {
-  const { t } = useI18n();
   const idPrefix = useId();
   const previousContentsRef = useRef<Map<string, string[]> | null>(null);
   const updateClearTimersRef = useRef(new Map<string, ReturnType<typeof setTimeout>>());
@@ -143,7 +142,7 @@ export function ExtensionWidgets({ widgets, children }: { widgets: ExtensionWidg
         </div>
       )}
       <div className="extension-status-row">
-        <div className="extension-widget-triggers" aria-label={t("chat.extensionWidgets")}>
+        <div className="extension-widget-triggers" aria-label={"Extension widgets"}>
           {widgets.map((widget, index) => {
             const expandable = widget.lines.length > 0;
             const expanded = expandable && widget.key === expandedWidget?.key;
@@ -191,7 +190,7 @@ export function ExtensionWidgets({ widgets, children }: { widgets: ExtensionWidg
                 aria-controls={panelId}
                 aria-expanded={expanded}
                 aria-label={`${placementLabel}: ${widget.key}, ${lineCountLabel}`}
-                title={`${widget.key} - ${placementLabel} - ${expanded ? t("i18n.collapse") : t("i18n.expand")}`}
+                title={`${widget.key} - ${placementLabel} - ${expanded ? "Collapse" : "Expand"}`}
                 onClick={() => toggleWidget(widget)}
               >
                 {content}

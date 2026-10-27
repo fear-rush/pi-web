@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FitAddon } from "@xterm/addon-fit";
 import { Terminal } from "@xterm/xterm";
 import { terminalFontSize, useChatAppearance } from "@/hooks/chat/useChatAppearance";
-import { useI18n } from "@/hooks/useI18n";
+import { t } from "@/lib/text";
 import { setTerminalTheme, useTerminalTheme } from "@/hooks/layout/useTerminalTheme";
 import { subscribeFontPreferences } from "@/hooks/layout/useFontPreferences";
 import { readFontWeight } from "@/lib/settings/font-preferences";
@@ -31,7 +31,6 @@ interface Props {
 }
 
 export function TerminalPanel({ tab, active, onRestart, onClosed, onCloseError }: Props) {
-  const { t } = useI18n();
   const { id, cwd, restored } = tab;
   const containerRef = useRef<HTMLDivElement>(null);
   const terminalRef = useRef<Terminal | null>(null);
@@ -271,7 +270,7 @@ export function TerminalPanel({ tab, active, onRestart, onClosed, onCloseError }
   const themeLabel = nextTheme === "light" ? "terminal.lightTheme" : "terminal.darkTheme";
 
   return (
-    <section className="terminal-panel" data-terminal-theme={theme} aria-label={t("terminal.title")}>
+    <section className="terminal-panel" data-terminal-theme={theme} aria-label={"Terminal"}>
       <header className="terminal-panel-header">
         <div className="terminal-panel-path">
           <span className={`terminal-status-dot is-${status}`} title={t(`terminal.${status}`)} />
@@ -279,7 +278,7 @@ export function TerminalPanel({ tab, active, onRestart, onClosed, onCloseError }
         </div>
         <div className="terminal-panel-actions">
           {status === "error" && (
-            <button type="button" onClick={() => setReconnectKey((key) => key + 1)} disabled={Boolean(tab.closing)} title={t("terminal.reconnect")} aria-label={t("terminal.reconnect")}>
+            <button type="button" onClick={() => setReconnectKey((key) => key + 1)} disabled={Boolean(tab.closing)} title={"Reconnect terminal"} aria-label={"Reconnect terminal"}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2" />
               </svg>
@@ -296,7 +295,7 @@ export function TerminalPanel({ tab, active, onRestart, onClosed, onCloseError }
               </svg>
             )}
           </button>
-          <button type="button" onClick={onRestart} disabled={Boolean(tab.closing)} title={t("terminal.restart")} aria-label={t("terminal.restart")}>
+          <button type="button" onClick={onRestart} disabled={Boolean(tab.closing)} title={"Restart terminal"} aria-label={"Restart terminal"}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M20 11a8 8 0 1 0-2.34 5.66" /><polyline points="20 4 20 11 13 11" />
             </svg>
@@ -305,7 +304,7 @@ export function TerminalPanel({ tab, active, onRestart, onClosed, onCloseError }
       </header>
       <div>
         {error && <div className="terminal-panel-error" role="alert">{error}</div>}
-        {status === "exited" && <div className="terminal-panel-exit" role="status">{exitCode === null ? t("terminal.exited") : t("terminal.exitCode", { code: exitCode })}</div>}
+        {status === "exited" && <div className="terminal-panel-exit" role="status">{exitCode === null ? "Terminal closed" : `Process exited with code ${exitCode}`}</div>}
       </div>
       <div className="terminal-xterm"><div ref={containerRef} className="terminal-xterm-host" /></div>
       {showExtraKeys && <TerminalExtraKeys modifiers={modifiers} onKey={sendExtraKey} onToggleModifier={toggleModifier} />}
