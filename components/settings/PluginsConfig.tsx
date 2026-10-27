@@ -101,10 +101,10 @@ function statusLabel(status: PluginPackageInfo["status"], _t: Translate): string
 /** The footer's resource totals, in the order of a package's resource summary. */
 function totalsSummary(totals: PluginsResponse["totals"], _t: Translate): string {
   return [
-    `${totals.extensions} ${t("i18n.extensionShort")}`,
-    `${totals.skills} ${t("i18n.skillShort")}`,
-    `${totals.prompts} ${t("i18n.promptShort")}`,
-    `${totals.themes} ${t("i18n.themeShort")}`,
+    `${totals.extensions} ${"ext"}`,
+    `${totals.skills} ${"skills"}`,
+    `${totals.prompts} ${"prompts"}`,
+    `${totals.themes} ${"themes"}`,
   ].join(" · ");
 }
 
@@ -115,10 +115,10 @@ function diagnosticText(diagnostic: PluginsResponse["diagnostics"][number]): str
 function resourceSummary(pkg: PluginPackageInfo, _t: Translate): string {
   if (pkg.disabled) return "Disabled";
   const parts = [
-    pkg.counts.extensions ? `${pkg.counts.extensions} ${t("i18n.extensionShort")}` : "",
-    pkg.counts.skills ? `${pkg.counts.skills} ${t("i18n.skillShort")}` : "",
-    pkg.counts.prompts ? `${pkg.counts.prompts} ${t("i18n.promptShort")}` : "",
-    pkg.counts.themes ? `${pkg.counts.themes} ${t("i18n.themeShort")}` : "",
+    pkg.counts.extensions ? `${pkg.counts.extensions} ${"ext"}` : "",
+    pkg.counts.skills ? `${pkg.counts.skills} ${"skills"}` : "",
+    pkg.counts.prompts ? `${pkg.counts.prompts} ${"prompts"}` : "",
+    pkg.counts.themes ? `${pkg.counts.themes} ${"themes"}` : "",
   ].filter(Boolean);
   return parts.length ? parts.join(" · ") : "No resources";
 }
