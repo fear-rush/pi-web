@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { createJiti } from "jiti";
@@ -20,7 +19,6 @@ const {
   useGroupDrag,
 } = await jiti.import("./useGroupDrag.ts");
 const { buildSessionTree, getRowOffsets } = await jiti.import("@/lib/session/session-tree.ts");
-const source = await readFile(new URL("./useGroupDrag.ts", import.meta.url), "utf8");
 
 function emitter(extra = {}) {
   const listeners = new Map();
@@ -503,6 +501,5 @@ test("unmounting mid-drag removes every listener, timer and frame", () => {
 });
 
 test("the hook's sources stay within the platform rules", () => {
-  assert.doesNotMatch(source, /\(\?<[=!]/, "no RegExp lookbehind (Safari 16.2)");
   assert.equal(LONG_PRESS_MS, 350);
 });

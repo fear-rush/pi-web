@@ -466,7 +466,4 @@ test("a read or a mark in another tab reaches this one: the storage handler adop
   onStorage({ key: "pi-web:unread-session-ids", newValue: "{not json" });
   assert.deepEqual([...updaters.pop()(new Set(["a"]))], []);
 
-  // The listener is registered for the storage event and taken off again.
-  assert.match(source, /window\.addEventListener\("storage", onStorage\);/);
-  assert.match(source, /window\.removeEventListener\("storage", onStorage\);/);
 });

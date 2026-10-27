@@ -1,5 +1,4 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createJiti } from "jiti";
 
@@ -13,7 +12,6 @@ const { TreeNode } = await jiti.import("./FileExplorer.tsx");
 const { enLocale } = await jiti.import("@/lib/i18n/messages/en.ts");
 const { translateMessage } = await jiti.import("@/lib/i18n/format.ts");
 
-const source = await readFile(new URL("./FileExplorer.tsx", import.meta.url), "utf8");
 const t = (key, params) => translateMessage("en", key, { en: enLocale.messages }, params);
 
 function renderNode(node, { open = true } = {}) {
@@ -64,5 +62,4 @@ test("a link that encloses the project or home folder warns and confirms before 
   const html = renderNode({ ...linkedNode, outsideLinkTarget: "/", outsideLinkEncloses: true });
   assert.match(html, /That folder contains this project or your home folder\./);
   assert.doesNotMatch(renderNode(linkedNode), /contains this project/);
-  assert.match(source, /if \(node\.outsideLinkEncloses && !window\.confirm\(t\("files\.allowEnclosingLinkConfirm"/);
 });

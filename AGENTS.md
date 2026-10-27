@@ -159,6 +159,12 @@ Design decisions and traps live in `docs/agents/`, one note per area. Read every
 
 ---
 
+## Tests
+
+- A test asserts behaviour: a value a function returns, a file it writes, HTML it renders, an error it throws. It does not read the source to check what the source says. The exceptions are invariants a runtime test cannot express, and they are centralized: `lib/safari-16-2.test.mjs` follows the import graph from the UI and forbids a RegExp lookbehind in anything a browser parses, `lib/next-config.test.mjs` guards the Next workarounds, `lib/session/session-ui-state-shared.test.mjs` guards a client-safe module against Node imports. Asserting on a file a function wrote is behaviour, not a source check.
+- When a handler is not reachable from a test without mounting a 3,000-line component, the test may run the callback taken from the source. `lib/test-source.mjs` does the parsing (Oxc) and compiling (esbuild) for that, so no test file carries its own parser. Ask first whether the callback deserves its own module instead.
+- Do not add a test that grep-matches a component's source, a constant's formula, or a style value. Those break on every refactor and prove nothing at runtime.
+
 ## Old Safari (iOS 16.2)
 
 - `/` renders entirely on the client, so one script chunk the browser cannot parse is a blank page. Next 16 targets Safari 16.4+; the `browserslist` in `package.json` lowers Safari and iOS to 16.2 so SWC turns class `static {}` blocks into private static fields. That covers Next's client runtime; other node_modules keep their syntax unless listed in `transpilePackages` (mermaid and `@mermaid-js/parser` are, for their lazy diagram chunks). Keep the other browserslist entries at Next's defaults.

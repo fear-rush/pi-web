@@ -9,7 +9,6 @@ const { renderToStaticMarkup } = await jiti.import("react-dom/server");
 const { I18nProvider } = await jiti.import("@/hooks/useI18n");
 const { ProjectWorktreePicker, WorktreeRemoveForm } = await jiti.import("./ProjectWorktreePicker.tsx");
 const { SidebarMenuSurface } = await jiti.import("./SidebarMenu.tsx");
-const source = await readFile(new URL("./ProjectWorktreePicker.tsx", import.meta.url), "utf8");
 const css = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
 const h = React.createElement;
@@ -154,12 +153,7 @@ test("stacked: no project yet, and no worktree list", () => {
   assert.doesNotMatch(render({ layout: "inline", context: { ...context, worktrees: null }, worktreeHint: hint }), /is-inactive|project-picker-divider/);
 });
 
-test("only the files tab removes worktrees, never the main one", () => {
-  assert.match(source, /secondary: onRemoveWorktree && !worktree\.isMain \? \{/);
-});
-
 test("client code stays parseable by Safari 16.2 and its CSS flat", () => {
-  assert.doesNotMatch(source, /\(\?<[=!]/, "no RegExp lookbehind");
   const rules = css.slice(css.indexOf("/* The project and worktree picker (ProjectWorktreePicker)"), css.indexOf(".file-viewer-icon-button {"));
   assert.ok(rules.length > 0);
   assert.doesNotMatch(rules.replace(/@media[^{]*\{/g, ""), /\{[^}]*\{|&/, "no nested rules");

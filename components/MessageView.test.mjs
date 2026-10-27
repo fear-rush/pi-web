@@ -975,15 +975,6 @@ test("one column names a file section by the file's own path, not by Before and 
   assert.ok(!html.includes(">Before<") && !html.includes(">After<"), "two labels over one column read as two columns");
 });
 
-test("the layout is the viewport's choice, taken once for both the patch input and the patch result", () => {
-  const source = readFileSync(new URL("./MessageView.tsx", import.meta.url), "utf8");
-
-  // Both the applied-patch card and a result's patch render through SplitFilesView,
-  // so a phone never gets one of each.
-  assert.match(source, /const layout: PatchDiffLayout = useIsMobile\(\) \? "stacked" : "split";/);
-  assert.equal(countIn(source, "<SplitFilesView"), 2);
-});
-
 test("one column numbers a removed line by the old file and every other line by the new one", () => {
   const stacked = renderPatchFiles(parseUnifiedPatch(`--- a/src/demo.ts
 +++ b/src/demo.ts
