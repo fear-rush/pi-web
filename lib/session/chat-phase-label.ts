@@ -1,4 +1,4 @@
-import type { AgentPhase } from "@/hooks/useAgentSession";
+import type { AgentPhase } from "@/hooks/agent/useAgentSession";
 
 /** The i18n translate function shape this module needs. */
 export type Translate = (key: string, params?: Record<string, string | number>) => string;

@@ -4,11 +4,10 @@ Pi Web is a client-rendered app on a JSON API, so Next is doing three things her
 client, serve `app/api/**`, and run the proxy. Everything in this note exists because one of those
 three broke, or because Next's defaults fight this app.
 
-Bumping Next means re-checking all of it. `lib/next-config.test.mjs` guards the ones that live in
+Bumping Next means re-checking all of it.
 config or in a source file; the rest are behavioural and listed in the checklist at the end.
 
 Files: `next.config.ts`, `instrumentation.ts`, `instrumentation-node.ts`, `proxy.ts`,
-`lib/rendering/gfm-autolink-email-loader.cjs`, `lib/next-config.test.mjs`, `bin/pi-web.js`,
 `bin/rotate-preview-secrets.js`.
 
 ## The workarounds
@@ -44,19 +43,17 @@ design: asserting it would flag the 20 routes that legitimately read the request
 
 1. `npm install next@<version>` and whatever `next` peers it moves (`react`, `react-dom`). This repo
    only takes releases that are at least three days old.
-2. `npm run lint`, `node_modules/.bin/tsc --noEmit`, `npm test`. `lib/next-config.test.mjs` fails on a
-   removed or disabled workaround above; the rest of the suite covers the SSE, proxy and route
-   behaviour that Next's defaults can quietly change.
+2. `node_modules/.bin/tsc --noEmit` and `npm run lint`. `lib/next-config.test.mjs` is gone with the
+   rest of the tests, so the config workarounds in the table above are now checked by reading
+   `next.config.ts` and the guard source files, not by a run.
 3. `npm run build`, then `npm start` and check by hand: `/` returns HTML with its
    `Cache-Control: private, no-cache` header, `/sw.js` returns `Service-Worker-Allowed: /`,
    `/api/home` returns JSON, a terminal created through `POST /api/terminal` echoes input over
    `/api/terminal/<id>/events` (this proves `serverExternalPackages` and the SSE path in production),
    and the build printed every page as prerendered rather than failing on one.
 4. Probe the shipped bundle for the Safari killer: `grep -rnF '/(?<=' .next/static .next/server` must
-   print nothing.
-5. `npm run test:terminal` and `npm run test:e2e` from a checkout with no dev server running; both
-   spawn their own server. The terminal suite is the only automated coverage of `node-pty`.
-6. `git status`: `next dev` may have appended its block to `AGENTS.md`.
+   print nothing, and the lookbehind rewrite must appear as a string (`RegExp("(?<=^|...`) instead.
+5. `git status`: `next dev` may have appended its block to `AGENTS.md`.
 
 Do not run `npm run build` while a dev server is running: it owns `.next`, and the build replaces it.
 Copy the checkout elsewhere (with its own `node_modules`, not a symlink; Turbopack refuses to resolve

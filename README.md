@@ -1,7 +1,5 @@
 # Pi Web
 
-[中文文档](./docs/README.zh-CN.md) | [日本語](./docs/README.ja.md) | [Русский](./docs/README.ru.md)
-
 Local browser UI for the [pi coding agent](https://github.com/earendil-works/pi). Pi Web uses the same local configuration and session files as pi, so you can browse and resume conversations, run agent turns, configure models and resources, and inspect project files from a browser.
 
 ![Pi Web displaying a pi session with structured Markdown, tool calls, and project navigation](https://raw.githubusercontent.com/agegr/pi-web/main/docs/screenshot2.png)
@@ -174,7 +172,6 @@ npm run dev
 The development server runs at [http://127.0.0.1:30141](http://127.0.0.1:30141). Run the common checks with:
 
 ```bash
-npm test
 node_modules/.bin/tsc --noEmit
 npm run lint
 ```

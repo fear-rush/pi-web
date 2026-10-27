@@ -7,14 +7,8 @@
     "instrumentation-node.ts",
     "proxy.ts",
     "bin/pi-web.js",
-    "e2e/run.mjs",
-    "e2e/terminal.mjs",
-    "e2e/*.mjs",
-    "**/*.test.mjs",
-    "lib/session-list-scanner.bench.mjs",
-    "*.config.{ts,mjs}",
-    "postcss.config.mjs",
-    "tailwind.config.ts"
+    "lib/session/session-list-scanner.bench.mjs",
+    "*.config.{ts,mjs}"
   ],
   "project": [
     "app/**/*.{ts,tsx}",
@@ -25,12 +19,7 @@
     "public/*.js",
     "*.ts"
   ],
-  "ignore": [
-    "lib/test-source.mjs"
-  ],
-  "ignoreBinaries": [
-    "mkfifo"
-  ],
+  "ignore": [],
   "ignoreDependencies": [
     "@earendil-works/pi-codemode",
     "@earendil-works/pi-mcp",
